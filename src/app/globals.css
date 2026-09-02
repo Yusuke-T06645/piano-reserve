@@ -1,44 +1,98 @@
+@import url("https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap");
 @import "tailwindcss";
 
 :root {
-  --color-navy: #1f2a44;
-  --color-navy-dark: #141b2e;
-  --color-teal: #2e6f73;
-  --color-teal-dark: #21514f;
-  --color-gold: #c9a24b;
-  --color-gold-light: #e4cd8e;
-  --color-cream: #f4f1ea;
-  --color-ink: #222222;
-  --color-muted: #6b7280;
-  --color-danger: #b3261e;
-  --color-success: #1e6b3f;
+  --color-navy: #1b3a4b;
+  --color-navy-dark: #12232e;
+  --color-navy-soft: #eaf2f1;
+  --color-teal: #2e7c8a;
+  --color-teal-dark: #1f5560;
+  --color-teal-soft: #e3f1f0;
+  --color-gold: #d9b27e;
+  --color-gold-light: #f0deb8;
+  --color-gold-soft: #fbf3e4;
+  --color-cream: #f7f3ec;
+  --color-paper: #ffffff;
+  --color-ink: #221c16;
+  --color-muted: #6e6155;
+  --color-danger: #c1584e;
+  --color-danger-soft: #fbede9;
+  --color-success: #3f8f63;
+  --color-success-soft: #eaf5ee;
 
   --background: #ffffff;
   --foreground: var(--color-ink);
+
+  --shadow-soft: 0 1px 2px rgba(18, 35, 46, 0.05), 0 1px 1px rgba(18, 35, 46, 0.03);
+  --shadow-elevated: 0 14px 34px -14px rgba(18, 35, 46, 0.28), 0 2px 6px rgba(18, 35, 46, 0.05);
+  --shadow-hero: 0 30px 70px -24px rgba(18, 35, 46, 0.34);
 }
 
 @theme inline {
   --color-navy: var(--color-navy);
   --color-navy-dark: var(--color-navy-dark);
+  --color-navy-soft: var(--color-navy-soft);
   --color-teal: var(--color-teal);
   --color-teal-dark: var(--color-teal-dark);
+  --color-teal-soft: var(--color-teal-soft);
   --color-gold: var(--color-gold);
   --color-gold-light: var(--color-gold-light);
+  --color-gold-soft: var(--color-gold-soft);
   --color-cream: var(--color-cream);
+  --color-paper: var(--color-paper);
   --color-ink: var(--color-ink);
   --color-muted: var(--color-muted);
   --color-danger: var(--color-danger);
+  --color-danger-soft: var(--color-danger-soft);
   --color-success: var(--color-success);
+  --color-success-soft: var(--color-success-soft);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Meiryo", -apple-system,
-    BlinkMacSystemFont, sans-serif;
+  --shadow-soft: var(--shadow-soft);
+  --shadow-elevated: var(--shadow-elevated);
+  --shadow-hero: var(--shadow-hero);
+  --font-sans: "Zen Kaku Gothic New", "Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic",
+    "Meiryo", -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: "Zen Old Mincho", "Hiragino Mincho ProN", serif;
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+}
+
+/* 鍵盤モチーフの区切り線(ヘッダー下に使用) */
+.piano-key-divider {
+  height: 5px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(72, 1fr);
+}
+.piano-key-divider > span:nth-child(1) {
+  grid-column: span 1;
+  background: var(--color-gold);
+}
+.piano-key-divider > span:nth-child(2) {
+  grid-column: span 2;
+  background: var(--color-navy);
+}
+.piano-key-divider > span:nth-child(3) {
+  grid-column: span 1;
+  background: var(--color-gold);
+}
+.piano-key-divider > span:nth-child(4) {
+  grid-column: span 2;
+  background: var(--color-teal);
+}
+.piano-key-divider > span:nth-child(5) {
+  grid-column: span 66;
+  background: color-mix(in srgb, var(--color-navy) 9%, transparent);
+}
+
+input[type="checkbox"],
+input[type="radio"] {
+  accent-color: var(--color-teal);
 }
 
 /* アクセシビリティ: キーボード操作時のフォーカスを明確に表示する */

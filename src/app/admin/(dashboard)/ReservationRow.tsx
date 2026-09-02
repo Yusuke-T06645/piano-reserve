@@ -52,8 +52,8 @@ export function ReservationRow({
   const info = STATUS_LABEL[status];
 
   return (
-    <tr className="border-b border-black/5 last:border-0">
-      <td className="py-3 pr-4 font-semibold text-navy whitespace-nowrap">
+    <tr className="border-b border-navy/[0.09] last:border-0">
+      <td className="py-3 pr-4 font-bold text-navy whitespace-nowrap">
         {slotStart}〜{slotEnd}
       </td>
       <td className="py-3 pr-4">

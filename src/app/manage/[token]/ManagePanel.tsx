@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Card, Badge, Button, Alert, Label } from "@/components/ui";
+import { Badge, Button, Alert, Label } from "@/components/ui";
 import { formatJapaneseDate } from "@/lib/dates";
 
 type ReservationView = {
@@ -19,6 +19,9 @@ const STATUS_LABEL: Record<ReservationView["status"], { label: string; tone: "su
   cancelled: { label: "キャンセル済み", tone: "danger" },
   no_show: { label: "無断キャンセル扱い", tone: "danger" },
 };
+
+const selectClass =
+  "w-full rounded-[11px] border-[1.5px] border-navy/[0.16] bg-white px-4 py-3 text-sm text-ink";
 
 export function ManagePanel({
   token,
@@ -107,57 +110,71 @@ export function ManagePanel({
   const canChange = reservation.status === "confirmed";
 
   return (
-    <Card>
-      <div className="flex items-center justify-between mb-4">
-        <p className="text-sm text-muted">予約番号 {reservation.id}</p>
-        <Badge tone={statusInfo.tone}>{statusInfo.label}</Badge>
-      </div>
-      <p className="text-lg font-bold text-navy">{formatJapaneseDate(reservation.date)}</p>
-      <p className="text-muted mb-6">
-        {reservation.slotStart}〜{reservation.slotEnd} ／ {reservation.name} 様
-      </p>
-
-      {message && (
-        <div className="mb-5">
-          <Alert tone={message.tone}>{message.text}</Alert>
+    <div className="space-y-7">
+      <div className="rounded-[22px] border border-navy/[0.09] bg-white p-6 sm:p-9 shadow-soft">
+        <div className="flex items-center justify-between mb-4">
+          <p className="text-[12.5px] text-muted">予約番号 {reservation.id}</p>
+          <Badge tone={statusInfo.tone}>{statusInfo.label}</Badge>
         </div>
-      )}
+        <p className="font-display text-[22px] font-bold text-navy">{formatJapaneseDate(reservation.date)}</p>
+        <p className="mt-2 mb-7 text-sm text-muted">
+          {reservation.slotStart}〜{reservation.slotEnd} ／ {reservation.name} 様
+        </p>
 
-      {canChange && mode === "idle" && (
-        <div className="flex flex-wrap gap-3">
-          <Button variant="outline" onClick={() => setMode("reschedule")}>
-            日時を変更する
-          </Button>
-          <Button variant="danger" onClick={() => setMode("confirmCancel")}>
-            キャンセルする
-          </Button>
-        </div>
-      )}
+        {message && (
+          <div className="mb-5">
+            <Alert tone={message.tone}>{message.text}</Alert>
+          </div>
+        )}
 
-      {mode === "confirmCancel" && (
-        <div className="rounded-xl border border-danger/30 bg-danger/5 p-4">
-          <p className="text-sm text-ink mb-3">本当にこのご予約をキャンセルしますか？この操作は取り消せません。</p>
+        {canChange && mode === "idle" && (
           <div className="flex gap-3">
-            <Button variant="danger" onClick={doCancel} disabled={busy}>
-              {busy ? "処理中…" : "はい、キャンセルする"}
+            <Button variant="outline" className="flex-1" onClick={() => setMode("reschedule")}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M4 20h4l10-10-4-4L4 16v4z" />
+                <path d="M13 7l4 4" />
+              </svg>
+              日時を変更する
             </Button>
-            <Button variant="ghost" onClick={() => setMode("idle")} disabled={busy}>
-              戻る
+            <Button variant="danger" className="flex-1" onClick={() => setMode("confirmCancel")}>
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <circle cx="12" cy="12" r="9" />
+                <path d="M9 9l6 6M15 9l-6 6" />
+              </svg>
+              キャンセルする
             </Button>
           </div>
-        </div>
-      )}
+        )}
+
+        {mode === "confirmCancel" && (
+          <div className="rounded-2xl border border-danger/25 bg-danger-soft p-5">
+            <p className="text-sm text-ink mb-4">本当にこのご予約をキャンセルしますか？この操作は取り消せません。</p>
+            <div className="flex gap-3">
+              <Button variant="danger" onClick={doCancel} disabled={busy}>
+                {busy ? "処理中…" : "はい、キャンセルする"}
+              </Button>
+              <Button variant="ghost" onClick={() => setMode("idle")} disabled={busy}>
+                戻る
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {!canChange && mode === "idle" && (
+          <p className="text-sm text-muted">この予約は現在、変更・キャンセルできる状態ではありません。</p>
+        )}
+      </div>
 
       {mode === "reschedule" && (
-        <div className="rounded-xl border border-black/10 bg-cream p-4 space-y-4">
-          <p className="text-xs text-muted">
+        <div className="rounded-[22px] bg-cream p-6 sm:p-8">
+          <p className="mb-5 text-xs text-muted">
             ※ご利用{changeDeadlineHours}時間前を過ぎるとWeb上での変更はできなくなります。
           </p>
-          <div>
+          <div className="mb-4">
             <Label htmlFor="newDate">変更後の日付</Label>
             <select
               id="newDate"
-              className="w-full rounded-lg border border-black/10 px-3 py-2.5"
+              className={selectClass}
               value={newDate}
               onChange={(e) => {
                 setNewDate(e.target.value);
@@ -173,11 +190,11 @@ export function ManagePanel({
             </select>
           </div>
           {newDate && (
-            <div>
-              <Label htmlFor="newSlot">変更後の時間枠</Label>
+            <div className="mb-6">
+              <Label htmlFor="newSlot">変更後の利用時間</Label>
               <select
                 id="newSlot"
-                className="w-full rounded-lg border border-black/10 px-3 py-2.5"
+                className={selectClass}
                 value={newSlot}
                 onChange={(e) => setNewSlot(e.target.value)}
               >
@@ -200,10 +217,6 @@ export function ManagePanel({
           </div>
         </div>
       )}
-
-      {!canChange && mode === "idle" && (
-        <p className="text-sm text-muted">この予約は現在、変更・キャンセルできる状態ではありません。</p>
-      )}
-    </Card>
+    </div>
   );
 }
