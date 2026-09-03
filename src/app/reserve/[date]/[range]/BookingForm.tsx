@@ -61,7 +61,7 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
       const res = await fetch(endpoint, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ date, slotStart, ...form }),
+        body: JSON.stringify({ date, slotStart, slotEnd, ...form }),
       });
       const data = await res.json();
       if (!res.ok) {

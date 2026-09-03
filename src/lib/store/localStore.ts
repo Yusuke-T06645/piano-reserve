@@ -128,10 +128,20 @@ export class LocalJsonStore implements ReservationStore {
     return db.data.reservations[idx];
   }
 
-  async countActiveReservations(date: string, slotStart: string): Promise<number> {
+  async countActiveReservations(
+    date: string,
+    slotStart: string,
+    slotEnd: string,
+    excludeReservationId?: string
+  ): Promise<number> {
     const db = await this.getDb();
     return db.data.reservations.filter(
-      (r) => r.date === date && r.slotStart === slotStart && (r.status === "confirmed" || r.status === "attended")
+      (r) =>
+        r.id !== excludeReservationId &&
+        r.date === date &&
+        (r.status === "confirmed" || r.status === "attended") &&
+        r.slotStart < slotEnd &&
+        r.slotEnd > slotStart
     ).length;
   }
 
@@ -181,10 +191,10 @@ export class LocalJsonStore implements ReservationStore {
     return entry;
   }
 
-  async listWaitlist(date: string, slotStart: string): Promise<WaitlistEntry[]> {
+  async listWaitlist(date: string): Promise<WaitlistEntry[]> {
     const db = await this.getDb();
     return db.data.waitlist
-      .filter((w) => w.date === date && w.slotStart === slotStart && !w.promotedAt)
+      .filter((w) => w.date === date && !w.promotedAt)
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   }
 
@@ -242,7 +252,7 @@ export class LocalJsonStore implements ReservationStore {
     return count;
   }
 
-  async withSlotLock<T>(date: string, slotStart: string, fn: () => Promise<T>): Promise<T> {
-    return slotMutex.run(`${date}__${slotStart}`, fn);
+  async withDayLock<T>(date: string, fn: () => Promise<T>): Promise<T> {
+    return slotMutex.run(date, fn);
   }
 }

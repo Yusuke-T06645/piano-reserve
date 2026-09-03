@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { Badge, Button, Alert, Label } from "@/components/ui";
 import { formatJapaneseDate } from "@/lib/dates";
+import type { BusyRange } from "@/lib/store/types";
+import { TimeRangeSelector } from "@/app/reserve/[date]/TimeRangeSelector";
 
 type ReservationView = {
   id: string;
@@ -11,6 +13,15 @@ type ReservationView = {
   slotEnd: string;
   name: string;
   status: "confirmed" | "attended" | "cancelled" | "no_show";
+};
+
+type DateAvailability = {
+  openTime: string;
+  closeTime: string;
+  granularityMinutes: number;
+  maxUsageMinutes: number;
+  busyRanges: BusyRange[];
+  waitlistCount: number;
 };
 
 const STATUS_LABEL: Record<ReservationView["status"], { label: string; tone: "success" | "warning" | "danger" | "neutral" }> = {
@@ -38,9 +49,8 @@ export function ManagePanel({
   const [message, setMessage] = useState<{ tone: "success" | "danger"; text: string } | null>(null);
 
   const [dateOptions, setDateOptions] = useState<string[]>([]);
-  const [slotOptions, setSlotOptions] = useState<{ start: string; end: string; available: number }[]>([]);
   const [newDate, setNewDate] = useState("");
-  const [newSlot, setNewSlot] = useState("");
+  const [newDateAvailability, setNewDateAvailability] = useState<DateAvailability | null>(null);
 
   useEffect(() => {
     if (mode === "reschedule" && dateOptions.length === 0) {
@@ -56,10 +66,13 @@ export function ManagePanel({
     if (!newDate) return;
     fetch(`/api/availability?date=${newDate}`)
       .then((r) => r.json())
-      .then((d: { slots?: { slotStart: string; slotEnd: string; available: number }[] }) =>
-        setSlotOptions((d.slots || []).map((s) => ({ start: s.slotStart, end: s.slotEnd, available: s.available })))
-      );
+      .then((d: { availability?: DateAvailability }) => setNewDateAvailability(d.availability ?? null));
   }, [newDate]);
+
+  function handleDateChange(value: string) {
+    setNewDate(value);
+    setNewDateAvailability(null);
+  }
 
   async function doCancel() {
     setBusy(true);
@@ -83,15 +96,14 @@ export function ManagePanel({
     }
   }
 
-  async function doReschedule() {
-    if (!newDate || !newSlot) return;
+  async function doReschedule(slotStart: string, slotEnd: string) {
     setBusy(true);
     setMessage(null);
     try {
       const res = await fetch(`/api/manage/${token}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "reschedule", date: newDate, slotStart: newSlot }),
+        body: JSON.stringify({ action: "reschedule", date: newDate, slotStart, slotEnd }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -170,16 +182,13 @@ export function ManagePanel({
           <p className="mb-5 text-xs text-muted">
             ※ご利用{changeDeadlineHours}時間前を過ぎるとWeb上での変更はできなくなります。
           </p>
-          <div className="mb-4">
+          <div className="mb-6">
             <Label htmlFor="newDate">変更後の日付</Label>
             <select
               id="newDate"
               className={selectClass}
               value={newDate}
-              onChange={(e) => {
-                setNewDate(e.target.value);
-                setNewSlot("");
-              }}
+              onChange={(e) => handleDateChange(e.target.value)}
             >
               <option value="">選択してください</option>
               {dateOptions.map((d) => (
@@ -189,32 +198,33 @@ export function ManagePanel({
               ))}
             </select>
           </div>
-          {newDate && (
+          {newDate && newDateAvailability && (
             <div className="mb-6">
-              <Label htmlFor="newSlot">変更後の利用時間</Label>
-              <select
-                id="newSlot"
-                className={selectClass}
-                value={newSlot}
-                onChange={(e) => setNewSlot(e.target.value)}
-              >
-                <option value="">選択してください</option>
-                {slotOptions.map((s) => (
-                  <option key={s.start} value={s.start} disabled={s.available === 0 && s.start !== reservation.slotStart}>
-                    {s.start}〜{s.end} {s.available === 0 ? "（満席）" : ""}
-                  </option>
-                ))}
-              </select>
+              <Label>変更後の利用時間</Label>
+              <TimeRangeSelector
+                key={newDate}
+                date={newDate}
+                openTime={newDateAvailability.openTime}
+                closeTime={newDateAvailability.closeTime}
+                granularityMinutes={newDateAvailability.granularityMinutes}
+                maxUsageMinutes={newDateAvailability.maxUsageMinutes}
+                busyRanges={newDateAvailability.busyRanges.filter(
+                  (r) =>
+                    newDate !== reservation.date ||
+                    r.start !== reservation.slotStart ||
+                    r.end !== reservation.slotEnd
+                )}
+                waitlistCount={newDateAvailability.waitlistCount}
+                showWaitlistCta={false}
+                confirmLabel={busy ? "処理中…" : "この内容に変更する"}
+                confirmDisabled={busy}
+                onConfirm={doReschedule}
+              />
             </div>
           )}
-          <div className="flex gap-3">
-            <Button onClick={doReschedule} disabled={busy || !newDate || !newSlot}>
-              {busy ? "処理中…" : "この内容に変更する"}
-            </Button>
-            <Button variant="ghost" onClick={() => setMode("idle")} disabled={busy}>
-              戻る
-            </Button>
-          </div>
+          <Button variant="ghost" onClick={() => setMode("idle")} disabled={busy}>
+            戻る
+          </Button>
         </div>
       )}
     </div>

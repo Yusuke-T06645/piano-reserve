@@ -13,11 +13,12 @@ export const config = {
   eligibleWeekday: 5, // 0=日,1=月,...5=金
   eligibleOccurrences: [1, 3] as const,
 
-  // 開放時間・枠設定
+  // 開放時間・利用時間設定
   openTime: "16:00",
   closeTime: "17:00",
-  slotMinutes: 10, // 1枠10分 → 6枠/時間
-  capacityPerSlot: 1, // ピアノは1台のため同時1組まで
+  granularityMinutes: 5, // 利用時間はこの単位でドラッグ選択・調整できる
+  maxUsageMinutes: 60, // 1回のご利用の最大時間
+  capacityPerSlot: 1, // ピアノは1台のため同時1組まで(時間帯が重複する予約は不可)
 
   // 予約可能期間
   bookingWindowDaysAhead: 90, // 何日先まで予約可能か
@@ -41,30 +42,31 @@ export const config = {
   minGuestAge: null as number | null, // 年齢下限は設けない。ただし未成年は保護者同伴を必須化
 };
 
-export type SlotTime = { start: string; end: string; label: string };
+/** "16:00" のような文字列を、0時からの経過分に変換する */
+export function timeToMinutes(hhmm: string): number {
+  const [h, m] = hhmm.split(":").map(Number);
+  return h * 60 + m;
+}
+
+/** 0時からの経過分を "16:00" のような文字列に変換する */
+export function minutesToTime(mins: number): string {
+  const h = Math.floor(mins / 60);
+  const m = mins % 60;
+  return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+}
 
 /** openTime〜closeTime の開放時間の長さ(分)を返す */
 export function totalOpenMinutes(): number {
-  const [oh, om] = config.openTime.split(":").map(Number);
-  const [ch, cm] = config.closeTime.split(":").map(Number);
-  return ch * 60 + cm - (oh * 60 + om);
+  return timeToMinutes(config.closeTime) - timeToMinutes(config.openTime);
 }
 
-/** 16:00〜17:00 を10分刻みで分割したスロット一覧を返す */
-export function generateDaySlots(): SlotTime[] {
-  const [oh, om] = config.openTime.split(":").map(Number);
-  const [ch, cm] = config.closeTime.split(":").map(Number);
-  const startMinutes = oh * 60 + om;
-  const endMinutes = ch * 60 + cm;
-  const slots: SlotTime[] = [];
-  for (let m = startMinutes; m + config.slotMinutes <= endMinutes; m += config.slotMinutes) {
-    const toHHMM = (mins: number) =>
-      `${String(Math.floor(mins / 60)).padStart(2, "0")}:${String(mins % 60).padStart(2, "0")}`;
-    slots.push({
-      start: toHHMM(m),
-      end: toHHMM(m + config.slotMinutes),
-      label: `${toHHMM(m)}〜${toHHMM(m + config.slotMinutes)}`,
-    });
+/** openTime〜closeTime を granularityMinutes 刻みで分割した時刻一覧(グリッド線)を返す */
+export function generateTimeGrid(): string[] {
+  const startMinutes = timeToMinutes(config.openTime);
+  const endMinutes = timeToMinutes(config.closeTime);
+  const points: string[] = [];
+  for (let m = startMinutes; m <= endMinutes; m += config.granularityMinutes) {
+    points.push(minutesToTime(m));
   }
-  return slots;
+  return points;
 }

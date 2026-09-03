@@ -1,10 +1,12 @@
 import { z } from "zod";
+import { config, timeToMinutes } from "./config";
 
 /** 個人情報は最小限のみ取得する(要件: 個人情報管理の仕組み) */
 export const reservationFormSchema = z
   .object({
     date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "日付の形式が正しくありません"),
-    slotStart: z.string().regex(/^\d{2}:\d{2}$/, "時間枠の形式が正しくありません"),
+    slotStart: z.string().regex(/^\d{2}:\d{2}$/, "利用時間の形式が正しくありません"),
+    slotEnd: z.string().regex(/^\d{2}:\d{2}$/, "利用時間の形式が正しくありません"),
     name: z.string().trim().min(1, "お名前を入力してください").max(60),
     email: z.string().trim().email("メールアドレスの形式が正しくありません"),
     phone: z
@@ -27,6 +29,27 @@ export const reservationFormSchema = z
         code: "custom",
         path: ["guardianName"],
         message: "未成年の方は保護者のお名前が必要です",
+      });
+    }
+
+    const start = timeToMinutes(data.slotStart);
+    const end = timeToMinutes(data.slotEnd);
+    const duration = end - start;
+    const openMinutes = timeToMinutes(config.openTime);
+    const closeMinutes = timeToMinutes(config.closeTime);
+
+    if (
+      duration <= 0 ||
+      duration > config.maxUsageMinutes ||
+      duration % config.granularityMinutes !== 0 ||
+      start < openMinutes ||
+      end > closeMinutes ||
+      start % config.granularityMinutes !== 0
+    ) {
+      ctx.addIssue({
+        code: "custom",
+        path: ["slotEnd"],
+        message: `ご利用時間は${config.openTime}〜${config.closeTime}の間で、${config.granularityMinutes}分単位・最大${config.maxUsageMinutes}分で選択してください`,
       });
     }
   });

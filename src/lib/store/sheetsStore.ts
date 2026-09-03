@@ -189,10 +189,20 @@ export class GoogleSheetsStore implements ReservationStore {
     return all[idx];
   }
 
-  async countActiveReservations(date: string, slotStart: string): Promise<number> {
+  async countActiveReservations(
+    date: string,
+    slotStart: string,
+    slotEnd: string,
+    excludeReservationId?: string
+  ): Promise<number> {
     const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS);
     return all.filter(
-      (r) => r.date === date && r.slotStart === slotStart && (r.status === "confirmed" || r.status === "attended")
+      (r) =>
+        r.id !== excludeReservationId &&
+        r.date === date &&
+        (r.status === "confirmed" || r.status === "attended") &&
+        r.slotStart < slotEnd &&
+        r.slotEnd > slotStart
     ).length;
   }
 
@@ -240,10 +250,10 @@ export class GoogleSheetsStore implements ReservationStore {
     return entry;
   }
 
-  async listWaitlist(date: string, slotStart: string): Promise<WaitlistEntry[]> {
+  async listWaitlist(date: string): Promise<WaitlistEntry[]> {
     const all = await readTable<WaitlistEntry>(TABS.waitlist, WAITLIST_HEADERS);
     return all
-      .filter((w) => w.date === date && w.slotStart === slotStart && !w.promotedAt)
+      .filter((w) => w.date === date && !w.promotedAt)
       .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
   }
 
@@ -304,9 +314,9 @@ export class GoogleSheetsStore implements ReservationStore {
     return count;
   }
 
-  async withSlotLock<T>(date: string, slotStart: string, fn: () => Promise<T>): Promise<T> {
+  async withDayLock<T>(date: string, fn: () => Promise<T>): Promise<T> {
     // プロセス内の排他制御(README/DEPLOYMENT.mdに記載の通り、複数インスタンス運用の場合は
     // Vercelのリージョン固定 or 追加のロック機構と組み合わせることを推奨)
-    return slotMutex.run(`${date}__${slotStart}`, fn);
+    return slotMutex.run(date, fn);
   }
 }
