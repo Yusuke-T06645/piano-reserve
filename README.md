@@ -30,6 +30,12 @@ npm run dev
 
 `.env.local` を編集しなくても、`STORE_BACKEND=local`（既定値）のままであれば認証情報なしですぐに動作します。予約データは `var/data/db.json` に、メール送信内容は `var/outbox/` にHTMLファイルとして保存されます（実際の送信は行われません）。
 
+空の状態ではなく、確定予約・来場済み・キャンセル済み・キャンセル待ちなどが入った状態で画面を確認したい場合は、以下のシードコマンドでデモデータを投入できます（`STORE_BACKEND=local` のとき専用）。
+
+```bash
+npm run seed
+```
+
 ブラウザで [http://localhost:3000](http://localhost:3000) を開いてください。管理画面は [http://localhost:3000/admin](http://localhost:3000/admin) から、初回起動時に `.env.local` の `ADMIN_EMAIL` / `ADMIN_PASSWORD` で自動作成されたアカウントでログインできます。
 
 > **重要**: `.env.example` に記載のデフォルト管理者パスワード（`changeme123`）は開発用です。本番公開前に必ず変更してください。手順は [docs/DEPLOYMENT.md](./docs/DEPLOYMENT.md) の「3. 管理者アカウントの設定」を参照してください。
@@ -44,6 +50,7 @@ npm run dev
 | `npm run lint` | ESLintによる静的チェック |
 | `npm run test` | Vitestによる自動テスト実行 |
 | `npm run purge-old-data` | 保持期間を過ぎた予約データの匿名化バッチを実行 |
+| `npm run seed` | ローカル開発用のデモ予約データを投入（`STORE_BACKEND=local`のみ） |
 
 ## 環境変数
 

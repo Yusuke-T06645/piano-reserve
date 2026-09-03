@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "purge-old-data": "tsx scripts/purge-old-data.ts"
+    "purge-old-data": "tsx scripts/purge-old-data.ts",
+    "seed": "tsx scripts/seed-demo-data.ts"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
