@@ -33,7 +33,7 @@ export default function Home() {
           </g>
         </svg>
 
-        <div className="relative mx-auto max-w-5xl grid sm:grid-cols-2 gap-10 sm:gap-14 items-center">
+        <div className="relative mx-auto max-w-[1400px] grid sm:grid-cols-2 gap-10 sm:gap-14 items-center">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full bg-gold-light/15 border border-gold-light/35 px-4 py-2 text-xs font-bold tracking-wide text-gold-light">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -123,7 +123,7 @@ export default function Home() {
 
       {/* 開放情報 */}
       <section id="guide" className="scroll-mt-16 px-4 sm:px-16 pt-16 sm:pt-[88px]">
-        <div className="mx-auto max-w-5xl grid sm:grid-cols-3 gap-5 mb-16 sm:mb-[88px]">
+        <div className="mx-auto max-w-[1400px] grid sm:grid-cols-3 gap-5 mb-16 sm:mb-[88px]">
           <Card className="p-7">
             <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-soft text-gold">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -163,7 +163,7 @@ export default function Home() {
           </Card>
         </div>
 
-        <div className="mx-auto max-w-5xl grid sm:grid-cols-2 gap-10 sm:gap-16 pb-16 sm:pb-24">
+        <div className="mx-auto max-w-[1400px] grid sm:grid-cols-2 gap-10 sm:gap-16 pb-16 sm:pb-24">
           <div>
             <h2 className="font-display text-xl sm:text-2xl font-bold text-navy mb-8">ご利用の流れ</h2>
             <ol className="space-y-7">

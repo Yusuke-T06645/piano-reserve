@@ -42,7 +42,7 @@ export default async function RangeBookingPage({
 
   return (
     <div className="px-4 sm:px-16 py-10 sm:py-14">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-[1400px]">
         <Stepper current={3} />
 
         <p className="text-xs font-bold tracking-widest text-gold uppercase">STEP 3 / 3</p>
