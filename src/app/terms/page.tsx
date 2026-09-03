@@ -24,7 +24,7 @@ export default function TermsPage() {
 
         <Section title="第1条（利用対象・予約）">
           <p>1. 本サービスは、当社が所有するグランドピアノを地域の方々に無料で開放するものです。</p>
-          <p>2. ご利用には、事前のWeb予約が必要です。予約は、毎月第1・第3金曜日 {config.openTime}〜{config.closeTime} の間、{config.slotMinutes}分単位で受け付けます。</p>
+          <p>2. ご利用には、事前のWeb予約が必要です。予約は、毎月第1・第3金曜日 {config.openTime}〜{config.closeTime} の間で、{config.granularityMinutes}分単位・1回最大{config.maxUsageMinutes}分の範囲で受け付けます。</p>
           <p>3. お一人様、1ヶ月あたり{config.monthlyBookingLimitPerEmail}回までのご利用とさせていただきます。</p>
           <p>4. 未成年の方がご利用になる場合は、保護者の同意を得たうえで、当日は保護者が同伴するものとします。</p>
         </Section>

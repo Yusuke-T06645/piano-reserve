@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Stepper } from "@/components/ui";
-import { getDayAvailability, listBookableDates } from "@/lib/availability";
+import { freeMinutesInDay, getDayAvailability, listBookableDates } from "@/lib/availability";
 import { formatJapaneseDate } from "@/lib/dates";
 import { config } from "@/lib/config";
 
@@ -10,12 +10,12 @@ export default async function ReservePage() {
   const dates = await listBookableDates();
   const withAvailability = await Promise.all(
     dates.map(async (d) => {
-      if (!d.available) return { ...d, totalAvailable: 0, totalWaitlist: 0 };
-      const slots = await getDayAvailability(d.date);
+      if (!d.available) return { ...d, freeMinutes: 0, totalWaitlist: 0 };
+      const availability = await getDayAvailability(d.date);
       return {
         ...d,
-        totalAvailable: slots.reduce((sum, s) => sum + s.available, 0),
-        totalWaitlist: slots.reduce((sum, s) => sum + s.waitlistCount, 0),
+        freeMinutes: freeMinutesInDay(availability),
+        totalWaitlist: availability.waitlistCount,
       };
     })
   );
@@ -33,7 +33,7 @@ export default async function ReservePage() {
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {withAvailability.map((d) => {
-            const full = d.available && d.totalAvailable === 0;
+            const full = d.available && d.freeMinutes < config.granularityMinutes;
             const stripe = !d.available
               ? "bg-navy/[0.16]"
               : full && d.totalWaitlist === 0
@@ -87,7 +87,7 @@ export default async function ReservePage() {
                     {d.available && !full && (
                       <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-3 py-1 text-[11.5px] font-bold text-success">
                         <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success" />
-                        空きあり（{d.totalAvailable}枠）
+                        空きあり（{d.freeMinutes}分）
                       </span>
                     )}
                   </div>

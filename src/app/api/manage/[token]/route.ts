@@ -28,7 +28,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ token: 
       return NextResponse.json({ reservation: updated });
     }
     if (body.action === "reschedule") {
-      const updated = await rescheduleReservation(reservation.id, body.date, body.slotStart);
+      const updated = await rescheduleReservation(reservation.id, body.date, body.slotStart, body.slotEnd);
       return NextResponse.json({ reservation: updated });
     }
     return NextResponse.json({ error: "不明な操作です。" }, { status: 400 });

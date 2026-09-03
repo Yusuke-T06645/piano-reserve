@@ -37,19 +37,29 @@ async function anyEligibleFutureDate(): Promise<string> {
   return dates[0];
 }
 
-const baseInput = (overrides: Partial<Record<string, string | boolean | undefined>> = {}) => ({
-  date: "",
-  slotStart: "16:00",
-  name: "テスト太郎",
-  email: "test@example.com",
-  phone: undefined,
-  ageCategory: "adult" as const,
-  guardianName: undefined,
-  notes: undefined,
-  agreedToTerms: true as const,
-  agreedToNoise: true as const,
-  ...overrides,
-});
+function addMinutes(hhmm: string, minutes: number): string {
+  const [h, m] = hhmm.split(":").map(Number);
+  const total = h * 60 + m + minutes;
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+}
+
+const baseInput = (overrides: Partial<Record<string, string | boolean | undefined>> = {}) => {
+  const slotStart = (overrides.slotStart as string) ?? "16:00";
+  return {
+    date: "",
+    slotStart,
+    slotEnd: addMinutes(slotStart, 10),
+    name: "テスト太郎",
+    email: "test@example.com",
+    phone: undefined,
+    ageCategory: "adult" as const,
+    guardianName: undefined,
+    notes: undefined,
+    agreedToTerms: true as const,
+    agreedToNoise: true as const,
+    ...overrides,
+  };
+};
 
 describe("createReservation", () => {
   it("同じ枠への同時リクエストは1件しか成功しない(二重予約防止)", async () => {
@@ -101,7 +111,7 @@ describe("cancelReservation とキャンセル待ちの自動繰り上げ", () =
     expect(promoted).toBeTruthy();
     expect(promoted?.status).toBe("confirmed");
 
-    const waitlist = await store.listWaitlist(date, slotStart);
+    const waitlist = await store.listWaitlist(date);
     expect(waitlist.find((w) => w.id === waitlisted.id)).toBeUndefined();
   });
 });

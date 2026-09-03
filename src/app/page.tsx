@@ -1,11 +1,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Card, Button } from "@/components/ui";
-import { config, generateDaySlots, totalOpenMinutes } from "@/lib/config";
+import { config } from "@/lib/config";
 
 export default function Home() {
-  const slots = generateDaySlots();
-
   return (
     <>
       {/* ヒーローセクション */}
@@ -52,7 +50,7 @@ export default function Home() {
             </h1>
             <p className="mt-5 text-white/80 leading-[1.9] max-w-md text-[15px] sm:text-base">
               {config.orgName}が所有するグランドピアノを一般開放します。毎月第1・第3金曜日、
-              {config.openTime}〜{config.closeTime}の間で、ご希望の時間帯をご予約いただけます。
+              {config.openTime}〜{config.closeTime}の間で、ご希望の時間帯（最大{config.maxUsageMinutes}分）を自由に選んでご予約いただけます。
             </p>
             <div className="mt-9 flex flex-wrap gap-3.5">
               <Link href="/reserve">
@@ -76,9 +74,9 @@ export default function Home() {
               </div>
               <div>
                 <p className="font-display text-xl sm:text-[22px] font-bold text-gold-light">
-                  最大{totalOpenMinutes() / 60}時間
+                  最大{config.maxUsageMinutes}分
                 </p>
-                <p className="mt-0.5 text-xs text-white/60">1日あたりのご利用時間</p>
+                <p className="mt-0.5 text-xs text-white/60">1組あたりのご利用時間</p>
               </div>
               <div>
                 <p className="font-display text-xl sm:text-[22px] font-bold text-gold-light">無料</p>
@@ -149,7 +147,7 @@ export default function Home() {
               {config.openTime} 〜 {config.closeTime}
             </p>
             <p className="mt-2.5 text-[13px] text-muted leading-relaxed">
-              {config.slotMinutes}分単位・{slots.length}枠でご予約いただけます
+              1組あたり最大{config.maxUsageMinutes}分、自由に時間を選べます
             </p>
           </Card>
           <Card className="p-7">

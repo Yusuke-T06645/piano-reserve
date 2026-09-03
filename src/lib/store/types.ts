@@ -65,13 +65,21 @@ export interface AdminUser {
   passwordHash: string;
 }
 
-export interface AvailabilityInfo {
+/** ある日に埋まっている(選べない)時間帯の1区間 */
+export interface BusyRange {
+  start: string; // "16:20"
+  end: string; // "16:45"
+  kind: "reserved" | "cutoff";
+}
+
+/** ある日の空き状況(自由選択の時間帯ピッカー用) */
+export interface DayAvailability {
   date: string;
-  slotStart: string;
-  slotEnd: string;
-  capacity: number;
-  reserved: number;
-  available: number;
+  openTime: string;
+  closeTime: string;
+  granularityMinutes: number;
+  maxUsageMinutes: number;
+  busyRanges: BusyRange[];
   waitlistCount: number;
 }
 
@@ -93,7 +101,13 @@ export interface ReservationStore {
   updateReservation(id: string, patch: Partial<Reservation>): Promise<Reservation>;
 
   // 予約数カウント(排他制御・上限チェック用)
-  countActiveReservations(date: string, slotStart: string): Promise<number>;
+  // date+slotStart+slotEnd の時間帯に重複する有効な予約件数を返す(excludeReservationIdはリスケジュール時に自分自身を除外するため)
+  countActiveReservations(
+    date: string,
+    slotStart: string,
+    slotEnd: string,
+    excludeReservationId?: string
+  ): Promise<number>;
   countMonthlyReservationsByEmail(email: string, monthKey: string): Promise<number>;
 
   // ノーショー
@@ -101,9 +115,9 @@ export interface ReservationStore {
   countRecentNoShowStrikes(email: string, sinceIso: string): Promise<number>;
   getLatestPenaltyUntil(email: string): Promise<string | null>;
 
-  // キャンセル待ち
+  // キャンセル待ち(日付単位。各エントリは自分の希望時間帯(slotStart/slotEnd)を保持する)
   addWaitlistEntry(input: Omit<WaitlistEntry, "id" | "createdAt">): Promise<WaitlistEntry>;
-  listWaitlist(date: string, slotStart: string): Promise<WaitlistEntry[]>;
+  listWaitlist(date: string): Promise<WaitlistEntry[]>;
   markWaitlistPromoted(id: string, reservationId: string): Promise<void>;
 
   // ブラックアウト日(調律日等)
@@ -119,7 +133,7 @@ export interface ReservationStore {
 
   /**
    * 排他制御込みで予約作成を行うためのロック。
-   * 同一 date+slotStart への同時アクセスをシリアライズする。
+   * 時間帯は自由に選べる(重複チェックが必要)ため、同一date全体への同時アクセスをシリアライズする。
    */
-  withSlotLock<T>(date: string, slotStart: string, fn: () => Promise<T>): Promise<T>;
+  withDayLock<T>(date: string, fn: () => Promise<T>): Promise<T>;
 }
