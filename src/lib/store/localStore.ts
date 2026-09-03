@@ -1,5 +1,6 @@
 import path from "node:path";
 import fs from "node:fs";
+import os from "node:os";
 import { randomUUID } from "node:crypto";
 import { JSONFilePreset } from "lowdb/node";
 import type {
@@ -36,6 +37,16 @@ function nowIso() {
 }
 
 /**
+ * Vercel等のサーバーレス環境では process.cwd() 配下は読み取り専用で、書き込み可能なのは
+ * OS一時ディレクトリ(/tmp)のみのため、そちらをデフォルトの保存先にする(このストアは
+ * デモ用であり、サーバーレス環境ではもともと永続化されない前提のため問題ない)。
+ */
+function defaultLocalDbPath(): string {
+  const base = process.env.VERCEL ? os.tmpdir() : process.cwd();
+  return path.join(base, "var", "data", "db.json");
+}
+
+/**
  * ローカルJSONファイルベースのストア実装。
  * dbPathをインスタンスごとに持たせることで、本番/開発では単一のDBファイルを共有しつつ、
  * テストでは一時ファイルを指定して完全に独立したストアを作れるようにしている。
@@ -45,7 +56,7 @@ export class LocalJsonStore implements ReservationStore {
   private dbPath: string;
 
   constructor(dbPath?: string) {
-    this.dbPath = dbPath || process.env.LOCAL_DB_PATH || path.join(process.cwd(), "var", "data", "db.json");
+    this.dbPath = dbPath || process.env.LOCAL_DB_PATH || defaultLocalDbPath();
   }
 
   private async getDb() {

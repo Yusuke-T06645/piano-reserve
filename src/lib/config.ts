@@ -43,6 +43,13 @@ export const config = {
 
 export type SlotTime = { start: string; end: string; label: string };
 
+/** openTime〜closeTime の開放時間の長さ(分)を返す */
+export function totalOpenMinutes(): number {
+  const [oh, om] = config.openTime.split(":").map(Number);
+  const [ch, cm] = config.closeTime.split(":").map(Number);
+  return ch * 60 + cm - (oh * 60 + om);
+}
+
 /** 16:00〜17:00 を10分刻みで分割したスロット一覧を返す */
 export function generateDaySlots(): SlotTime[] {
   const [oh, om] = config.openTime.split(":").map(Number);
