@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { Container, SectionTitle } from "@/components/ui";
+import { Stepper } from "@/components/ui";
 import { isDateBookable } from "@/lib/availability";
 import { generateDaySlots } from "@/lib/config";
 import { BookingForm } from "./BookingForm";
@@ -22,14 +22,20 @@ export default async function SlotBookingPage({
   if (!slotInfo) notFound();
 
   return (
-    <Container className="py-10 sm:py-14 max-w-2xl">
-      <SectionTitle eyebrow="Step 3" title="予約者情報を入力する" description="以下の内容をご確認のうえ、ご入力ください。" />
-      <BookingForm
-        date={date}
-        slotStart={slotInfo.start}
-        slotEnd={slotInfo.end}
-        initialMode={waitlist === "1" ? "waitlist" : "book"}
-      />
-    </Container>
+    <div className="px-4 sm:px-16 py-10 sm:py-14">
+      <div className="mx-auto max-w-5xl">
+        <Stepper current={3} />
+
+        <p className="text-xs font-bold tracking-widest text-gold uppercase">STEP 3 / 3</p>
+        <h1 className="font-display mt-2.5 mb-10 text-2xl sm:text-[30px] font-bold text-navy">予約情報を入力する</h1>
+
+        <BookingForm
+          date={date}
+          slotStart={slotInfo.start}
+          slotEnd={slotInfo.end}
+          initialMode={waitlist === "1" ? "waitlist" : "book"}
+        />
+      </div>
+    </div>
   );
 }

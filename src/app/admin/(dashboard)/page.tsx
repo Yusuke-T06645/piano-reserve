@@ -1,4 +1,3 @@
-import { Card, SectionTitle, Badge } from "@/components/ui";
 import { getStore } from "@/lib/store";
 import { formatJapaneseDate } from "@/lib/dates";
 import { listUpcomingEligibleDates } from "@/lib/dates";
@@ -23,25 +22,37 @@ export default async function AdminDashboardPage() {
 
   return (
     <div>
-      <SectionTitle
-        title="予約一覧ダッシュボード"
-        description="直近の開放日の予約状況です。ここでの操作はGoogle Sheets運用時にはスプレッドシートにも即時反映されます。"
-      />
-      <div className="mb-6">
-        <Badge tone="info">直近の来場待ち予約 {totalUpcoming} 件</Badge>
+      <h1 className="font-display text-2xl sm:text-[26px] font-bold text-navy">予約一覧ダッシュボード</h1>
+      <p className="mt-2.5 text-[13.5px] text-muted leading-[1.8] max-w-[620px]">
+        直近の開放日の予約状況です。ここでの操作はGoogle Sheets運用時にはスプレッドシートにも即時反映されます。
+      </p>
+
+      <div className="flex gap-3.5 my-6">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-4 py-2 text-[12.5px] font-bold text-teal-dark">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <circle cx="12" cy="8" r="4" />
+            <path d="M4 20c0-4 4-6 8-6s8 2 8 6" />
+          </svg>
+          直近の来場待ち予約 {totalUpcoming} 件
+        </span>
       </div>
 
-      <div className="space-y-6">
+      <div className="flex flex-col gap-[22px]">
         {grouped.map(({ date, reservations }) => (
-          <Card key={date}>
-            <h2 className="text-base font-bold text-navy mb-3">{formatJapaneseDate(date)}</h2>
+          <div key={date} className="rounded-[18px] border border-navy/[0.09] bg-white px-6 sm:px-7 py-[26px] shadow-soft">
+            <div className="flex items-center justify-between mb-3.5">
+              <h2 className="text-base font-bold text-navy">{formatJapaneseDate(date)}</h2>
+              <span className="text-xs text-muted">
+                予約 {reservations.filter((r) => r.status === "confirmed" || r.status === "attended").length}件
+              </span>
+            </div>
             {reservations.length === 0 ? (
               <p className="text-sm text-muted">この日の予約はまだありません。</p>
             ) : (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto -mx-1">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="text-left text-xs text-muted border-b border-black/10">
+                    <tr className="text-left text-xs text-muted border-b border-navy/[0.09]">
                       <th className="py-2 pr-4 font-medium">時間</th>
                       <th className="py-2 pr-4 font-medium">予約者</th>
                       <th className="py-2 pr-4 font-medium">状況</th>
@@ -66,7 +77,7 @@ export default async function AdminDashboardPage() {
                 </table>
               </div>
             )}
-          </Card>
+          </div>
         ))}
       </div>
     </div>
