@@ -74,22 +74,44 @@ const SHEET_ID = () => {
   return id;
 };
 
+function isAlreadyExistsError(err: unknown): boolean {
+  const message = [
+    (err as { message?: string })?.message,
+    (err as { cause?: { message?: string } })?.cause?.message,
+    (err as { response?: { data?: { error?: { message?: string } } } })?.response?.data?.error?.message,
+  ]
+    .filter(Boolean)
+    .join(" ");
+  return message.includes("already exists");
+}
+
+/**
+ * タブが存在するかの確認〜作成は複数リクエストが同時に走るとレースになりうる
+ * (両方とも「存在しない」と判定し、両方がaddSheetを試みて片方が失敗する)。
+ * そのため作成自体は「既に存在する」エラーを正常系として扱い、べき等にする。
+ */
 async function ensureSheetExists(tabName: string, headers: string[]) {
   const sheets = await getSheetsClient();
   const meta = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID() });
   const exists = meta.data.sheets?.some((s) => s.properties?.title === tabName);
-  if (!exists) {
+  if (exists) return;
+
+  try {
     await sheets.spreadsheets.batchUpdate({
       spreadsheetId: SHEET_ID(),
       requestBody: { requests: [{ addSheet: { properties: { title: tabName } } }] },
     });
-    await sheets.spreadsheets.values.update({
-      spreadsheetId: SHEET_ID(),
-      range: `${tabName}!A1`,
-      valueInputOption: "RAW",
-      requestBody: { values: [headers] },
-    });
+  } catch (err) {
+    if (isAlreadyExistsError(err)) return; // 他のリクエストが先に作成済み(競合を許容)
+    throw err;
   }
+
+  await sheets.spreadsheets.values.update({
+    spreadsheetId: SHEET_ID(),
+    range: `${tabName}!A1`,
+    valueInputOption: "RAW",
+    requestBody: { values: [headers] },
+  });
 }
 
 async function readTable<T>(tabName: string, headers: string[]): Promise<T[]> {
