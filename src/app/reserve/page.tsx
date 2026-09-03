@@ -22,7 +22,7 @@ export default async function ReservePage() {
 
   return (
     <div className="px-4 sm:px-16 py-10 sm:py-14">
-      <div className="mx-auto max-w-5xl">
+      <div className="mx-auto max-w-[1400px]">
         <Stepper current={1} />
 
         <p className="text-xs font-bold tracking-widest text-gold uppercase">STEP 1 / 3</p>
