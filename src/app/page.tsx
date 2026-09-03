@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Card, Button } from "@/components/ui";
-import { config, generateDaySlots } from "@/lib/config";
+import { config, generateDaySlots, totalOpenMinutes } from "@/lib/config";
 
 export default function Home() {
   const slots = generateDaySlots();
@@ -76,9 +76,9 @@ export default function Home() {
               </div>
               <div>
                 <p className="font-display text-xl sm:text-[22px] font-bold text-gold-light">
-                  最大{config.slotMinutes * 3}分
+                  最大{totalOpenMinutes() / 60}時間
                 </p>
-                <p className="mt-0.5 text-xs text-white/60">1組あたりのご利用時間</p>
+                <p className="mt-0.5 text-xs text-white/60">1日あたりのご利用時間</p>
               </div>
               <div>
                 <p className="font-display text-xl sm:text-[22px] font-bold text-gold-light">無料</p>

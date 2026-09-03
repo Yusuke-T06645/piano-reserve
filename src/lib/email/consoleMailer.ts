@@ -1,5 +1,6 @@
 import path from "node:path";
 import fs from "node:fs/promises";
+import os from "node:os";
 import type { EmailMessage, Mailer } from "./types";
 
 /**
@@ -9,7 +10,10 @@ import type { EmailMessage, Mailer } from "./types";
  */
 export class ConsoleMailer implements Mailer {
   async send(message: EmailMessage): Promise<void> {
-    const dir = path.join(process.cwd(), "var", "outbox");
+    // Vercel等のサーバーレス環境では process.cwd() 配下は読み取り専用のため、
+    // 書き込み可能なOS一時ディレクトリ(/tmp)を使う。
+    const base = process.env.VERCEL ? os.tmpdir() : process.cwd();
+    const dir = path.join(base, "var", "outbox");
     await fs.mkdir(dir, { recursive: true });
     const filename = `${Date.now()}_${message.to.replace(/[^a-zA-Z0-9@.]/g, "_")}.html`;
     const attachmentNote = (message.attachments ?? [])
