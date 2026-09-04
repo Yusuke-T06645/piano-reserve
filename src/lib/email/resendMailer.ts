@@ -12,7 +12,7 @@ export class ResendMailer implements Mailer {
 
   async send(message: EmailMessage): Promise<void> {
     const from = process.env.MAIL_FROM || `${config.siteName} <no-reply@example.com>`;
-    await this.client.emails.send({
+    const { error } = await this.client.emails.send({
       from,
       to: message.to,
       subject: message.subject,
@@ -23,5 +23,8 @@ export class ResendMailer implements Mailer {
         content: a.content,
       })),
     });
+    if (error) {
+      throw new Error(`Resendでのメール送信に失敗しました(to: ${message.to}): ${error.name} - ${error.message}`);
+    }
   }
 }
