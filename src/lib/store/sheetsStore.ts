@@ -74,7 +74,14 @@ const SHEET_ID = () => {
   return id;
 };
 
+// タブの存在確認(spreadsheets.get)はSheets APIの読み取りクォータを消費するため、
+// 一度確認できたタブはプロセスが生きている間(サーバーレスのウォームインスタンス内)は
+// 再確認しない。これが無いと、読み取りのたびに実データ取得とは別にメタデータ取得の
+// APIコールが発生し、"Read requests per minute" のクォータを倍消費してしまう。
+const verifiedTabs = new Set<string>();
+
 async function ensureSheetExists(tabName: string, headers: string[]) {
+  if (verifiedTabs.has(tabName)) return;
   const sheets = await getSheetsClient();
   const meta = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID() });
   const exists = meta.data.sheets?.some((s) => s.properties?.title === tabName);
@@ -90,6 +97,7 @@ async function ensureSheetExists(tabName: string, headers: string[]) {
       requestBody: { values: [headers] },
     });
   }
+  verifiedTabs.add(tabName);
 }
 
 async function readTable<T>(tabName: string, headers: string[]): Promise<T[]> {
@@ -232,10 +240,10 @@ export class GoogleSheetsStore implements ReservationStore {
     const strikes = all
       .filter((s) => s.email.toLowerCase() === email.toLowerCase())
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
-    const recentCount = await this.countRecentNoShowStrikes(
-      email,
-      new Date(Date.now() - config.noShowRollingWindowMonths * 30 * 24 * 3600 * 1000).toISOString()
-    );
+    const sinceIso = new Date(
+      Date.now() - config.noShowRollingWindowMonths * 30 * 24 * 3600 * 1000
+    ).toISOString();
+    const recentCount = strikes.filter((s) => s.createdAt >= sinceIso).length;
     if (recentCount < config.noShowStrikeLimit || strikes.length === 0) return null;
     const latest = new Date(strikes[0].createdAt);
     latest.setMonth(latest.getMonth() + config.noShowPenaltyMonths);
