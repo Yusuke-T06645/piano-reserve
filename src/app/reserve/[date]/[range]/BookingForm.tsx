@@ -76,7 +76,8 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
       if (mode === "waitlist") {
         setWaitlistDone(true);
       } else {
-        router.push(`/reserve/complete/${data.reservation.id}`);
+        const query = data.confirmationToken ? `?ct=${encodeURIComponent(data.confirmationToken)}` : "";
+        router.push(`/reserve/complete/${data.reservation.id}${query}`);
       }
     } catch {
       setServerError("通信エラーが発生しました。時間をおいて再度お試しください。");

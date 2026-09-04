@@ -5,6 +5,7 @@ import { getStore } from "@/lib/store";
 import { formatJapaneseDate } from "@/lib/dates";
 import { buildCheckinUrl, generateQrDataUrl } from "@/lib/qr";
 import { config } from "@/lib/config";
+import { verifyConfirmationToken } from "@/lib/confirmationToken";
 
 export const dynamic = "force-dynamic";
 
@@ -27,9 +28,17 @@ function buildIcs(date: string, slotStart: string, slotEnd: string, id: string):
   ].join("\r\n");
 }
 
-export default async function CompletePage({ params }: { params: Promise<{ id: string }> }) {
+export default async function CompletePage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ ct?: string }>;
+}) {
   const { id } = await params;
-  const reservation = await getStore().getReservation(id);
+  const { ct } = await searchParams;
+
+  const reservation = (await getStore().getReservation(id)) ?? (ct ? await verifyConfirmationToken(ct, id) : null);
   if (!reservation) notFound();
 
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
