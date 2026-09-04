@@ -30,11 +30,16 @@ afterAll(() => {
   fs.rmSync(tmpDbPath, { force: true });
 });
 
-// 直近の開放日(第1・第3金曜)を取得するヘルパー
+// 直近の開放日(第1・第3金曜)のうち、まだ受付締切前の日付を取得するヘルパー。
+// dates[0]が「今日」の場合、実行時刻によっては当日16:00枠がすでに受付締切後になりうるため、
+// 締切前の日付だけを対象にする。
 async function anyEligibleFutureDate(): Promise<string> {
-  const { listUpcomingEligibleDates } = await import("../src/lib/dates");
+  const { listUpcomingEligibleDates, isPastCutoff } = await import("../src/lib/dates");
+  const { config } = await import("../src/lib/config");
   const dates = listUpcomingEligibleDates();
-  return dates[0];
+  const bookable = dates.find((d) => !isPastCutoff(d, config.openTime));
+  if (!bookable) throw new Error("no bookable date found for test");
+  return bookable;
 }
 
 function addMinutes(hhmm: string, minutes: number): string {

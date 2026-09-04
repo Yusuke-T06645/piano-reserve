@@ -1,4 +1,4 @@
-import { fromIsoDate } from "./dates";
+import { jstInstant } from "./dates";
 import { getStore } from "./store";
 
 /**
@@ -11,9 +11,7 @@ export async function markPastReservationsAsNoShow(now: Date = new Date()): Prom
   const reservations = await store.listReservations({ status: "confirmed" });
   let count = 0;
   for (const r of reservations) {
-    const [h, m] = r.slotEnd.split(":").map(Number);
-    const end = fromIsoDate(r.date);
-    end.setHours(h, m, 0, 0);
+    const end = jstInstant(r.date, r.slotEnd);
     if (end.getTime() < now.getTime()) {
       await store.updateReservation(r.id, { status: "no_show" });
       await store.addNoShowStrike({ email: r.email, reservationId: r.id, date: r.date });
