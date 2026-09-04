@@ -1,4 +1,4 @@
-import { toIsoDate } from "./dates";
+import { addDaysIso } from "./dates";
 import { getStore } from "./store";
 import { notifyReminder } from "./notifications";
 
@@ -7,9 +7,7 @@ import { notifyReminder } from "./notifications";
  * Vercel Cron 等から毎日1回実行することを想定(/api/cron/reminders)。
  */
 export async function sendDueReminders(now: Date = new Date()): Promise<number> {
-  const tomorrow = new Date(now);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-  const targetDate = toIsoDate(tomorrow);
+  const targetDate = addDaysIso(now, 1);
 
   const store = getStore();
   const reservations = await store.listReservations({ date: targetDate, status: "confirmed" });
