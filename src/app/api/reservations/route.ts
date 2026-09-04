@@ -3,6 +3,7 @@ import { BookingError, createReservation } from "@/lib/booking";
 import { reservationFormSchema } from "@/lib/validation";
 import { requireAdmin, UnauthorizedError } from "@/lib/auth";
 import { getStore, type ReservationStatus } from "@/lib/store";
+import { signConfirmationToken } from "@/lib/confirmationToken";
 
 const VALID_STATUSES: ReservationStatus[] = ["confirmed", "attended", "cancelled", "no_show"];
 
@@ -16,6 +17,10 @@ export async function POST(req: Request) {
   }
   try {
     const result = await createReservation(parsed.data);
+    if ("reservation" in result) {
+      const confirmationToken = await signConfirmationToken(result.reservation);
+      return NextResponse.json({ ...result, confirmationToken }, { status: 201 });
+    }
     return NextResponse.json(result, { status: 201 });
   } catch (err) {
     if (err instanceof BookingError) {
