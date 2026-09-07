@@ -19,7 +19,10 @@ export async function POST(req: Request) {
     const result = await createReservation(parsed.data);
     if ("reservation" in result) {
       const confirmationToken = await signConfirmationToken(result.reservation);
-      return NextResponse.json({ ...result, confirmationToken }, { status: 201 });
+      return NextResponse.json(
+        { reservation: result.reservation, emailSent: result.emailSent, confirmationToken },
+        { status: 201 }
+      );
     }
     return NextResponse.json(result, { status: 201 });
   } catch (err) {

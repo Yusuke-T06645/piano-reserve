@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { getStore } from "@/lib/store";
 import { config } from "@/lib/config";
+import { formatJstDateTime, isInstantPast, jstInstant } from "@/lib/dates";
 import { ManagePanel } from "./ManagePanel";
 
 export const dynamic = "force-dynamic";
@@ -9,6 +10,13 @@ export default async function ManageTokenPage({ params }: { params: Promise<{ to
   const { token } = await params;
   const reservation = await getStore().getReservationByManageToken(token);
   if (!reservation) notFound();
+
+  const changeDeadlineInstant = new Date(
+    jstInstant(reservation.date, reservation.slotStart).getTime() -
+      config.selfServiceChangeDeadlineHours * 60 * 60 * 1000
+  );
+  const changeDeadlineText = formatJstDateTime(changeDeadlineInstant);
+  const isPastChangeDeadline = isInstantPast(changeDeadlineInstant);
 
   return (
     <div className="px-4 sm:px-16 py-10 sm:py-14">
@@ -28,6 +36,8 @@ export default async function ManageTokenPage({ params }: { params: Promise<{ to
             status: reservation.status,
           }}
           changeDeadlineHours={config.selfServiceChangeDeadlineHours}
+          changeDeadlineText={changeDeadlineText}
+          isPastChangeDeadline={isPastChangeDeadline}
         />
       </div>
     </div>

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { Badge, Button, Alert, Label } from "@/components/ui";
 import { formatJapaneseDate } from "@/lib/dates";
+import { config } from "@/lib/config";
 import type { BusyRange } from "@/lib/store/types";
 import { TimeRangeSelector } from "@/app/reserve/[date]/TimeRangeSelector";
 
@@ -38,10 +39,14 @@ export function ManagePanel({
   token,
   initialReservation,
   changeDeadlineHours,
+  changeDeadlineText,
+  isPastChangeDeadline,
 }: {
   token: string;
   initialReservation: ReservationView;
   changeDeadlineHours: number;
+  changeDeadlineText: string;
+  isPastChangeDeadline: boolean;
 }) {
   const [reservation, setReservation] = useState(initialReservation);
   const [mode, setMode] = useState<"idle" | "confirmCancel" | "reschedule">("idle");
@@ -120,6 +125,7 @@ export function ManagePanel({
 
   const statusInfo = STATUS_LABEL[reservation.status];
   const canChange = reservation.status === "confirmed";
+  const canReschedule = canChange && !isPastChangeDeadline;
 
   return (
     <div className="space-y-7">
@@ -140,22 +146,41 @@ export function ManagePanel({
         )}
 
         {canChange && mode === "idle" && (
-          <div className="flex gap-3">
-            <Button variant="outline" className="flex-1" onClick={() => setMode("reschedule")}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M4 20h4l10-10-4-4L4 16v4z" />
-                <path d="M13 7l4 4" />
-              </svg>
-              日時を変更する
-            </Button>
-            <Button variant="danger" className="flex-1" onClick={() => setMode("confirmCancel")}>
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <circle cx="12" cy="12" r="9" />
-                <path d="M9 9l6 6M15 9l-6 6" />
-              </svg>
-              キャンセルする
-            </Button>
-          </div>
+          <>
+            <p className="mb-4 text-[12.5px] text-muted">
+              日時の変更は{changeDeadlineText}まで承ります（ご利用{changeDeadlineHours}時間前が締切です）。
+            </p>
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                className="flex-1"
+                onClick={() => setMode("reschedule")}
+                disabled={!canReschedule}
+              >
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M4 20h4l10-10-4-4L4 16v4z" />
+                  <path d="M13 7l4 4" />
+                </svg>
+                日時を変更する
+              </Button>
+              <Button variant="danger" className="flex-1" onClick={() => setMode("confirmCancel")}>
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M9 9l6 6M15 9l-6 6" />
+                </svg>
+                キャンセルする
+              </Button>
+            </div>
+            {!canReschedule && (
+              <div className="mt-4">
+                <Alert tone="warning" title="日時変更の受付は締め切りました">
+                  ご利用{changeDeadlineHours}時間前（{changeDeadlineText}）を過ぎたため、Web上での日時変更はできません。
+                  日時の変更をご希望の場合は、お手数ですが{config.supportEmail}
+                  {config.supportPhone && `（電話: ${config.supportPhone}）`}まで直接ご連絡ください。なお、キャンセルはこのページから引き続き可能です。
+                </Alert>
+              </div>
+            )}
+          </>
         )}
 
         {mode === "confirmCancel" && (
@@ -173,14 +198,20 @@ export function ManagePanel({
         )}
 
         {!canChange && mode === "idle" && (
-          <p className="text-sm text-muted">この予約は現在、変更・キャンセルできる状態ではありません。</p>
+          <Alert tone="info">
+            {reservation.status === "cancelled" && "この予約は既にキャンセル済みのため、変更はできません。"}
+            {reservation.status === "attended" && "この予約は既にご来場が確認されているため、変更・キャンセルはできません。"}
+            {reservation.status === "no_show" && "この予約は無断キャンセル扱いとなっているため、変更・キャンセルはできません。"}
+            {" "}ご不明な点は{config.supportEmail}
+            {config.supportPhone && `（電話: ${config.supportPhone}）`}までお問い合わせください。
+          </Alert>
         )}
       </div>
 
       {mode === "reschedule" && (
         <div className="rounded-[22px] bg-cream p-6 sm:p-8">
           <p className="mb-5 text-xs text-muted">
-            ※ご利用{changeDeadlineHours}時間前を過ぎるとWeb上での変更はできなくなります。
+            ※日時の変更は{changeDeadlineText}（ご利用{changeDeadlineHours}時間前）まで承ります。
           </p>
           <div className="mb-6">
             <Label htmlFor="newDate">変更後の日付</Label>

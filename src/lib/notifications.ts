@@ -18,20 +18,25 @@ async function qrAttachment(checkinToken: string) {
 /**
  * メール送信は予約処理そのものを失敗させてはいけないベストエフォートの副作用のため、
  * 失敗してもここで握りつぶし、原因調査ができるようログにだけ残す(サーバーログに出力される)。
+ * 戻り値のboolean(送信できたか)は、利用者向けの完了画面で「予約は完了しているが
+ * 確認メールが届いていない可能性がある」ことを案内するために使う。
  */
-async function safeSend(message: EmailMessage) {
+async function safeSend(message: EmailMessage): Promise<boolean> {
   try {
     await getMailer().send(message);
+    return true;
   } catch (err) {
     console.error(`[email] 送信に失敗しました(to: ${message.to}, subject: ${message.subject})`, err);
+    return false;
   }
 }
 
-export async function notifyReservationConfirmed(r: Reservation) {
+export async function notifyReservationConfirmed(r: Reservation): Promise<boolean> {
   const manageUrl = buildManageUrl(r.manageToken, getBaseUrl());
   const { subject, html, text } = templates.reservationConfirmedEmail(r, manageUrl);
-  await safeSend({ to: r.email, subject, html, text, attachments: [await qrAttachment(r.checkinToken)] });
+  const sent = await safeSend({ to: r.email, subject, html, text, attachments: [await qrAttachment(r.checkinToken)] });
   await notifyAdminNewBooking(r);
+  return sent;
 }
 
 export async function notifyReminder(r: Reservation) {

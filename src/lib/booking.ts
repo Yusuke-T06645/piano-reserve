@@ -54,7 +54,7 @@ export type CreateReservationParams = Omit<ReservationFormInput, "joinWaitlistIf
 
 export async function createReservation(
   input: CreateReservationParams
-): Promise<{ reservation: Reservation } | { waitlisted: true }> {
+): Promise<{ reservation: Reservation; emailSent: boolean } | { waitlisted: true }> {
   const store = getStore();
 
   if (!(await isDateBookable(input.date))) {
@@ -84,8 +84,8 @@ export async function createReservation(
       agreedToTerms: true,
       agreedToNoise: true,
     });
-    await notifyReservationConfirmed(reservation);
-    return { reservation };
+    const emailSent = await notifyReservationConfirmed(reservation);
+    return { reservation, emailSent };
   });
 }
 

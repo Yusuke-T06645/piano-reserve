@@ -8,6 +8,14 @@ export const config = {
   orgName: "株式会社田中組",
   adminNotifyEmail: process.env.ADMIN_NOTIFY_EMAIL || "admin@example.com",
   supportEmail: process.env.SUPPORT_EMAIL || "piano-support@example.com",
+  supportPhone: process.env.SUPPORT_PHONE || "",
+
+  // 会場案内(予約前・完了画面の両方で表示する)
+  venueName: process.env.VENUE_NAME || "株式会社田中組 本社ラウンジ",
+  venueAddress: process.env.VENUE_ADDRESS || "住所は運営にてご設定ください（VENUE_ADDRESS）",
+  venueAccess: process.env.VENUE_ACCESS || "アクセス方法は運営にてご設定ください（VENUE_ACCESS）",
+  venueMapUrl: process.env.VENUE_MAP_URL || "",
+  venueChecklist: "受付にてお名前をお伝えいただくか、QRコードまたは予約番号をご提示ください。上履きの必要はありません。",
 
   // 開放日ルール: 毎月 第1・第3金曜日
   eligibleWeekday: 5, // 0=日,1=月,...5=金

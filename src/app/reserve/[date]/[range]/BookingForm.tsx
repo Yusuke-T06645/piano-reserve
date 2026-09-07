@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Label, FieldError, Alert } from "@/components/ui";
 import { formatJapaneseDate } from "@/lib/dates";
@@ -10,6 +10,14 @@ type Mode = "book" | "waitlist";
 const inputClass =
   "w-full rounded-[11px] border-[1.5px] border-navy/[0.16] px-4 py-3 text-sm text-ink focus-visible:outline-none focus:border-teal";
 
+const FIELD_LABELS: Record<string, string> = {
+  name: "お名前",
+  email: "メールアドレス",
+  guardianName: "保護者のお名前",
+  agreedToTerms: "利用規約への同意",
+  agreedToNoise: "近隣への配慮事項への同意",
+};
+
 export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
   date: string;
   slotStart: string;
@@ -17,6 +25,7 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
   initialMode: Mode;
 }) {
   const router = useRouter();
+  const errorSummaryRef = useRef<HTMLDivElement>(null);
   const [mode, setMode] = useState<Mode>(initialMode);
   const [submitting, setSubmitting] = useState(false);
   const [serverError, setServerError] = useState<string | null>(null);
@@ -53,7 +62,11 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setServerError(null);
-    if (!validateClientSide()) return;
+    if (!validateClientSide()) {
+      // フォーカスをエラー一覧に移し、スクリーンリーダーにもエラー発生を通知する
+      requestAnimationFrame(() => errorSummaryRef.current?.focus());
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -76,8 +89,10 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
       if (mode === "waitlist") {
         setWaitlistDone(true);
       } else {
-        const query = data.confirmationToken ? `?ct=${encodeURIComponent(data.confirmationToken)}` : "";
-        router.push(`/reserve/complete/${data.reservation.id}${query}`);
+        const params = new URLSearchParams();
+        if (data.confirmationToken) params.set("ct", data.confirmationToken);
+        params.set("mail", data.emailSent ? "ok" : "failed");
+        router.push(`/reserve/complete/${data.reservation.id}?${params.toString()}`);
       }
     } catch {
       setServerError("通信エラーが発生しました。時間をおいて再度お試しください。");
@@ -101,6 +116,28 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
         {serverError && (
           <div className="mb-6">
             <Alert tone="warning">{serverError}</Alert>
+          </div>
+        )}
+
+        {Object.keys(fieldErrors).length > 0 && (
+          <div
+            ref={errorSummaryRef}
+            tabIndex={-1}
+            role="alert"
+            className="mb-6 rounded-2xl border border-danger/25 bg-danger-soft p-5 focus-visible:outline-none"
+          >
+            <p className="font-bold text-danger text-sm mb-2.5">
+              入力内容をご確認ください（{Object.keys(fieldErrors).length}件）
+            </p>
+            <ul className="space-y-1.5 text-sm text-danger">
+              {Object.entries(fieldErrors).map(([field, message]) => (
+                <li key={field}>
+                  <a href={`#${field}`} className="underline hover:no-underline">
+                    {FIELD_LABELS[field] || field}: {message}
+                  </a>
+                </li>
+              ))}
+            </ul>
           </div>
         )}
 
@@ -195,7 +232,9 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
                 aria-invalid={!!fieldErrors.guardianName}
               />
               {fieldErrors.guardianName && <FieldError>{fieldErrors.guardianName}</FieldError>}
-              <p className="mt-2 text-[11.5px] text-muted">未成年の方がご利用の場合、当日は保護者の同伴が必要です</p>
+              <p className="mt-2 text-[11.5px] text-muted leading-relaxed">
+                安全確認とトラブル発生時のご連絡のため、保護者の方のお名前をご記入ください。当日は保護者の方が会場に同伴し、ご利用中も同席をお願いいたします。
+              </p>
             </div>
           )}
 
@@ -212,12 +251,14 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
           </div>
 
           <div className="rounded-2xl bg-cream p-5 flex flex-col gap-3.5">
-            <label className="flex items-start gap-2.5 text-[13px] text-ink leading-[1.7]">
+            <label htmlFor="agreedToTerms" className="flex items-start gap-2.5 text-[13px] text-ink leading-[1.7]">
               <input
+                id="agreedToTerms"
                 type="checkbox"
                 className="mt-0.5 h-[18px] w-[18px] shrink-0"
                 checked={form.agreedToTerms}
                 onChange={(e) => update("agreedToTerms", e.target.checked)}
+                aria-invalid={!!fieldErrors.agreedToTerms}
               />
               <span>
                 <a href="/terms" target="_blank" className="font-bold text-teal-dark underline">
@@ -228,12 +269,14 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
             </label>
             {fieldErrors.agreedToTerms && <FieldError>{fieldErrors.agreedToTerms}</FieldError>}
 
-            <label className="flex items-start gap-2.5 text-[13px] text-ink leading-[1.7]">
+            <label htmlFor="agreedToNoise" className="flex items-start gap-2.5 text-[13px] text-ink leading-[1.7]">
               <input
+                id="agreedToNoise"
                 type="checkbox"
                 className="mt-0.5 h-[18px] w-[18px] shrink-0"
                 checked={form.agreedToNoise}
                 onChange={(e) => update("agreedToNoise", e.target.checked)}
+                aria-invalid={!!fieldErrors.agreedToNoise}
               />
               <span>近隣への配慮事項（演奏時間の厳守、静粛な出入り等）を守ります <span className="text-danger">*</span></span>
             </label>
