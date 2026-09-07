@@ -152,13 +152,14 @@ export function adminNewBookingEmail(r: Reservation, adminUrl: string) {
       <tr><td style="padding:6px 0;color:#6B7280;">予約番号</td><td style="padding:6px 0;">${r.id}</td></tr>
       <tr><td style="padding:6px 0;color:#6B7280;">日時</td><td style="padding:6px 0;">${formatJapaneseDate(r.date)} ${r.slotStart}〜${r.slotEnd}</td></tr>
       <tr><td style="padding:6px 0;color:#6B7280;">お名前</td><td style="padding:6px 0;">${r.name}</td></tr>
+      <tr><td style="padding:6px 0;color:#6B7280;">撮影・広報使用の同意</td><td style="padding:6px 0;">${r.photoConsent ? "あり" : "なし"}</td></tr>
     </table>
     <p><a href="${adminUrl}" style="color:#2E6F73;">管理画面で確認する</a></p>
   `);
   return {
     subject: `【管理者通知】新規予約: ${formatJapaneseDate(r.date)} ${r.slotStart}〜 ${r.name}様`,
     html,
-    text: `新規予約: ${r.id} / ${formatJapaneseDate(r.date)} ${r.slotStart}〜${r.slotEnd} / ${r.name}様`,
+    text: `新規予約: ${r.id} / ${formatJapaneseDate(r.date)} ${r.slotStart}〜${r.slotEnd} / ${r.name}様 / 撮影同意: ${r.photoConsent ? "あり" : "なし"}`,
   };
 }
 

@@ -83,6 +83,7 @@ export async function createReservation(
       notes: input.notes,
       agreedToTerms: true,
       agreedToNoise: true,
+      photoConsent: input.photoConsent,
     });
     const emailSent = await notifyReservationConfirmed(reservation);
     return { reservation, emailSent };
@@ -100,6 +101,7 @@ export async function joinWaitlist(input: CreateReservationParams) {
     phone: input.phone,
     ageCategory: input.ageCategory,
     guardianName: input.guardianName,
+    photoConsent: input.photoConsent,
   });
   await notifyWaitlistJoined(entry);
   return entry;
@@ -194,6 +196,7 @@ async function promoteWaitlistIfAny(date: string) {
         guardianName: entry.guardianName,
         agreedToTerms: true,
         agreedToNoise: true,
+        photoConsent: entry.photoConsent,
       });
       await store.markWaitlistPromoted(entry.id, reservation.id);
       await notifyWaitlistPromoted(reservation);

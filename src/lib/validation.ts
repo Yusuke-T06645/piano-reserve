@@ -21,6 +21,7 @@ export const reservationFormSchema = z
     notes: z.string().trim().max(300).optional().or(z.literal("")).transform((v) => (v ? v : undefined)),
     agreedToTerms: z.literal(true, { message: "利用規約への同意が必要です" }),
     agreedToNoise: z.literal(true, { message: "近隣への配慮事項への同意が必要です" }),
+    photoConsent: z.boolean().optional().default(false),
     joinWaitlistIfFull: z.boolean().optional().default(false),
   })
   .superRefine((data, ctx) => {

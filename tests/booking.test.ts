@@ -62,6 +62,7 @@ const baseInput = (overrides: Partial<Record<string, string | boolean | undefine
     notes: undefined,
     agreedToTerms: true as const,
     agreedToNoise: true as const,
+    photoConsent: false,
     ...overrides,
   };
 };

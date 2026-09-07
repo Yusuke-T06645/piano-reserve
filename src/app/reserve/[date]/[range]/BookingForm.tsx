@@ -41,6 +41,7 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
     notes: "",
     agreedToTerms: false,
     agreedToNoise: false,
+    photoConsent: false,
   });
 
   function update<K extends keyof typeof form>(key: K, value: (typeof form)[K]) {
@@ -281,6 +282,23 @@ export function BookingForm({ date, slotStart, slotEnd, initialMode }: {
               <span>近隣への配慮事項（演奏時間の厳守、静粛な出入り等）を守ります <span className="text-danger">*</span></span>
             </label>
             {fieldErrors.agreedToNoise && <FieldError>{fieldErrors.agreedToNoise}</FieldError>}
+          </div>
+
+          <div className="rounded-2xl border border-navy/[0.09] bg-white p-5 flex flex-col gap-2.5">
+            <p className="text-[13px] font-bold text-navy">撮影・広報でのご使用について（任意）</p>
+            <p className="text-[12.5px] text-muted leading-[1.7]">
+              当日、会場の様子や演奏の写真を撮影し、当社の広報活動（ウェブサイト・SNS・パンフレット等）に使用させていただく場合があります。ご同意いただけない場合も、ご予約・ご利用には影響ございません。
+            </p>
+            <label htmlFor="photoConsent" className="flex items-start gap-2.5 text-[13px] text-ink leading-[1.7]">
+              <input
+                id="photoConsent"
+                type="checkbox"
+                className="mt-0.5 h-[18px] w-[18px] shrink-0"
+                checked={form.photoConsent}
+                onChange={(e) => update("photoConsent", e.target.checked)}
+              />
+              <span>写真撮影および広報活動での使用に同意します</span>
+            </label>
           </div>
 
           <Button type="submit" size="lg" className="w-full" disabled={submitting}>
