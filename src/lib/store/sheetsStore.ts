@@ -42,12 +42,12 @@ const TABS = {
 const RESERVATION_HEADERS: (keyof Reservation)[] = [
   "id", "date", "slotStart", "slotEnd", "name", "email", "phone", "ageCategory",
   "guardianName", "notes", "status", "checkinToken", "manageToken", "agreedToTerms",
-  "agreedToNoise", "createdAt", "updatedAt", "checkedInAt", "cancelledAt", "cancelledBy",
+  "agreedToNoise", "photoConsent", "createdAt", "updatedAt", "checkedInAt", "cancelledAt", "cancelledBy",
   "reminderSentAt", "anonymized",
 ];
 const WAITLIST_HEADERS: (keyof WaitlistEntry)[] = [
   "id", "date", "slotStart", "slotEnd", "name", "email", "phone", "ageCategory",
-  "guardianName", "createdAt", "promotedAt", "promotedReservationId",
+  "guardianName", "photoConsent", "createdAt", "promotedAt", "promotedReservationId",
 ];
 const BLACKOUT_HEADERS: (keyof BlackoutDate)[] = ["date", "reason", "createdAt"];
 const NOSHOW_HEADERS: (keyof NoShowStrike)[] = ["email", "reservationId", "date", "createdAt"];

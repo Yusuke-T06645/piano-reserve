@@ -21,6 +21,7 @@ export function ReservationRow({
   email,
   phone,
   ageCategory,
+  photoConsent,
   status,
 }: {
   id: string;
@@ -30,6 +31,7 @@ export function ReservationRow({
   email: string;
   phone?: string;
   ageCategory: string;
+  photoConsent: boolean;
   status: Status;
 }) {
   const router = useRouter();
@@ -62,8 +64,9 @@ export function ReservationRow({
           {email} {phone ? `／ ${phone}` : ""} {ageCategory === "minor" ? "（未成年）" : ""}
         </p>
       </td>
-      <td className="py-3 pr-4">
+      <td className="py-3 pr-4 flex flex-wrap gap-1.5">
         <Badge tone={info.tone}>{info.label}</Badge>
+        {photoConsent && <Badge tone="neutral">撮影同意あり</Badge>}
       </td>
       <td className="py-3 text-right">
         {status === "confirmed" && (

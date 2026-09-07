@@ -70,6 +70,7 @@ export default async function AdminDashboardPage() {
                         email={r.email}
                         phone={r.phone}
                         ageCategory={r.ageCategory}
+                        photoConsent={r.photoConsent}
                         status={r.status}
                       />
                     ))}

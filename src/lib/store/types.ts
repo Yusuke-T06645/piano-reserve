@@ -22,6 +22,7 @@ export interface Reservation {
   manageToken: string; // 本人によるキャンセル・変更用トークン(checkinTokenとは別物)
   agreedToTerms: true;
   agreedToNoise: true;
+  photoConsent: boolean; // 広報(Webサイト・SNS等)での撮影・写真使用への同意(任意)
   createdAt: string; // ISO datetime
   updatedAt: string;
   checkedInAt?: string;
@@ -42,6 +43,7 @@ export interface WaitlistEntry {
   phone?: string;
   ageCategory: AgeCategory;
   guardianName?: string;
+  photoConsent: boolean;
   createdAt: string;
   promotedAt?: string;
   promotedReservationId?: string;
