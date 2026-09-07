@@ -261,7 +261,7 @@ export function TimeRangeSelector({
           aria-valuemin={gapForSelection(selection).start}
           aria-valuemax={selection.end - granularityMinutes}
           tabIndex={0}
-          className="absolute top-1/2 flex h-9 w-9 -translate-y-1/2 -translate-x-1/2 cursor-ew-resize items-center justify-center rounded-full border-[3px] border-teal-dark bg-white shadow-md touch-none"
+          className="absolute top-1/2 flex h-11 w-11 -translate-y-1/2 -translate-x-1/2 cursor-ew-resize items-center justify-center rounded-full border-[3px] border-teal-dark bg-white shadow-md touch-none"
           style={{ left: `${toPercent(selection.start)}%` }}
           onPointerDown={(e) => handlePointerDown("start", e)}
           onKeyDown={(e) => {
@@ -290,7 +290,7 @@ export function TimeRangeSelector({
           aria-valuemin={selection.start + granularityMinutes}
           aria-valuemax={gapForSelection(selection).end}
           tabIndex={0}
-          className="absolute top-1/2 flex h-9 w-9 -translate-y-1/2 -translate-x-1/2 cursor-ew-resize items-center justify-center rounded-full border-[3px] border-teal-dark bg-white shadow-md touch-none"
+          className="absolute top-1/2 flex h-11 w-11 -translate-y-1/2 -translate-x-1/2 cursor-ew-resize items-center justify-center rounded-full border-[3px] border-teal-dark bg-white shadow-md touch-none"
           style={{ left: `${toPercent(selection.end)}%` }}
           onPointerDown={(e) => handlePointerDown("end", e)}
           onKeyDown={(e) => {
@@ -338,7 +338,7 @@ export function TimeRangeSelector({
             <button
               type="button"
               aria-label="開始時刻を早める"
-              className="flex h-7 w-7 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold disabled:opacity-30"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold text-lg disabled:opacity-30"
               disabled={selection.start <= gapForSelection(selection).start}
               onClick={() => adjustStart(-granularityMinutes)}
             >
@@ -350,7 +350,7 @@ export function TimeRangeSelector({
             <button
               type="button"
               aria-label="開始時刻を遅らせる"
-              className="flex h-7 w-7 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold disabled:opacity-30"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold text-lg disabled:opacity-30"
               disabled={selection.start + granularityMinutes >= selection.end}
               onClick={() => adjustStart(granularityMinutes)}
             >
@@ -364,7 +364,7 @@ export function TimeRangeSelector({
             <button
               type="button"
               aria-label="終了時刻を早める"
-              className="flex h-7 w-7 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold disabled:opacity-30"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold text-lg disabled:opacity-30"
               disabled={selection.end - granularityMinutes <= selection.start}
               onClick={() => adjustEnd(-granularityMinutes)}
             >
@@ -376,7 +376,7 @@ export function TimeRangeSelector({
             <button
               type="button"
               aria-label="終了時刻を遅らせる"
-              className="flex h-7 w-7 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold disabled:opacity-30"
+              className="flex h-11 w-11 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold text-lg disabled:opacity-30"
               disabled={!canGrow || selection.end >= gapForSelection(selection).end}
               onClick={() => adjustEnd(granularityMinutes)}
             >

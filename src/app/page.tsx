@@ -2,8 +2,23 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card, Button } from "@/components/ui";
 import { config } from "@/lib/config";
+import { freeMinutesInDay, getDayAvailability, listBookableDates } from "@/lib/availability";
+import { formatJapaneseDate } from "@/lib/dates";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+async function getNextOpenDay() {
+  const dates = await listBookableDates();
+  const nextAvailable = dates.find((d) => d.available);
+  if (!nextAvailable) return null;
+  const availability = await getDayAvailability(nextAvailable.date);
+  const freeMinutes = freeMinutesInDay(availability);
+  return { date: nextAvailable.date, freeMinutes, waitlistCount: availability.waitlistCount };
+}
+
+export default async function Home() {
+  const nextOpenDay = await getNextOpenDay();
+
   return (
     <>
       {/* ヒーローセクション */}
@@ -43,6 +58,29 @@ export default function Home() {
               </svg>
               {config.orgName} 地域開放事業
             </span>
+
+            {/* 次回の開放日・残り枠数(最優先で表示する情報) */}
+            <div className="mt-6 inline-flex flex-wrap items-stretch gap-px rounded-2xl bg-white/12 border border-white/20 overflow-hidden backdrop-blur-sm">
+              <div className="px-5 py-4">
+                <p className="text-[11px] font-bold tracking-widest text-white/60 uppercase">次回の開放日</p>
+                <p className="font-display mt-1 text-lg sm:text-xl font-bold text-white">
+                  {nextOpenDay ? formatJapaneseDate(nextOpenDay.date) : "現在、開放予定日はありません"}
+                </p>
+              </div>
+              {nextOpenDay && (
+                <div className="px-5 py-4 bg-white/8">
+                  <p className="text-[11px] font-bold tracking-widest text-white/60 uppercase">予約可能な残り枠</p>
+                  <p className="font-display mt-1 text-lg sm:text-xl font-bold text-gold-light">
+                    {nextOpenDay.freeMinutes > 0
+                      ? `空きあり（残り${nextOpenDay.freeMinutes}分）`
+                      : nextOpenDay.waitlistCount > 0
+                        ? "満席（キャンセル待ち登録可）"
+                        : "満席"}
+                  </p>
+                </div>
+              )}
+            </div>
+
             <h1 className="font-display mt-6 text-3xl sm:text-[52px] font-bold leading-[1.4] text-white tracking-wide">
               グランドピアノを、
               <br />
@@ -55,19 +93,24 @@ export default function Home() {
             <div className="mt-9 flex flex-wrap gap-3.5">
               <Link href="/reserve">
                 <Button size="lg" variant="gold">
-                  空き状況を見て予約する
+                  空き枠を確認して予約する
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     <path d="M5 12h14M13 6l6 6-6 6" />
                   </svg>
                 </Button>
               </Link>
-              <a href="#guide">
+              <Link href="/manage/lookup">
                 <Button size="lg" variant="outline" className="!text-white !border-white/55 hover:!bg-white/10">
-                  ご利用の流れを見る
+                  予約内容の確認・変更
                 </Button>
-              </a>
+              </Link>
             </div>
-            <div className="mt-11 flex gap-7 pt-7 border-t border-white/15">
+            <p className="mt-4">
+              <a href="#guide" className="text-[13px] font-bold text-white/70 underline underline-offset-2 hover:text-white">
+                ご利用の流れ・会場のご案内を見る
+              </a>
+            </p>
+            <div className="mt-9 flex gap-7 pt-7 border-t border-white/15">
               <div>
                 <p className="font-display text-xl sm:text-[22px] font-bold text-gold-light">毎月2回</p>
                 <p className="mt-0.5 text-xs text-white/60">第1・第3金曜開催</p>
@@ -101,7 +144,7 @@ export default function Home() {
               />
               <div className="absolute inset-x-0 bottom-0 px-5 py-4 bg-linear-to-t from-navy-dark/80 via-navy-dark/15 to-transparent">
                 <p className="text-white text-xs font-bold tracking-wide">
-                  YAMAHA グランドピアノ ／ {config.orgName}本社ラウンジ
+                  YAMAHA グランドピアノ ／ {config.venueName}
                 </p>
               </div>
             </div>
@@ -184,6 +227,42 @@ export default function Home() {
             <Link href="/reserve" className="inline-block mt-8">
               <Button variant="secondary">今すぐ予約する</Button>
             </Link>
+
+            <div className="mt-12 rounded-2xl border border-navy/[0.09] bg-white p-7">
+              <h2 className="font-display text-lg font-bold text-navy mb-4">会場のご案内</h2>
+              <dl className="space-y-3 text-[13.5px] text-ink leading-[1.7]">
+                <div>
+                  <dt className="font-bold text-muted text-[11.5px]">会場</dt>
+                  <dd>
+                    {config.venueName}
+                    <br />
+                    {config.venueAddress}
+                    {config.venueMapUrl && (
+                      <>
+                        {" "}
+                        ・
+                        <a
+                          href={config.venueMapUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-bold text-teal-dark underline"
+                        >
+                          地図を見る
+                        </a>
+                      </>
+                    )}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-bold text-muted text-[11.5px]">アクセス</dt>
+                  <dd>{config.venueAccess}</dd>
+                </div>
+                <div>
+                  <dt className="font-bold text-muted text-[11.5px]">当日の持ち物・受付方法</dt>
+                  <dd>{config.venueChecklist}</dd>
+                </div>
+              </dl>
+            </div>
           </div>
 
           <Card className="bg-cream border-none p-9">
@@ -195,21 +274,42 @@ export default function Home() {
               </li>
               <li className="flex gap-2.5">
                 <span className="text-gold shrink-0">●</span>
-                複数の方が触れる鍵盤です。衛生面にご配慮のうえご利用ください。
-              </li>
-              <li className="flex gap-2.5">
-                <span className="text-gold shrink-0">●</span>
                 未成年の方がご利用の場合は、保護者の同意と当日の同伴が必要です。
               </li>
-              <li className="flex gap-2.5">
-                <span className="text-gold shrink-0">●</span>
-                当日、無断でのご欠席が続いた場合、以降のご予約を一定期間制限させていただく場合があります。
-              </li>
-              <li className="flex gap-2.5">
-                <span className="text-gold shrink-0">●</span>
-                ピアノの破損や利用中の事故等に関する責任範囲は「利用規約」をご確認ください。
-              </li>
             </ul>
+            <details className="mt-3 group">
+              <summary className="cursor-pointer list-none text-[13px] font-bold text-teal-dark inline-flex items-center gap-1.5 focus-visible:outline-none">
+                <svg
+                  width="14"
+                  height="14"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  aria-hidden
+                  className="transition-transform group-open:rotate-90"
+                >
+                  <path d="M9 6l6 6-6 6" />
+                </svg>
+                その他の注意事項をすべて見る
+              </summary>
+              <ul className="mt-3 space-y-3 text-[13.5px] text-ink leading-[1.8]">
+                <li className="flex gap-2.5">
+                  <span className="text-gold shrink-0">●</span>
+                  複数の方が触れる鍵盤です。衛生面にご配慮のうえご利用ください。
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="text-gold shrink-0">●</span>
+                  当日、無断でのご欠席が続いた場合、以降のご予約を一定期間制限させていただく場合があります。
+                </li>
+                <li className="flex gap-2.5">
+                  <span className="text-gold shrink-0">●</span>
+                  ピアノの破損や利用中の事故等に関する責任範囲は「利用規約」をご確認ください。
+                </li>
+              </ul>
+            </details>
             <div className="mt-5 flex gap-6 text-sm">
               <Link href="/terms" className="font-bold text-teal-dark hover:underline">
                 利用規約を読む

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getStore } from "@/lib/store";
 import { requireAdmin, UnauthorizedError } from "@/lib/auth";
+import { formatJstDateTime } from "@/lib/dates";
 
 export const runtime = "nodejs";
 
@@ -30,7 +31,12 @@ export async function POST(req: Request) {
   }
 
   if (reservation.status === "attended") {
-    return NextResponse.json({ reservation, alreadyProcessed: true, message: "対応済みです（来場確認済み）。" });
+    const when = reservation.checkedInAt ? formatJstDateTime(new Date(reservation.checkedInAt)) : "不明な日時";
+    return NextResponse.json({
+      reservation,
+      alreadyProcessed: true,
+      message: `すでに来場確認済みです（${when}に確認済み）。`,
+    });
   }
   if (reservation.status === "cancelled") {
     return NextResponse.json({ reservation, error: "この予約はキャンセルされています。" }, { status: 409 });

@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { isEligibleOpenDate, isPastCutoff, hoursUntil, listUpcomingEligibleDates } from "@/lib/dates";
+import {
+  isEligibleOpenDate,
+  isPastCutoff,
+  hoursUntil,
+  listUpcomingEligibleDates,
+  formatJstDateTime,
+  isInstantPast,
+  jstInstant,
+} from "@/lib/dates";
 
 describe("isEligibleOpenDate", () => {
   it("第1金曜日を開放日と判定する", () => {
@@ -53,5 +61,25 @@ describe("isPastCutoff / hoursUntil (JSTタイムゾーン非依存)", () => {
     const now = new Date("2026-09-04T15:30:00Z");
     // 9/5 16:00JSTの締切(13:00JST)にはまだ十分手前
     expect(isPastCutoff("2026-09-05", "16:00", now)).toBe(false);
+  });
+});
+
+// 変更・キャンセル画面で「24時間前」のような相対表現ではなく、具体的な締切日時を表示するための関数群
+describe("formatJstDateTime / isInstantPast", () => {
+  it("UTCのDateをJSTの日付・曜日・時刻として表示する", () => {
+    // 2026-10-01T07:00:00Z = JST 2026-10-01 16:00(木)
+    expect(formatJstDateTime(new Date("2026-10-01T07:00:00Z"))).toBe("10月1日（木）16:00");
+  });
+
+  it("締切がまだ先なら過ぎていないと判定する", () => {
+    const deadline = jstInstant("2026-10-01", "16:00");
+    const now = new Date("2026-09-30T00:00:00Z");
+    expect(isInstantPast(deadline, now)).toBe(false);
+  });
+
+  it("締切を過ぎていれば過ぎたと判定する(ちょうど締切時刻も含む)", () => {
+    const deadline = jstInstant("2026-10-01", "16:00");
+    expect(isInstantPast(deadline, deadline)).toBe(true);
+    expect(isInstantPast(deadline, new Date(deadline.getTime() + 1000))).toBe(true);
   });
 });

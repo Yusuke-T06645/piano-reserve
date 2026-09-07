@@ -61,8 +61,8 @@ export function Button({
     <button
       className={clsx(
         "inline-flex items-center justify-center gap-2 rounded-full font-bold transition-all disabled:cursor-not-allowed",
-        size === "lg" && "px-7 py-4 text-[15px]",
-        size === "md" && "px-5 py-2.5 text-sm",
+        size === "lg" && "min-h-11 px-7 py-4 text-[15px]",
+        size === "md" && "min-h-11 px-5 py-2.5 text-sm",
         size === "sm" && "px-3.5 py-1.5 text-xs",
         buttonVariants[variant],
         className

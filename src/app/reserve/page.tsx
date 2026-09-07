@@ -20,6 +20,8 @@ export default async function ReservePage() {
     })
   );
 
+  const nextBookable = withAvailability.find((d) => d.available && d.freeMinutes > 0);
+
   return (
     <div className="px-4 sm:px-16 py-10 sm:py-14">
       <div className="mx-auto max-w-[1400px]">
@@ -27,9 +29,31 @@ export default async function ReservePage() {
 
         <p className="text-xs font-bold tracking-widest text-gold uppercase">STEP 1 / 3</p>
         <h1 className="font-display mt-2.5 text-2xl sm:text-[30px] font-bold text-navy">予約する日を選ぶ</h1>
-        <p className="mt-3 mb-10 text-[14.5px] text-muted leading-[1.8]">
+        <p className="mt-3 mb-6 text-[14.5px] text-muted leading-[1.8]">
           開放日は毎月第1・第3金曜日、{config.openTime}〜{config.closeTime}です。ご希望の日付を選択してください。
         </p>
+
+        {nextBookable && (
+          <Link
+            href={`/reserve/${nextBookable.date}`}
+            className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-teal/25 bg-teal-soft px-6 py-4 focus-visible:outline-offset-4"
+          >
+            <span className="flex items-center gap-3">
+              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal text-white">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M5 12h14M13 6l6 6-6 6" />
+                </svg>
+              </span>
+              <span>
+                <span className="block text-[11px] font-bold tracking-widest text-teal-dark uppercase">次に予約できる日</span>
+                <span className="block font-display text-base font-bold text-navy">
+                  {formatJapaneseDate(nextBookable.date)}（残り{nextBookable.freeMinutes}分）
+                </span>
+              </span>
+            </span>
+            <span className="text-[13px] font-bold text-teal-dark">この日で予約する →</span>
+          </Link>
+        )}
 
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
           {withAvailability.map((d) => {

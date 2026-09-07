@@ -94,6 +94,21 @@ export function hoursUntil(iso: IsoDate, slotStart: string, now: Date = new Date
   return (slotStartInstant.getTime() - now.getTime()) / (1000 * 60 * 60);
 }
 
+/** 「◯時間前」のような相対表現ではなく、実際の締切日時をJSTの具体的な日時として表示するための文字列を返す */
+export function formatJstDateTime(instant: Date): string {
+  const jst = toJstFields(instant);
+  const weekdayNames = ["日", "月", "火", "水", "木", "金", "土"];
+  const pad2 = (n: number) => String(n).padStart(2, "0");
+  return `${jst.getUTCMonth() + 1}月${jst.getUTCDate()}日（${weekdayNames[jst.getUTCDay()]}）${pad2(
+    jst.getUTCHours()
+  )}:${pad2(jst.getUTCMinutes())}`;
+}
+
 export function monthKey(iso: IsoDate): string {
   return iso.slice(0, 7); // YYYY-MM
+}
+
+/** 指定した瞬間(instant)を、現在時刻が既に過ぎているかどうかを判定する */
+export function isInstantPast(instant: Date, now: Date = new Date()): boolean {
+  return now.getTime() >= instant.getTime();
 }
