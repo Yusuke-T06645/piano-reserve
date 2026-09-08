@@ -23,7 +23,7 @@ export default async function ReservePage() {
   const nextBookable = withAvailability.find((d) => d.available && d.freeMinutes > 0);
 
   return (
-    <div className="px-4 sm:px-16 py-10 sm:py-14">
+    <div className="px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
       <div className="mx-auto max-w-[1400px]">
         <Stepper current={1} />
 

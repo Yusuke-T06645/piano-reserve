@@ -150,7 +150,7 @@ export function Stepper({ current }: { current: 1 | 2 | 3 }) {
     { n: 3, label: "予約情報を入力" },
   ];
   return (
-    <div className="flex items-center gap-0 mb-10 sm:mb-12 max-w-xl">
+    <div className="flex items-center gap-0 mb-10 sm:mb-12 max-w-2xl">
       {steps.map((step, i) => {
         const done = step.n < current;
         const active = step.n === current;
