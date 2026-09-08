@@ -110,20 +110,20 @@ export default async function Home() {
                 ご利用の流れ・会場のご案内を見る
               </a>
             </p>
-            <div className="mt-9 flex gap-7 pt-7 border-t border-white/15">
-              <div>
-                <p className="font-display text-xl sm:text-[22px] font-bold text-gold-light">毎月2回</p>
-                <p className="mt-0.5 text-xs text-white/60">第1・第3金曜開催</p>
+            <div className="mt-9 flex flex-col gap-4 sm:flex-row sm:gap-7 pt-7 border-t border-white/15">
+              <div className="flex items-baseline gap-2 sm:block">
+                <p className="font-display text-lg sm:text-[22px] font-bold text-gold-light">毎月2回</p>
+                <p className="text-xs text-white/60 sm:mt-0.5">第1・第3金曜開催</p>
               </div>
-              <div>
-                <p className="font-display text-xl sm:text-[22px] font-bold text-gold-light">
+              <div className="flex items-baseline gap-2 sm:block">
+                <p className="font-display text-lg sm:text-[22px] font-bold text-gold-light">
                   最大{config.maxUsageMinutes}分
                 </p>
-                <p className="mt-0.5 text-xs text-white/60">1組あたりのご利用時間</p>
+                <p className="text-xs text-white/60 sm:mt-0.5">1組あたりのご利用時間</p>
               </div>
-              <div>
-                <p className="font-display text-xl sm:text-[22px] font-bold text-gold-light">無料</p>
-                <p className="mt-0.5 text-xs text-white/60">事前Web予約制</p>
+              <div className="flex items-baseline gap-2 sm:block">
+                <p className="font-display text-lg sm:text-[22px] font-bold text-gold-light">無料</p>
+                <p className="text-xs text-white/60 sm:mt-0.5">事前Web予約制</p>
               </div>
             </div>
           </div>

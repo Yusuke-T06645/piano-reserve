@@ -150,16 +150,16 @@ export function Stepper({ current }: { current: 1 | 2 | 3 }) {
     { n: 3, label: "予約情報を入力" },
   ];
   return (
-    <div className="flex items-center gap-0 mb-10 sm:mb-12 max-w-xl flex-wrap sm:flex-nowrap">
+    <div className="flex items-center gap-0 mb-10 sm:mb-12 max-w-xl">
       {steps.map((step, i) => {
         const done = step.n < current;
         const active = step.n === current;
         return (
-          <div key={step.n} className="flex items-center flex-1 min-w-0 last:flex-none">
-            <div className={clsx("flex items-center gap-3", !done && !active && "opacity-45")}>
+          <div key={step.n} className={clsx("flex items-center min-w-0", i < steps.length - 1 && "flex-1")}>
+            <div className={clsx("flex items-center gap-2 sm:gap-3 min-w-0", !done && !active && "opacity-45")}>
               <span
                 className={clsx(
-                  "flex h-[34px] w-[34px] shrink-0 items-center justify-center rounded-full text-sm font-bold",
+                  "flex h-8 w-8 sm:h-[34px] sm:w-[34px] shrink-0 items-center justify-center rounded-full text-[13px] sm:text-sm font-bold",
                   done && "bg-teal text-white",
                   active && "bg-navy text-white",
                   !done && !active && "border-2 border-navy/[0.16] text-muted"
@@ -171,12 +171,18 @@ export function Stepper({ current }: { current: 1 | 2 | 3 }) {
                   step.n
                 )}
               </span>
-              <span className={clsx("text-[13px] font-bold whitespace-nowrap", done || active ? "text-navy" : "text-muted")}>
+              <span
+                className={clsx(
+                  "text-[13px] font-bold whitespace-nowrap truncate",
+                  done || active ? "text-navy" : "text-muted",
+                  !active && "hidden sm:inline"
+                )}
+              >
                 {step.label}
               </span>
             </div>
             {i < steps.length - 1 && (
-              <div className={clsx("h-0.5 flex-1 mx-4 min-w-6", done ? "bg-teal" : "bg-navy/[0.16]")} />
+              <div className={clsx("h-0.5 flex-1 mx-2 sm:mx-4 min-w-3 sm:min-w-6", done ? "bg-teal" : "bg-navy/[0.16]")} />
             )}
           </div>
         );
