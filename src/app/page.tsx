@@ -60,7 +60,7 @@ export default async function Home() {
             </span>
 
             {/* 次回の開放日・残り枠数(最優先で表示する情報) */}
-            <div className="mt-6 inline-flex flex-wrap items-stretch gap-px rounded-2xl bg-white/12 border border-white/20 overflow-hidden backdrop-blur-sm">
+            <div className="mt-6 flex w-fit flex-wrap items-stretch gap-px rounded-2xl bg-white/12 border border-white/20 overflow-hidden backdrop-blur-sm">
               <div className="px-5 py-4">
                 <p className="text-[11px] font-bold tracking-widest text-white/60 uppercase">次回の開放日</p>
                 <p className="font-display mt-1 text-lg sm:text-xl font-bold text-white">
