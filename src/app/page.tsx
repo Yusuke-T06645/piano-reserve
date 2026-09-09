@@ -270,7 +270,7 @@ export default async function Home() {
             <ul className="space-y-3 text-[13.5px] text-ink leading-[1.8]">
               <li className="flex gap-2.5">
                 <span className="text-gold shrink-0">●</span>
-                近隣にお住まいの皆様へのご配慮をお願いいたします（演奏時間の厳守、静かな出入り）。
+                近隣にお住まいの皆様へのご配慮をお願いいたします。予約時間内に終了し、17:00にはご利用中でも終了してください。
               </li>
               <li className="flex gap-2.5">
                 <span className="text-gold shrink-0">●</span>
@@ -295,20 +295,97 @@ export default async function Home() {
                 </svg>
                 その他の注意事項をすべて見る
               </summary>
-              <ul className="mt-3 space-y-3 text-[13.5px] text-ink leading-[1.8]">
-                <li className="flex gap-2.5">
-                  <span className="text-gold shrink-0">●</span>
-                  複数の方が触れる鍵盤です。衛生面にご配慮のうえご利用ください。
-                </li>
-                <li className="flex gap-2.5">
-                  <span className="text-gold shrink-0">●</span>
-                  当日、無断でのご欠席が続いた場合、以降のご予約を一定期間制限させていただく場合があります。
-                </li>
-                <li className="flex gap-2.5">
-                  <span className="text-gold shrink-0">●</span>
-                  ピアノの破損や利用中の事故等に関する責任範囲は「利用規約」をご確認ください。
-                </li>
-              </ul>
+              <div className="mt-3 space-y-5">
+                <div>
+                  <p className="text-[12px] font-bold text-navy mb-2">演奏時のルール</p>
+                  <ul className="space-y-3 text-[13.5px] text-ink leading-[1.8]">
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      予約時間内に終了し、速やかな入替えにご協力ください。
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      係員の案内・指示に従ってください。
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-[12px] font-bold text-navy mb-2">撮影・SNSについて</p>
+                  <ul className="space-y-3 text-[13.5px] text-ink leading-[1.8]">
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      他の利用者・社員を撮影する場合は、本人の同意が必要です。
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      ライブ配信はできませんが、動画撮影は可能です。
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      執務エリア・社員・防犯設備・社内情報が特定できる撮影・投稿は禁止です。
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-[12px] font-bold text-navy mb-2">安全・設備について</p>
+                  <ul className="space-y-3 text-[13.5px] text-ink leading-[1.8]">
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      複数の方が触れる鍵盤です。衛生面にご配慮のうえご利用ください。
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      異常・破損を発見した場合は使用せず、係員へお知らせください。
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      故意・過失による破損は、修繕費用をご負担いただく場合があります。
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      安全管理・防犯のため、防犯カメラで録画されています。
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      緊急時は演奏を中止し、係員の指示に従って避難してください。
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-[12px] font-bold text-navy mb-2">禁止事項</p>
+                  <ul className="space-y-3 text-[13.5px] text-ink leading-[1.8]">
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      投げ銭・物販・宣伝・勧誘等の営利・商業目的でのご利用
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      ピアノ周辺での飲食・飲酒・喫煙
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      大声での歌唱・発声など、通常業務に支障を与える音量での演奏
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      危険・威圧的な行為、執務エリアへの立ち入り
+                    </li>
+                  </ul>
+                </div>
+                <div>
+                  <p className="text-[12px] font-bold text-navy mb-2">そのほか</p>
+                  <ul className="space-y-3 text-[13.5px] text-ink leading-[1.8]">
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      当日、無断でのご欠席が続いた場合、以降のご予約を一定期間制限させていただく場合があります。
+                    </li>
+                    <li className="flex gap-2.5">
+                      <span className="text-gold shrink-0">●</span>
+                      ピアノの破損や利用中の事故等に関する責任範囲は「利用規約」をご確認ください。
+                    </li>
+                  </ul>
+                </div>
+              </div>
             </details>
             <div className="mt-5 flex gap-6 text-sm">
               <Link href="/terms" className="font-bold text-teal-dark hover:underline">

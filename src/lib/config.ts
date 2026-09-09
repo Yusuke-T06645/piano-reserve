@@ -11,7 +11,7 @@ export const config = {
   supportPhone: process.env.SUPPORT_PHONE || "",
 
   // 会場案内(予約前・完了画面の両方で表示する)
-  venueName: process.env.VENUE_NAME || "株式会社田中組 本社ラウンジ",
+  venueName: process.env.VENUE_NAME || "本社新社屋 1階ホール（指定エリア）",
   venueAddress: process.env.VENUE_ADDRESS || "住所は運営にてご設定ください（VENUE_ADDRESS）",
   venueAccess: process.env.VENUE_ACCESS || "アクセス方法は運営にてご設定ください（VENUE_ACCESS）",
   venueMapUrl: process.env.VENUE_MAP_URL || "",
