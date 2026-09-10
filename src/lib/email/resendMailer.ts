@@ -18,9 +18,12 @@ export class ResendMailer implements Mailer {
       subject: message.subject,
       html: message.html,
       text: message.text,
+      // ResendのSDKはリクエストボディをJSON.stringifyするだけなので、Bufferをそのまま渡すと
+      // "{ type: 'Buffer', data: [...] }" という配列表現に化けてしまい、Resend側で
+      // 不正な添付ファイルとして送信自体が失敗する。base64文字列に変換してから渡す。
       attachments: message.attachments?.map((a) => ({
         filename: a.filename,
-        content: a.content,
+        content: a.content.toString("base64"),
         contentType: a.contentType,
         contentId: a.cid,
       })),
