@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { cookies } from "next/headers";
 import { ADMIN_COOKIE_NAME, verifyAdminSessionToken } from "@/lib/auth";
+import { Alert } from "@/components/ui";
 import { LogoutButton } from "./LogoutButton";
 import { AdminNav } from "./AdminNav";
 
@@ -12,8 +13,24 @@ async function getAdminEmail(): Promise<string | null> {
   return session?.email ?? null;
 }
 
+/**
+ * RESEND_API_KEY 未設定時はメールが実送信されず(コンソール/一時ファイル出力のみ)、
+ * 利用者・管理者ともにメールが一切届かない状態になる。気づきにくい設定漏れのため、
+ * 管理画面に常時警告を出す(docs/DEPLOYMENT.md の「2. メール送信(Resend)の設定」参照)。
+ */
+function getEmailConfigWarning(): string | null {
+  if (!process.env.RESEND_API_KEY) {
+    return "メール送信が未設定です（RESEND_API_KEY が未設定）。予約確認・リマインダー等のメールは実際には送信されていません。Vercelの環境変数に RESEND_API_KEY / MAIL_FROM を設定し、再デプロイしてください。";
+  }
+  if (!process.env.ADMIN_NOTIFY_EMAIL) {
+    return "管理者への新規予約・キャンセル通知の送信先（ADMIN_NOTIFY_EMAIL）が未設定です。Vercelの環境変数に設定してください。";
+  }
+  return null;
+}
+
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   const email = await getAdminEmail();
+  const emailConfigWarning = getEmailConfigWarning();
 
   return (
     <div className="min-h-full flex flex-col lg:flex-row bg-cream">
@@ -69,7 +86,16 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
         </div>
       </aside>
 
-      <main className="flex-1 px-4 sm:px-6 lg:px-12 py-6 sm:py-10 lg:py-11 min-w-0">{children}</main>
+      <main className="flex-1 px-4 sm:px-6 lg:px-12 py-6 sm:py-10 lg:py-11 min-w-0">
+        {emailConfigWarning && (
+          <div className="mb-6">
+            <Alert tone="danger" title="メール送信の設定を確認してください">
+              {emailConfigWarning}
+            </Alert>
+          </div>
+        )}
+        {children}
+      </main>
     </div>
   );
 }
