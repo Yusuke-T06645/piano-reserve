@@ -21,6 +21,8 @@ export class ResendMailer implements Mailer {
       attachments: message.attachments?.map((a) => ({
         filename: a.filename,
         content: a.content,
+        contentType: a.contentType,
+        contentId: a.cid,
       })),
     });
     if (error) {

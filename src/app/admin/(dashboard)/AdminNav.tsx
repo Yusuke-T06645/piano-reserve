@@ -41,11 +41,16 @@ const links = [
   },
 ];
 
-export function AdminNav() {
+export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobile" }) {
   const pathname = usePathname();
 
   return (
-    <nav aria-label="管理者ナビゲーション" className="flex flex-col gap-1">
+    <nav
+      aria-label="管理者ナビゲーション"
+      className={clsx(
+        variant === "sidebar" ? "flex flex-col gap-1" : "flex items-stretch gap-1 overflow-x-auto px-2 py-1.5"
+      )}
+    >
       {links.map((link) => {
         const active = link.href === "/admin" ? pathname === "/admin" : pathname.startsWith(link.href);
         return (
@@ -54,7 +59,8 @@ export function AdminNav() {
             href={link.href}
             aria-current={active ? "page" : undefined}
             className={clsx(
-              "flex items-center gap-3 rounded-[11px] px-3.5 py-3 text-[13.5px] font-medium transition-colors",
+              "flex items-center gap-3 rounded-[11px] font-medium transition-colors",
+              variant === "sidebar" ? "px-3.5 py-3 text-[13.5px]" : "shrink-0 px-3 py-2 text-[12.5px] whitespace-nowrap",
               active ? "bg-gold-light/16 text-gold-light font-bold" : "text-white/68 hover:bg-white/10 hover:text-white"
             )}
           >

@@ -16,8 +16,27 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   const email = await getAdminEmail();
 
   return (
-    <div className="min-h-full flex bg-cream">
-      <aside className="w-[248px] shrink-0 flex flex-col bg-linear-to-br from-navy-dark via-navy to-teal-dark p-5">
+    <div className="min-h-full flex flex-col lg:flex-row bg-cream">
+      {/* モバイル・タブレット用の上部ヘッダー(横幅が狭い端末ではサイドバーを常時表示せず、
+          代わりにこちらを表示する。QRチェックインページをスマホで使えるようにするための対応) */}
+      <div className="lg:hidden bg-linear-to-br from-navy-dark via-navy to-teal-dark">
+        <div className="flex items-center justify-between gap-3 px-4 py-3">
+          <Link href="/" className="flex min-w-0 items-center gap-2.5">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold text-navy-dark">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <path d="M9 18V5l10-2v13" />
+                <circle cx="6.5" cy="18" r="2.5" />
+                <circle cx="16.5" cy="16" r="2.5" />
+              </svg>
+            </span>
+            <span className="truncate text-[13.5px] font-bold text-white">ピアノひろば 管理画面</span>
+          </Link>
+          <LogoutButton />
+        </div>
+        <AdminNav variant="mobile" />
+      </div>
+
+      <aside className="hidden lg:flex w-[248px] shrink-0 flex-col bg-linear-to-br from-navy-dark via-navy to-teal-dark p-5">
         <Link href="/" className="flex items-center gap-3 px-1.5 mb-9">
           <span className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-gold text-navy-dark">
             <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -50,7 +69,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
         </div>
       </aside>
 
-      <main className="flex-1 px-6 sm:px-12 py-10 sm:py-11 min-w-0">{children}</main>
+      <main className="flex-1 px-4 sm:px-6 lg:px-12 py-6 sm:py-10 lg:py-11 min-w-0">{children}</main>
     </div>
   );
 }
