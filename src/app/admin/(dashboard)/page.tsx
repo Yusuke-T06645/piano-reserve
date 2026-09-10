@@ -1,7 +1,7 @@
 import { getStore } from "@/lib/store";
 import { formatJapaneseDate } from "@/lib/dates";
 import { listUpcomingEligibleDates } from "@/lib/dates";
-import { ReservationRow } from "./ReservationRow";
+import { ReservationRow, ReservationCard } from "./ReservationRow";
 
 export const dynamic = "force-dynamic";
 
@@ -49,20 +49,13 @@ export default async function AdminDashboardPage() {
             {reservations.length === 0 ? (
               <p className="text-sm text-muted">この日の予約はまだありません。</p>
             ) : (
-              <div className="overflow-x-auto -mx-1">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="text-left text-xs text-muted border-b border-navy/[0.09]">
-                      <th className="py-2 pr-4 font-medium">時間</th>
-                      <th className="py-2 pr-4 font-medium">予約者</th>
-                      <th className="py-2 pr-4 font-medium">状況</th>
-                      <th className="py-2 font-medium text-right">操作</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {reservations.map((r) => (
-                      <ReservationRow
-                        key={r.id}
+              <>
+                {/* サイドバー表示(lg未満)は上部ヘッダー+ナビの狭いレイアウトになるため、
+                    テーブルだと操作ボタンの列が潰れて画面外にはみ出す。縦積みのカード表示にする */}
+                <div className="lg:hidden divide-y divide-navy/[0.09]">
+                  {reservations.map((r) => (
+                    <div key={r.id} className="py-4 first:pt-0 last:pb-0">
+                      <ReservationCard
                         id={r.id}
                         slotStart={r.slotStart}
                         slotEnd={r.slotEnd}
@@ -73,10 +66,39 @@ export default async function AdminDashboardPage() {
                         photoConsent={r.photoConsent}
                         status={r.status}
                       />
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                    </div>
+                  ))}
+                </div>
+
+                <div className="hidden lg:block overflow-x-auto -mx-1">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="text-left text-xs text-muted border-b border-navy/[0.09]">
+                        <th className="py-2 pr-4 font-medium">時間</th>
+                        <th className="py-2 pr-4 font-medium">予約者</th>
+                        <th className="py-2 pr-4 font-medium">状況</th>
+                        <th className="py-2 font-medium text-right">操作</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {reservations.map((r) => (
+                        <ReservationRow
+                          key={r.id}
+                          id={r.id}
+                          slotStart={r.slotStart}
+                          slotEnd={r.slotEnd}
+                          name={r.name}
+                          email={r.email}
+                          phone={r.phone}
+                          ageCategory={r.ageCategory}
+                          photoConsent={r.photoConsent}
+                          status={r.status}
+                        />
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </>
             )}
           </div>
         ))}
