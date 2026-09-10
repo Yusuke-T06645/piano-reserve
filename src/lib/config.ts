@@ -7,7 +7,7 @@ export const config = {
   siteShortName: "ピアノひろば",
   orgName: "株式会社田中組",
   adminNotifyEmail: process.env.ADMIN_NOTIFY_EMAIL || "admin@example.com",
-  supportEmail: process.env.SUPPORT_EMAIL || "piano-support@example.com",
+  supportEmail: process.env.SUPPORT_EMAIL || "soumubu@tanakagumi.co.jp",
   supportPhone: process.env.SUPPORT_PHONE || "",
 
   // 会場案内(予約前・完了画面の両方で表示する)
