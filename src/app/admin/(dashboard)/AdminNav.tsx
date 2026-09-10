@@ -48,7 +48,7 @@ export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobil
     <nav
       aria-label="管理者ナビゲーション"
       className={clsx(
-        variant === "sidebar" ? "flex flex-col gap-1" : "flex items-stretch gap-1 overflow-x-auto px-2 py-1.5"
+        variant === "sidebar" ? "flex flex-col gap-1" : "flex flex-wrap items-stretch gap-1.5 px-3 py-2"
       )}
     >
       {links.map((link) => {

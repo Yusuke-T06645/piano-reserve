@@ -13,17 +13,7 @@ const STATUS_LABEL: Record<Status, { label: string; tone: "success" | "warning" 
   no_show: { label: "無断キャンセル", tone: "danger" },
 };
 
-export function ReservationRow({
-  id,
-  slotStart,
-  slotEnd,
-  name,
-  email,
-  phone,
-  ageCategory,
-  photoConsent,
-  status,
-}: {
+type ReservationRowProps = {
   id: string;
   slotStart: string;
   slotEnd: string;
@@ -33,7 +23,9 @@ export function ReservationRow({
   ageCategory: string;
   photoConsent: boolean;
   status: Status;
-}) {
+};
+
+function useReservationActions(id: string) {
   const router = useRouter();
   const [busy, setBusy] = useState(false);
 
@@ -51,6 +43,21 @@ export function ReservationRow({
     }
   }
 
+  return { busy, act };
+}
+
+export function ReservationRow({
+  id,
+  slotStart,
+  slotEnd,
+  name,
+  email,
+  phone,
+  ageCategory,
+  photoConsent,
+  status,
+}: ReservationRowProps) {
+  const { busy, act } = useReservationActions(id);
   const info = STATUS_LABEL[status];
 
   return (
@@ -84,5 +91,57 @@ export function ReservationRow({
         )}
       </td>
     </tr>
+  );
+}
+
+/**
+ * スマホ幅ではテーブルではなくカード表示にする(横に3つ操作ボタンが並ぶテーブル用レイアウトは
+ * 狭い画面だと列が潰れてボタンが画面外にはみ出すため、縦積みのカードに切り替える)。
+ */
+export function ReservationCard({
+  id,
+  slotStart,
+  slotEnd,
+  name,
+  email,
+  phone,
+  ageCategory,
+  photoConsent,
+  status,
+}: ReservationRowProps) {
+  const { busy, act } = useReservationActions(id);
+  const info = STATUS_LABEL[status];
+
+  return (
+    <div className="flex flex-col gap-2.5">
+      <div className="flex items-start justify-between gap-2">
+        <span className="font-bold text-navy">
+          {slotStart}〜{slotEnd}
+        </span>
+        <div className="flex flex-wrap justify-end gap-1.5">
+          <Badge tone={info.tone}>{info.label}</Badge>
+          {photoConsent && <Badge tone="neutral">撮影同意あり</Badge>}
+        </div>
+      </div>
+      <div>
+        <p className="font-medium text-ink">{name}</p>
+        <p className="text-xs text-muted break-words">
+          {email} {phone ? `／ ${phone}` : ""} {ageCategory === "minor" ? "（未成年）" : ""}
+        </p>
+      </div>
+      {status === "confirmed" && (
+        <div className="grid grid-cols-3 gap-2 pt-0.5">
+          <Button size="sm" variant="outline" className="w-full" disabled={busy} onClick={() => act("mark_attended")}>
+            来場確認
+          </Button>
+          <Button size="sm" variant="ghost" className="w-full" disabled={busy} onClick={() => act("mark_no_show")}>
+            ノーショー
+          </Button>
+          <Button size="sm" variant="danger" className="w-full" disabled={busy} onClick={() => act("cancel")}>
+            キャンセル
+          </Button>
+        </div>
+      )}
+    </div>
   );
 }
