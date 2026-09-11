@@ -6,7 +6,9 @@ export const config = {
   siteName: "田中組グランドピアノ開放事業",
   siteShortName: "ピアノひろば",
   orgName: "株式会社田中組",
-  adminNotifyEmail: process.env.ADMIN_NOTIFY_EMAIL || "admin@example.com",
+  // 未設定時にダミードメインへ誤送信し続けないよう、フォールバックは空文字にする
+  // (空の場合は notifications.ts 側で送信をスキップしてログに警告を出す)
+  adminNotifyEmail: process.env.ADMIN_NOTIFY_EMAIL || "",
   supportEmail: process.env.SUPPORT_EMAIL || "soumubu@tanakagumi.co.jp",
   supportPhone: process.env.SUPPORT_PHONE || "",
 
