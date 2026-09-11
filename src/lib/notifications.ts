@@ -76,12 +76,20 @@ export async function notifyWaitlistPromoted(r: Reservation) {
 }
 
 export async function notifyAdminNewBooking(r: Reservation) {
+  if (!config.adminNotifyEmail) {
+    console.error("[email] ADMIN_NOTIFY_EMAIL が未設定のため、管理者への新規予約通知を送信できません");
+    return;
+  }
   const adminUrl = `${getBaseUrl()}/admin`;
   const { subject, html, text } = templates.adminNewBookingEmail(r, adminUrl);
   await safeSend({ to: config.adminNotifyEmail, subject, html, text });
 }
 
 export async function notifyAdminCancellation(r: Reservation) {
+  if (!config.adminNotifyEmail) {
+    console.error("[email] ADMIN_NOTIFY_EMAIL が未設定のため、管理者へのキャンセル通知を送信できません");
+    return;
+  }
   const { subject, html, text } = templates.adminCancellationEmail(r);
   await safeSend({ to: config.adminNotifyEmail, subject, html, text });
 }
