@@ -25,10 +25,13 @@ export const config = {
   venueEntrance:
     process.env.VENUE_ENTRANCE ||
     "1階のガラス張りの正面玄関からお入りください。受付は無人です。受付に置かれた電話機で内線「9501」（総務部）をお呼び出しください。",
-  /** 駐車場・駐輪場の有無(駐輪場・台数・料金は未確認のため記載していない) */
-  venueParking: process.env.VENUE_PARKING || "敷地内の来客用駐車場をご利用いただけます。",
-  /** 段差・車いすでの入館に関する案内。未確認のため既定値は空 */
-  venueAccessibility: process.env.VENUE_ACCESSIBILITY || "",
+  /** 駐車場・駐輪場の案内(台数は未確認のため記載していない) */
+  venueParking:
+    process.env.VENUE_PARKING || "敷地内の来客用駐車場・駐輪場を無料でご利用いただけます。",
+  /** 段差・車いすでの入館に関する案内 */
+  venueAccessibility:
+    process.env.VENUE_ACCESSIBILITY ||
+    "車いすでのご来館が可能です。なお、館内に多目的トイレはございませんので、あらかじめご了承ください。",
   venueMapUrl: process.env.VENUE_MAP_URL || "",
   venueChecklist:
     "当日は、受付でQRコード・予約番号をご提示いただくか、お名前をお伝えください。上履きの必要はありません。",

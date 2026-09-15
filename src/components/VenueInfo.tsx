@@ -1,4 +1,24 @@
+import Image from "next/image";
 import { config, venueMapLink } from "@/lib/config";
+
+/** はじめての方が来場の流れを想像できるよう、外観・受付の写真を掲載する */
+const PHOTOS = [
+  {
+    src: "/venue-entrance.jpg",
+    width: 1344,
+    height: 1008,
+    alt: "会社名の看板が立つ本社の外観。手前に来客用駐車場、奥のひさしの下にガラス張りの正面玄関がある。",
+    caption: "「株式会社田中組」の看板が目印です。手前が来客用駐車場・駐輪場、奥のひさしの下が正面玄関です。",
+  },
+  {
+    // 掲載用に、ゲストWi-Fiの案内板が写らない範囲へ切り出した写真を使用している
+    src: "/venue-reception.jpg",
+    width: 790,
+    height: 592,
+    alt: "1階の受付。台の上に内線呼び出し用の電話機があり、隣に内線番号の案内板が立っている。",
+    caption: "受付は無人です。台の上の電話機で内線「9501」（総務部）をお呼び出しください。",
+  },
+];
 
 /**
  * 会場のご案内。
@@ -59,6 +79,22 @@ export function VenueInfo({ className = "" }: { className?: string }) {
           <dd>{config.venueChecklist}</dd>
         </div>
       </dl>
+
+      <div className="mt-6 grid gap-4 sm:grid-cols-2">
+        {PHOTOS.map((photo) => (
+          <figure key={photo.src}>
+            <Image
+              src={photo.src}
+              alt={photo.alt}
+              width={photo.width}
+              height={photo.height}
+              sizes="(min-width: 640px) 320px, 100vw"
+              className="block w-full h-auto rounded-xl border border-navy/[0.09]"
+            />
+            <figcaption className="mt-2 text-[14px] leading-[1.7] text-muted">{photo.caption}</figcaption>
+          </figure>
+        ))}
+      </div>
 
       {pendingItems.length > 0 && (
         <p className="mt-5 rounded-xl bg-cream px-4 py-3.5 text-[14px] text-ink leading-[1.8]">
