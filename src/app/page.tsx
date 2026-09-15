@@ -52,6 +52,7 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
         <a href={`mailto:${config.supportEmail}`} className="font-bold text-teal-dark underline">
           {config.supportEmail}
         </a>
+        {config.supportPhone && `（電話: ${config.supportPhone}）`}
         までご連絡ください。なお、遅れてご来場された場合も、次のご予約の方がいらっしゃるため終了時刻の延長はできません。
       </>
     ),

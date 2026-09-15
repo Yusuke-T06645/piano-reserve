@@ -10,19 +10,23 @@ export const config = {
   // (空の場合は notifications.ts 側で送信をスキップしてログに警告を出す)
   adminNotifyEmail: process.env.ADMIN_NOTIFY_EMAIL || "",
   supportEmail: process.env.SUPPORT_EMAIL || "soumubu@tanakagumi.co.jp",
-  supportPhone: process.env.SUPPORT_PHONE || "",
+  supportPhone: process.env.SUPPORT_PHONE || "011-611-3331",
 
   // 会場案内(予約前・完了画面の両方で表示する)
   // 未確認の項目は推測で記載せず空のままにしておくこと。
   // 空の項目は公開画面に表示せず、代わりに問い合わせ先を案内する(src/components/VenueInfo.tsx)。
   venueName: process.env.VENUE_NAME || "株式会社田中組 本社 1階ホール（指定エリア）",
   venueAddress: process.env.VENUE_ADDRESS || "北海道札幌市中央区北6条西11丁目26番地",
-  /** 最寄り駅・バス停からのアクセス。未確認のため既定値は空(運営が確認後にVENUE_ACCESSを設定する) */
-  venueAccess: process.env.VENUE_ACCESS || "",
-  /** 建物の入口と受付場所。未確認のため既定値は空 */
-  venueEntrance: process.env.VENUE_ENTRANCE || "",
-  /** 駐車場・駐輪場の有無。未確認のため既定値は空 */
-  venueParking: process.env.VENUE_PARKING || "",
+  /** 最寄り駅・バス停からのアクセス(改行はそのまま表示される) */
+  venueAccess:
+    process.env.VENUE_ACCESS ||
+    "JR桑園駅から徒歩約11分\n地下鉄 西11丁目駅から徒歩約14分\nJR札幌駅から徒歩約18分",
+  /** 建物の入口と受付場所 */
+  venueEntrance:
+    process.env.VENUE_ENTRANCE ||
+    "1階のガラス張りの正面玄関からお入りください。受付は無人です。受付に置かれた電話機で内線「9501」（総務部）をお呼び出しください。",
+  /** 駐車場・駐輪場の有無(駐輪場・台数・料金は未確認のため記載していない) */
+  venueParking: process.env.VENUE_PARKING || "敷地内の来客用駐車場をご利用いただけます。",
   /** 段差・車いすでの入館に関する案内。未確認のため既定値は空 */
   venueAccessibility: process.env.VENUE_ACCESSIBILITY || "",
   venueMapUrl: process.env.VENUE_MAP_URL || "",

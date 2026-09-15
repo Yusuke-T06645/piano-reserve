@@ -7,14 +7,15 @@ import { config, venueMapLink } from "@/lib/config";
  */
 export function VenueInfo({ className = "" }: { className?: string }) {
   const mapUrl = venueMapLink();
-  const optionalItems = [
-    { label: "最寄り駅・バス停からのアクセス", value: config.venueAccess },
-    { label: "建物の入口・受付場所", value: config.venueEntrance },
-    { label: "駐車場・駐輪場", value: config.venueParking },
+  const items = [
+    { label: "最寄り駅から", value: config.venueAccess },
+    { label: "建物の入口・受付", value: config.venueEntrance },
+    { label: "駐車場", value: config.venueParking },
     { label: "段差・車いすでのご来館", value: config.venueAccessibility },
-  ].filter((item) => item.value.trim().length > 0);
-
-  const hasUnpublishedItems = optionalItems.length < 4;
+  ];
+  const publishedItems = items.filter((item) => item.value.trim().length > 0);
+  // 運営で未確認の項目は推測で埋めず、問い合わせ先を案内する
+  const pendingItems = items.filter((item) => item.value.trim().length === 0);
 
   return (
     <div className={`rounded-2xl border border-navy/[0.09] bg-white p-6 sm:p-7 ${className}`}>
@@ -46,10 +47,10 @@ export function VenueInfo({ className = "" }: { className?: string }) {
           </dd>
         </div>
 
-        {optionalItems.map((item) => (
+        {publishedItems.map((item) => (
           <div key={item.label}>
             <dt className="font-bold text-muted text-[13px]">{item.label}</dt>
-            <dd>{item.value}</dd>
+            <dd className="whitespace-pre-line">{item.value}</dd>
           </div>
         ))}
 
@@ -59,10 +60,10 @@ export function VenueInfo({ className = "" }: { className?: string }) {
         </div>
       </dl>
 
-      {hasUnpublishedItems && (
+      {pendingItems.length > 0 && (
         <p className="mt-5 rounded-xl bg-cream px-4 py-3.5 text-[14px] text-ink leading-[1.8]">
-          アクセス・入口・駐車場・バリアフリーに関する詳しいご案内は、準備でき次第このページに掲載します。
-          お急ぎの場合は
+          {pendingItems.map((item) => item.label).join("・")}
+          に関するご案内は、準備でき次第このページに掲載します。 お急ぎの場合は
           <a href={`mailto:${config.supportEmail}`} className="font-bold text-teal-dark underline">
             {config.supportEmail}
           </a>
