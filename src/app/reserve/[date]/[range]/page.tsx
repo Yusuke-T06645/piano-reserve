@@ -45,8 +45,11 @@ export default async function RangeBookingPage({
       <div className="mx-auto max-w-[1400px]">
         <Stepper current={3} />
 
-        <p className="text-xs font-bold tracking-widest text-gold uppercase">STEP 3 / 3</p>
-        <h1 className="font-display mt-2.5 mb-10 text-2xl sm:text-[30px] font-bold text-navy">予約情報を入力する</h1>
+        <p className="text-[13px] font-bold tracking-widest text-gold-ink uppercase">STEP 3 / 3</p>
+        <h1 className="font-display mt-2.5 text-2xl sm:text-[30px] font-bold text-navy">予約情報を入力する</h1>
+        <p className="mt-3 mb-8 text-[16px] text-muted leading-[1.8]">
+          ご入力・ご同意のあと、画面下の「ご予約内容の確認」で日時をご確認いただき、「予約を確定する」を押してください。
+        </p>
 
         <BookingForm
           date={date}

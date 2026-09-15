@@ -5,6 +5,7 @@ import { getStore } from "@/lib/store";
 import { formatJapaneseDate, jstInstant } from "@/lib/dates";
 import { buildCheckinUrl, generateQrDataUrl } from "@/lib/qr";
 import { config } from "@/lib/config";
+import { VenueInfo } from "@/components/VenueInfo";
 import { verifyConfirmationToken } from "@/lib/confirmationToken";
 
 export const dynamic = "force-dynamic";
@@ -79,17 +80,17 @@ export default async function CompletePage({
   return (
     <div className="px-4 sm:px-6 lg:px-16 py-14 sm:py-[72px]">
       <div className="mx-auto max-w-xl text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-4 py-1.5 text-xs font-bold text-success">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-4 py-2 text-[14px] font-bold text-success">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M5 12.5l4.5 4.5L19 7" />
           </svg>
           予約完了
         </span>
         <h1 className="font-display mt-5 text-2xl sm:text-[32px] font-bold text-navy">ご予約ありがとうございました</h1>
-        <p className="mt-3 text-[14.5px] text-muted leading-[1.8]">
+        <p className="mt-3 text-[16px] text-ink leading-[1.8]">
           {emailFailed
             ? "ご予約は正常に完了しています。ただし確認メールの送信には失敗した可能性があります。"
-            : "確認メールをお送りしました。当日は下記のQRコードを受付でご提示ください。"}
+            : "確認メールをお送りしました。当日は、受付で下記のQRコード・予約番号をご提示いただくか、お名前をお伝えください。"}
         </p>
 
         {emailFailed && (
@@ -103,11 +104,12 @@ export default async function CompletePage({
         )}
 
         <div className="mt-10 rounded-[26px] border border-navy/[0.09] bg-white p-8 sm:p-11 shadow-hero">
-          <p className="text-xs text-muted">予約番号</p>
+          <p className="text-[14px] font-bold text-muted">予約番号</p>
           <p className="font-display mt-1.5 mb-5 text-[22px] font-bold text-navy tracking-wide">{reservation.id}</p>
           <p className="font-display text-[21px] font-bold text-navy">{formatJapaneseDate(reservation.date)}</p>
-          <p className="mt-1.5 mb-7 text-sm text-muted">
+          <p className="mt-1.5 mb-7 text-[16px] font-bold text-navy">
             {reservation.slotStart}〜{reservation.slotEnd}
+            <span className="ml-2 text-[15px] font-semibold text-teal-dark">／ 料金 無料</span>
           </p>
 
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -116,8 +118,9 @@ export default async function CompletePage({
             alt={`予約番号 ${reservation.id} のチェックイン用QRコード`}
             className="mx-auto h-56 w-56 rounded-2xl border border-navy/[0.09] p-4 shadow-soft"
           />
-          <p className="mt-4 text-[11.5px] text-muted">
+          <p className="mt-4 text-[14px] leading-[1.8] text-muted">
             このQRコードのスクリーンショットを保存するか、確認メールを当日ご提示ください。
+            QRコードをご提示いただけない場合も、予約番号またはお名前で受付できます。
           </p>
         </div>
 
@@ -143,8 +146,8 @@ export default async function CompletePage({
 
         <div className="mt-3.5">
           <Link href={`/manage/${reservation.manageToken}`}>
-            <Button variant="ghost" className="w-full">
-              予約内容の確認・変更・キャンセルはこちら
+            <Button variant="outline" className="w-full">
+              予約の確認・変更・キャンセル
             </Button>
           </Link>
         </div>
@@ -154,45 +157,11 @@ export default async function CompletePage({
             近隣へのご配慮（演奏時間の厳守）と、鍵盤をご利用の際の衛生面へのご配慮をお願いいたします。
           </Alert>
 
-          <div className="rounded-2xl border border-navy/[0.09] bg-white p-6">
-            <p className="text-[13px] font-bold text-navy mb-3">会場・当日の流れ</p>
-            <dl className="space-y-2.5 text-[13px] text-ink leading-[1.7]">
-              <div>
-                <dt className="font-bold text-muted text-[11.5px]">会場</dt>
-                <dd>
-                  {config.venueName}
-                  {config.venueMapUrl && (
-                    <>
-                      {" "}
-                      ・
-                      <a
-                        href={config.venueMapUrl}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-bold text-teal-dark underline"
-                      >
-                        地図を見る
-                      </a>
-                    </>
-                  )}
-                  <br />
-                  {config.venueAddress}
-                </dd>
-              </div>
-              <div>
-                <dt className="font-bold text-muted text-[11.5px]">アクセス</dt>
-                <dd>{config.venueAccess}</dd>
-              </div>
-              <div>
-                <dt className="font-bold text-muted text-[11.5px]">受付方法</dt>
-                <dd>{config.venueChecklist}</dd>
-              </div>
-            </dl>
-          </div>
+          <VenueInfo />
 
           <div className="rounded-2xl border border-navy/[0.09] bg-white p-6">
-            <p className="text-[13px] font-bold text-navy mb-3">お問い合わせ</p>
-            <p className="text-[13px] text-ink leading-[1.7]">
+            <p className="text-[16px] font-bold text-navy mb-3">お問い合わせ</p>
+            <p className="text-[15px] text-ink leading-[1.8]">
               予約内容やキャンセルについてのご質問は
               <a href={`mailto:${config.supportEmail}`} className="font-bold text-teal-dark underline">
                 {config.supportEmail}

@@ -6,8 +6,8 @@ export const metadata = { title: `利用規約 | ${config.siteShortName}` };
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-8">
-      <h2 className="text-lg font-bold text-navy mb-2">{title}</h2>
-      <div className="space-y-2 text-sm leading-relaxed text-ink">{children}</div>
+      <h2 className="text-[19px] font-bold text-navy mb-2.5">{title}</h2>
+      <div className="space-y-2.5 text-[15px] leading-[1.9] text-ink">{children}</div>
     </section>
   );
 }
@@ -17,7 +17,7 @@ export default function TermsPage() {
     <Container className="py-10 sm:py-14 max-w-3xl">
       <SectionTitle title="利用規約" description={`最終改定日: 2026年9月2日（${config.orgName}）`} />
       <Card>
-        <p className="text-sm text-muted mb-8">
+        <p className="text-[15px] leading-[1.9] text-muted mb-8">
           本規約は、{config.orgName}（以下「当社」といいます）が提供する「{config.siteName}」（以下「本サービス」といいます）の
           グランドピアノ利用に関するご案内です。本サービスをご利用いただく場合、本規約に同意いただいたものとします。
         </p>
@@ -30,7 +30,7 @@ export default function TermsPage() {
         </Section>
 
         <Section title="第2条（当日のご利用）">
-          <p>1. 当日は、予約完了時に発行されるQRコードを受付にてご提示ください。</p>
+          <p>1. 当日は、受付で予約完了時に発行されるQRコード・予約番号をご提示いただくか、お名前をお伝えください。</p>
           <p>2. ご利用時間を超過しての演奏はご遠慮いただきます。次にご利用のお客様がいらっしゃる場合があります。</p>
           <p>3. 近隣にお住まいの皆様へのご配慮をお願いいたします（演奏時間の厳守、来退場時の静粛の保持等）。</p>
           <p>4. 複数の方が触れる鍵盤であるため、衛生面に配慮のうえご利用ください。当社は可能な範囲で鍵盤の消毒等の衛生管理を行いますが、ご利用者様ご自身での手指の消毒等にもご協力をお願いいたします。</p>

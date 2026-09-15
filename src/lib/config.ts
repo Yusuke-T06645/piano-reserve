@@ -13,11 +13,21 @@ export const config = {
   supportPhone: process.env.SUPPORT_PHONE || "",
 
   // 会場案内(予約前・完了画面の両方で表示する)
-  venueName: process.env.VENUE_NAME || "本社新社屋 1階ホール（指定エリア）",
-  venueAddress: process.env.VENUE_ADDRESS || "住所は運営にてご設定ください（VENUE_ADDRESS）",
-  venueAccess: process.env.VENUE_ACCESS || "アクセス方法は運営にてご設定ください（VENUE_ACCESS）",
+  // 未確認の項目は推測で記載せず空のままにしておくこと。
+  // 空の項目は公開画面に表示せず、代わりに問い合わせ先を案内する(src/components/VenueInfo.tsx)。
+  venueName: process.env.VENUE_NAME || "株式会社田中組 本社 1階ホール（指定エリア）",
+  venueAddress: process.env.VENUE_ADDRESS || "北海道札幌市中央区北6条西11丁目26番地",
+  /** 最寄り駅・バス停からのアクセス。未確認のため既定値は空(運営が確認後にVENUE_ACCESSを設定する) */
+  venueAccess: process.env.VENUE_ACCESS || "",
+  /** 建物の入口と受付場所。未確認のため既定値は空 */
+  venueEntrance: process.env.VENUE_ENTRANCE || "",
+  /** 駐車場・駐輪場の有無。未確認のため既定値は空 */
+  venueParking: process.env.VENUE_PARKING || "",
+  /** 段差・車いすでの入館に関する案内。未確認のため既定値は空 */
+  venueAccessibility: process.env.VENUE_ACCESSIBILITY || "",
   venueMapUrl: process.env.VENUE_MAP_URL || "",
-  venueChecklist: "受付にてお名前をお伝えいただくか、QRコードまたは予約番号をご提示ください。上履きの必要はありません。",
+  venueChecklist:
+    "当日は、受付でQRコード・予約番号をご提示いただくか、お名前をお伝えください。上履きの必要はありません。",
 
   // 開放日ルール: 毎月 第1・第3金曜日
   eligibleWeekday: 5, // 0=日,1=月,...5=金
@@ -79,4 +89,14 @@ export function generateTimeGrid(): string[] {
     points.push(minutesToTime(m));
   }
   return points;
+}
+
+/**
+ * 地図を開くリンクを返す。
+ * VENUE_MAP_URL が設定されていればそれを、未設定の場合は住所からGoogleマップの検索URLを組み立てる。
+ */
+export function venueMapLink(): string {
+  if (config.venueMapUrl) return config.venueMapUrl;
+  if (!config.venueAddress) return "";
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.venueAddress)}`;
 }
