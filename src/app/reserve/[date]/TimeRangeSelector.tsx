@@ -51,7 +51,7 @@ export function TimeRangeSelector({
   busyRanges,
   waitlistCount,
   onConfirm,
-  confirmLabel = "この時間で予約する",
+  confirmLabel = "この時間で入力へ進む",
   confirmDisabled = false,
   showWaitlistCta = true,
 }: {
@@ -90,8 +90,8 @@ export function TimeRangeSelector({
   if (!largestGap || !selection) {
     return (
       <div className="rounded-[22px] border border-navy/[0.09] bg-white p-6 sm:p-10 text-center shadow-soft">
-        <p className="text-[15px] font-bold text-navy">この日は空き時間がありません</p>
-        <p className="mt-2.5 text-[13.5px] text-muted leading-relaxed">
+        <p className="text-[17px] font-bold text-navy">この日は空き時間がありません</p>
+        <p className="mt-2.5 text-[15px] text-ink leading-[1.8]">
           {showWaitlistCta
             ? "満席のため、キャンセル待ちに登録いただけます。キャンセルが発生した場合、先着順で自動的にご案内します。"
             : "満席のため、別の日付をお選びください。"}
@@ -180,6 +180,17 @@ export function TimeRangeSelector({
     updateSelection({ start: selection.start, end: newEnd });
   }
 
+  /** 「15分」等の補助ボタン。空き時間(gap)の範囲を超えないよう収める */
+  function applyDuration(targetMinutes: number) {
+    if (!selection) return;
+    const gap = gapForSelection(selection);
+    const duration = Math.min(targetMinutes, maxUsageMinutes, gap.end - gap.start);
+    let start = selection.start;
+    if (start + duration > gap.end) start = gap.end - duration;
+    start = clamp(snap(start, granularityMinutes), gap.start, gap.end - duration);
+    updateSelection({ start, end: start + duration });
+  }
+
   function jumpToGap(g: Gap, clickMinutes: number) {
     if (!selection) return;
     const duration = Math.min(maxUsageMinutes, selection.end - selection.start, g.end - g.start);
@@ -190,26 +201,60 @@ export function TimeRangeSelector({
 
   const duration = selection.end - selection.start;
   const canGrow = duration < maxUsageMinutes;
+  const durationPresets = [15, 30, 60].filter(
+    (d) => d % granularityMinutes === 0 && d <= maxUsageMinutes
+  );
 
   return (
     <div className="rounded-[22px] border border-navy/[0.09] bg-white p-6 sm:p-10 shadow-soft">
-      <div className="flex flex-wrap items-baseline justify-between gap-2.5 mb-8">
+      <div className="flex flex-wrap items-baseline justify-between gap-2.5 mb-6">
         <div>
-          <p className="text-xs font-bold tracking-wide text-muted uppercase">選択中の利用時間</p>
-          <p className="mt-1.5 font-display text-2xl sm:text-[30px] font-bold text-navy">
+          <p className="text-[13px] font-bold tracking-wide text-muted uppercase">選択中の利用時間</p>
+          <p aria-live="polite" className="mt-1.5 font-display text-2xl sm:text-[30px] font-bold text-navy">
             {minutesToTime(selection.start)} 〜 {minutesToTime(selection.end)}
-            <span className="ml-2.5 text-base font-semibold text-teal-dark">（{duration}分）</span>
+            <span className="ml-2.5 text-[17px] font-semibold text-teal-dark">（合計{duration}分）</span>
           </p>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-4 py-2 text-xs font-bold text-teal-dark">
-          ドラッグで自由に調整できます
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-4 py-2 text-[13px] font-bold text-teal-dark">
+          ドラッグでも調整できます
         </span>
       </div>
+
+      {/* 利用時間の補助ボタン */}
+      {durationPresets.length > 0 && (
+        <div className="mb-7">
+          <p className="mb-2.5 text-[14px] font-bold text-navy">利用時間から選ぶ</p>
+          <div className="flex flex-wrap gap-2.5">
+            {durationPresets.map((preset) => {
+              const gap = gapForSelection(selection);
+              const fits = gap.end - gap.start >= preset;
+              const selected = duration === preset;
+              return (
+                <button
+                  key={preset}
+                  type="button"
+                  aria-pressed={selected}
+                  disabled={!fits}
+                  onClick={() => applyDuration(preset)}
+                  className={
+                    selected
+                      ? "inline-flex min-h-11 min-w-[88px] items-center justify-center rounded-full bg-teal-dark px-5 text-[15px] font-bold text-white"
+                      : "inline-flex min-h-11 min-w-[88px] items-center justify-center rounded-full border-[1.5px] border-navy/25 bg-white px-5 text-[15px] font-bold text-navy hover:border-teal disabled:cursor-not-allowed disabled:opacity-45"
+                  }
+                >
+                  {preset}分{selected && <span className="sr-only">（選択中）</span>}
+                  {!fits && <span className="sr-only">（空き時間が足りないため選べません）</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
 
       {/* track */}
       <div
         ref={trackRef}
-        className="relative h-16 rounded-2xl bg-navy-soft touch-none select-none"
+        className="relative mt-10 h-16 rounded-2xl bg-navy-soft touch-none select-none"
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
@@ -239,7 +284,7 @@ export function TimeRangeSelector({
                 "repeating-linear-gradient(135deg, rgba(27,58,75,.16) 0 6px, transparent 6px 12px)",
             }}
           >
-            <span className="whitespace-nowrap text-[10.5px] font-bold text-muted px-1">
+            <span className="whitespace-nowrap text-[12px] font-bold text-muted px-1">
               {r.kind === "cutoff" ? "受付終了" : "予約済み"}
             </span>
           </div>
@@ -261,12 +306,17 @@ export function TimeRangeSelector({
           aria-valuemin={gapForSelection(selection).start}
           aria-valuemax={selection.end - granularityMinutes}
           tabIndex={0}
-          className="absolute top-1/2 flex h-11 w-11 -translate-y-1/2 -translate-x-1/2 cursor-ew-resize items-center justify-center rounded-full border-[3px] border-teal-dark bg-white shadow-md touch-none"
+          className="absolute top-1/2 flex h-[44px] w-[44px] -translate-y-1/2 -translate-x-1/2 cursor-ew-resize items-center justify-center rounded-full border-[3px] border-teal-dark bg-white shadow-md touch-none"
           style={{ left: `${toPercent(selection.start)}%` }}
           onPointerDown={(e) => handlePointerDown("start", e)}
           onKeyDown={(e) => {
-            if (e.key === "ArrowLeft") adjustStart(-granularityMinutes);
-            if (e.key === "ArrowRight") adjustStart(granularityMinutes);
+            const gap = gapForSelection(selection);
+            if (e.key === "ArrowLeft" || e.key === "ArrowDown") adjustStart(-granularityMinutes);
+            else if (e.key === "ArrowRight" || e.key === "ArrowUp") adjustStart(granularityMinutes);
+            else if (e.key === "Home") adjustStart(gap.start - selection.start);
+            else if (e.key === "End") adjustStart(selection.end - granularityMinutes - selection.start);
+            else return;
+            e.preventDefault();
           }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal-dark)" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
@@ -275,8 +325,8 @@ export function TimeRangeSelector({
         </div>
         <div
           aria-hidden
-          className="absolute -top-9 -translate-x-1/2 whitespace-nowrap rounded-lg bg-navy px-2.5 py-1.5 text-xs font-bold text-white"
-          style={{ left: `${toPercent(selection.start)}%` }}
+          className="absolute -top-9 -translate-x-1/2 whitespace-nowrap rounded-lg bg-navy px-2.5 py-1.5 text-[13px] font-bold text-white"
+          style={{ left: `clamp(30px, ${toPercent(selection.start)}%, calc(100% - 30px))` }}
         >
           {minutesToTime(selection.start)}
         </div>
@@ -290,12 +340,17 @@ export function TimeRangeSelector({
           aria-valuemin={selection.start + granularityMinutes}
           aria-valuemax={gapForSelection(selection).end}
           tabIndex={0}
-          className="absolute top-1/2 flex h-11 w-11 -translate-y-1/2 -translate-x-1/2 cursor-ew-resize items-center justify-center rounded-full border-[3px] border-teal-dark bg-white shadow-md touch-none"
+          className="absolute top-1/2 flex h-[44px] w-[44px] -translate-y-1/2 -translate-x-1/2 cursor-ew-resize items-center justify-center rounded-full border-[3px] border-teal-dark bg-white shadow-md touch-none"
           style={{ left: `${toPercent(selection.end)}%` }}
           onPointerDown={(e) => handlePointerDown("end", e)}
           onKeyDown={(e) => {
-            if (e.key === "ArrowLeft") adjustEnd(-granularityMinutes);
-            if (e.key === "ArrowRight") adjustEnd(granularityMinutes);
+            const gap = gapForSelection(selection);
+            if (e.key === "ArrowLeft" || e.key === "ArrowDown") adjustEnd(-granularityMinutes);
+            else if (e.key === "ArrowRight" || e.key === "ArrowUp") adjustEnd(granularityMinutes);
+            else if (e.key === "Home") adjustEnd(selection.start + granularityMinutes - selection.end);
+            else if (e.key === "End") adjustEnd(gap.end - selection.end);
+            else return;
+            e.preventDefault();
           }}
         >
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal-dark)" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
@@ -304,53 +359,53 @@ export function TimeRangeSelector({
         </div>
         <div
           aria-hidden
-          className="absolute -top-9 -translate-x-1/2 whitespace-nowrap rounded-lg bg-navy px-2.5 py-1.5 text-xs font-bold text-white"
-          style={{ left: `${toPercent(selection.end)}%` }}
+          className="absolute -top-9 -translate-x-1/2 whitespace-nowrap rounded-lg bg-navy px-2.5 py-1.5 text-[13px] font-bold text-white"
+          style={{ left: `clamp(30px, ${toPercent(selection.end)}%, calc(100% - 30px))` }}
         >
           {minutesToTime(selection.end)}
         </div>
       </div>
 
       {/* axis labels */}
-      <div className="mt-3.5 flex justify-between text-[11px] text-muted">
+      <div className="mt-3.5 flex justify-between text-[13px] text-muted">
         <span>{openTime}</span>
         <span>{closeTime}</span>
       </div>
 
       {/* legend */}
       <div className="mt-7 flex flex-wrap gap-5 border-t border-navy/[0.09] pt-6">
-        <span className="inline-flex items-center gap-2 text-xs text-muted">
-          <span className="h-3.5 w-3.5 rounded bg-linear-to-br from-teal to-teal-dark" />選択中の時間
+        <span className="inline-flex items-center gap-2 text-[14px] text-muted">
+          <span aria-hidden className="h-3.5 w-3.5 rounded bg-linear-to-br from-teal to-teal-dark" />選択中の時間
         </span>
-        <span className="inline-flex items-center gap-2 text-xs text-muted">
-          <span className="h-3.5 w-3.5 rounded border border-navy/[0.16] bg-success-soft" />ご利用いただけます
+        <span className="inline-flex items-center gap-2 text-[14px] text-muted">
+          <span aria-hidden className="h-3.5 w-3.5 rounded border border-navy/[0.16] bg-success-soft" />ご利用いただけます
         </span>
-        <span className="inline-flex items-center gap-2 text-xs text-muted">
-          <span className="h-3.5 w-3.5 rounded border border-navy/[0.16] bg-navy-soft" />予約済み・受付終了
+        <span className="inline-flex items-center gap-2 text-[14px] text-muted">
+          <span aria-hidden className="h-3.5 w-3.5 rounded border border-navy/[0.16] bg-navy-soft" />予約済み・受付終了
         </span>
       </div>
 
       {/* fine adjust */}
       <div className="mt-6 flex flex-col sm:flex-row gap-4">
-        <div className="flex flex-1 items-center justify-between rounded-xl bg-cream px-4 py-3">
-          <span className="text-xs font-bold text-navy">開始時刻</span>
+        <div className="flex flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl bg-cream px-4 py-3">
+          <span className="text-[15px] font-bold text-navy">開始時刻</span>
           <div className="flex items-center gap-3">
             <button
               type="button"
               aria-label="開始時刻を早める"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold text-lg disabled:opacity-30"
+              className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-navy/30 bg-white text-navy font-bold text-lg disabled:opacity-40"
               disabled={selection.start <= gapForSelection(selection).start}
               onClick={() => adjustStart(-granularityMinutes)}
             >
               －
             </button>
-            <span className="font-display min-w-[52px] text-center text-base font-bold text-navy">
+            <span className="font-display min-w-[56px] text-center text-[17px] font-bold text-navy">
               {minutesToTime(selection.start)}
             </span>
             <button
               type="button"
               aria-label="開始時刻を遅らせる"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold text-lg disabled:opacity-30"
+              className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-navy/30 bg-white text-navy font-bold text-lg disabled:opacity-40"
               disabled={selection.start + granularityMinutes >= selection.end}
               onClick={() => adjustStart(granularityMinutes)}
             >
@@ -358,25 +413,25 @@ export function TimeRangeSelector({
             </button>
           </div>
         </div>
-        <div className="flex flex-1 items-center justify-between rounded-xl bg-cream px-4 py-3">
-          <span className="text-xs font-bold text-navy">終了時刻</span>
+        <div className="flex flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl bg-cream px-4 py-3">
+          <span className="text-[15px] font-bold text-navy">終了時刻</span>
           <div className="flex items-center gap-3">
             <button
               type="button"
               aria-label="終了時刻を早める"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold text-lg disabled:opacity-30"
+              className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-navy/30 bg-white text-navy font-bold text-lg disabled:opacity-40"
               disabled={selection.end - granularityMinutes <= selection.start}
               onClick={() => adjustEnd(-granularityMinutes)}
             >
               －
             </button>
-            <span className="font-display min-w-[52px] text-center text-base font-bold text-navy">
+            <span className="font-display min-w-[56px] text-center text-[17px] font-bold text-navy">
               {minutesToTime(selection.end)}
             </span>
             <button
               type="button"
               aria-label="終了時刻を遅らせる"
-              className="flex h-11 w-11 items-center justify-center rounded-full border border-navy/[0.16] bg-white text-navy font-bold text-lg disabled:opacity-30"
+              className="flex h-[44px] w-[44px] shrink-0 items-center justify-center rounded-full border-[1.5px] border-navy/30 bg-white text-navy font-bold text-lg disabled:opacity-40"
               disabled={!canGrow || selection.end >= gapForSelection(selection).end}
               onClick={() => adjustEnd(granularityMinutes)}
             >
@@ -387,8 +442,10 @@ export function TimeRangeSelector({
       </div>
 
       <div className="mt-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-        <p className="flex items-center gap-1.5 text-[12.5px] text-muted">
+        <p className="text-[14px] leading-[1.8] text-muted">
           混雑緩和のため、1回のご利用は最大{maxUsageMinutes}分までとさせていただいております。
+          <br className="hidden sm:block" />
+          このボタンではまだ予約は確定しません。次の画面で内容をご確認のうえ確定してください。
         </p>
         <Button
           size="lg"

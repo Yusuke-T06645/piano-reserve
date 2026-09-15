@@ -17,29 +17,29 @@ export function Footer() {
               </span>
               <span className="font-display text-[17px] font-bold text-white">{config.siteShortName}</span>
             </div>
-            <p className="mt-4 text-[13px] text-white/55 leading-relaxed max-w-sm">
+            <p className="mt-4 text-[15px] text-white/85 leading-[1.8] max-w-sm">
               {config.orgName}が地域貢献の一環として運営する、グランドピアノ一般開放プログラムです。
             </p>
           </div>
           <div>
-            <p className="mb-4 text-[11px] font-bold tracking-widest text-gold-light uppercase">リンク</p>
+            <p className="mb-4 text-[13px] font-bold tracking-widest text-gold-light uppercase">リンク</p>
             <div className="flex flex-col gap-3">
-              <Link href="/terms" className="text-[13px] text-white/75 hover:text-white">
+              <Link href="/terms" className="inline-flex min-h-11 items-center text-[15px] text-white/85 hover:text-white">
                 利用規約
               </Link>
-              <Link href="/privacy" className="text-[13px] text-white/75 hover:text-white">
+              <Link href="/privacy" className="inline-flex min-h-11 items-center text-[15px] text-white/85 hover:text-white">
                 プライバシーポリシー
               </Link>
-              <Link href="/manage/lookup" className="text-[13px] text-white/75 hover:text-white">
-                予約の確認・キャンセル
+              <Link href="/manage/lookup" className="inline-flex min-h-11 items-center text-[15px] text-white/85 hover:text-white">
+                予約の確認・変更・キャンセル
               </Link>
             </div>
           </div>
           <div>
-            <p className="mb-4 text-[11px] font-bold tracking-widest text-gold-light uppercase">お問い合わせ</p>
+            <p className="mb-4 text-[13px] font-bold tracking-widest text-gold-light uppercase">お問い合わせ</p>
             <a
               href={`mailto:${config.supportEmail}`}
-              className="flex items-center gap-2.5 text-[13px] text-white/75 hover:text-white"
+              className="inline-flex min-h-11 items-center gap-2.5 text-[15px] text-white/85 hover:text-white"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden className="shrink-0">
                 <rect x="3" y="5" width="18" height="14" rx="2" />
@@ -49,7 +49,7 @@ export function Footer() {
             </a>
           </div>
         </div>
-        <div className="mt-10 pt-5 border-t border-white/10 text-xs text-white/40">
+        <div className="mt-10 pt-5 border-t border-white/15 text-[13px] text-white/75">
           © {config.orgName} グランドピアノ一般開放プログラム
         </div>
       </div>

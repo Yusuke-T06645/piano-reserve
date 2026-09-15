@@ -18,7 +18,7 @@ function wrap(bodyHtml: string): string {
 export function reservationConfirmedEmail(r: Reservation, manageUrl: string) {
   const html = wrap(`
     <p>${r.name} 様</p>
-    <p>グランドピアノ開放のご予約を承りました。当日は本メールに記載のQRコードを受付でご提示ください。</p>
+    <p>グランドピアノ開放のご予約を承りました。当日は、受付で本メールのQRコード・予約番号をご提示いただくか、お名前をお伝えください。</p>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
       <tr><td style="padding:6px 0;color:#6B7280;">予約番号</td><td style="padding:6px 0;font-weight:bold;">${r.id}</td></tr>
       <tr><td style="padding:6px 0;color:#6B7280;">日時</td><td style="padding:6px 0;font-weight:bold;">${formatJapaneseDate(r.date)} ${r.slotStart}〜${r.slotEnd}</td></tr>
@@ -26,21 +26,21 @@ export function reservationConfirmedEmail(r: Reservation, manageUrl: string) {
     <p style="text-align:center;margin:24px 0;">
       <img src="cid:qrcode" alt="チェックイン用QRコード" style="width:220px;height:220px;" />
     </p>
-    <p>ご予約内容の確認・キャンセル・変更は、下記のページから行えます。</p>
-    <p><a href="${manageUrl}" style="color:#2E6F73;">予約内容の確認・キャンセル・変更はこちら</a></p>
+    <p>ご予約内容の確認・日時の変更・キャンセルは、下記のページから行えます。</p>
+    <p><a href="${manageUrl}" style="color:#2E6F73;">予約の確認・変更・キャンセルはこちら</a></p>
     <p style="font-size:13px;color:#6B7280;">※ご都合が悪くなった場合は、無断キャンセルとならないよう、上記ページから早めのキャンセルにご協力をお願いいたします。</p>
   `);
   return {
     subject: `【${config.siteShortName}】ご予約が確定しました（${formatJapaneseDate(r.date)} ${r.slotStart}〜）`,
     html,
-    text: `${r.name}様\n\nご予約が確定しました。\n予約番号: ${r.id}\n日時: ${formatJapaneseDate(r.date)} ${r.slotStart}〜${r.slotEnd}\n\n予約内容の確認・キャンセル・変更: ${manageUrl}`,
+    text: `${r.name}様\n\nご予約が確定しました。\n予約番号: ${r.id}\n日時: ${formatJapaneseDate(r.date)} ${r.slotStart}〜${r.slotEnd}\n\n予約の確認・変更・キャンセル: ${manageUrl}`,
   };
 }
 
 export function reminderEmail(r: Reservation, manageUrl: string) {
   const html = wrap(`
     <p>${r.name} 様</p>
-    <p>明日はグランドピアノ開放のご利用日です。当日は受付にてQRコードをご提示ください。</p>
+    <p>明日はグランドピアノ開放のご利用日です。当日は、受付でQRコード・予約番号をご提示いただくか、お名前をお伝えください。</p>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
       <tr><td style="padding:6px 0;color:#6B7280;">日時</td><td style="padding:6px 0;font-weight:bold;">${formatJapaneseDate(r.date)} ${r.slotStart}〜${r.slotEnd}</td></tr>
     </table>
@@ -60,7 +60,7 @@ export function reminderEmail(r: Reservation, manageUrl: string) {
 export function rescheduledEmail(r: Reservation, manageUrl: string) {
   const html = wrap(`
     <p>${r.name} 様</p>
-    <p>ご予約日時を変更いたしました。当日は本メールに記載のQRコードを受付でご提示ください(QRコードはお手元の以前のメールと同じものが引き続き有効です)。</p>
+    <p>ご予約日時を変更いたしました。当日は、受付で本メールのQRコード・予約番号をご提示いただくか、お名前をお伝えください(QRコードはお手元の以前のメールと同じものが引き続き有効です)。</p>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
       <tr><td style="padding:6px 0;color:#6B7280;">予約番号</td><td style="padding:6px 0;font-weight:bold;">${r.id}</td></tr>
       <tr><td style="padding:6px 0;color:#6B7280;">変更後の日時</td><td style="padding:6px 0;font-weight:bold;">${formatJapaneseDate(r.date)} ${r.slotStart}〜${r.slotEnd}</td></tr>
@@ -68,7 +68,7 @@ export function rescheduledEmail(r: Reservation, manageUrl: string) {
     <p style="text-align:center;margin:24px 0;">
       <img src="cid:qrcode" alt="チェックイン用QRコード" style="width:220px;height:220px;" />
     </p>
-    <p><a href="${manageUrl}" style="color:#2E6F73;">予約内容の確認・キャンセル・変更はこちら</a></p>
+    <p><a href="${manageUrl}" style="color:#2E6F73;">予約の確認・変更・キャンセルはこちら</a></p>
   `);
   return {
     subject: `【${config.siteShortName}】ご予約日時を変更しました（${formatJapaneseDate(r.date)} ${r.slotStart}〜）`,
@@ -85,7 +85,7 @@ export function manageLinkEmail(r: Reservation, manageUrl: string) {
       <tr><td style="padding:6px 0;color:#6B7280;">予約番号</td><td style="padding:6px 0;font-weight:bold;">${r.id}</td></tr>
       <tr><td style="padding:6px 0;color:#6B7280;">日時</td><td style="padding:6px 0;font-weight:bold;">${formatJapaneseDate(r.date)} ${r.slotStart}〜${r.slotEnd}</td></tr>
     </table>
-    <p><a href="${manageUrl}" style="color:#2E6F73;">予約内容の確認・キャンセル・変更はこちら</a></p>
+    <p><a href="${manageUrl}" style="color:#2E6F73;">予約の確認・変更・キャンセルはこちら</a></p>
     <p style="font-size:13px;color:#6B7280;">※このリンクに心当たりがない場合は、本メールを破棄してください。</p>
   `);
   return {
@@ -128,7 +128,7 @@ export function waitlistJoinedEmail(w: WaitlistEntry) {
 export function waitlistPromotedEmail(r: Reservation, manageUrl: string) {
   const html = wrap(`
     <p>${r.name} 様</p>
-    <p>キャンセルが発生したため、キャンセル待ちのご予約が確定しました！当日は受付にてQRコードをご提示ください。</p>
+    <p>キャンセルが発生したため、キャンセル待ちのご予約が確定しました！当日は、受付でQRコード・予約番号をご提示いただくか、お名前をお伝えください。</p>
     <table style="width:100%;border-collapse:collapse;margin:16px 0;">
       <tr><td style="padding:6px 0;color:#6B7280;">予約番号</td><td style="padding:6px 0;font-weight:bold;">${r.id}</td></tr>
       <tr><td style="padding:6px 0;color:#6B7280;">日時</td><td style="padding:6px 0;font-weight:bold;">${formatJapaneseDate(r.date)} ${r.slotStart}〜${r.slotEnd}</td></tr>
@@ -136,7 +136,7 @@ export function waitlistPromotedEmail(r: Reservation, manageUrl: string) {
     <p style="text-align:center;margin:24px 0;">
       <img src="cid:qrcode" alt="チェックイン用QRコード" style="width:220px;height:220px;" />
     </p>
-    <p><a href="${manageUrl}" style="color:#2E6F73;">予約内容の確認・キャンセル・変更はこちら</a></p>
+    <p><a href="${manageUrl}" style="color:#2E6F73;">予約の確認・変更・キャンセルはこちら</a></p>
   `);
   return {
     subject: `【${config.siteShortName}】キャンセル待ちのご予約が確定しました`,

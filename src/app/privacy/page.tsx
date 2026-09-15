@@ -6,8 +6,8 @@ export const metadata = { title: `プライバシーポリシー | ${config.site
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <section className="mb-8">
-      <h2 className="text-lg font-bold text-navy mb-2">{title}</h2>
-      <div className="space-y-2 text-sm leading-relaxed text-ink">{children}</div>
+      <h2 className="text-[19px] font-bold text-navy mb-2.5">{title}</h2>
+      <div className="space-y-2.5 text-[15px] leading-[1.9] text-ink">{children}</div>
     </section>
   );
 }
@@ -17,7 +17,7 @@ export default function PrivacyPage() {
     <Container className="py-10 sm:py-14 max-w-3xl">
       <SectionTitle title="プライバシーポリシー" description={`最終改定日: 2026年9月2日（${config.orgName}）`} />
       <Card>
-        <p className="text-sm text-muted mb-8">
+        <p className="text-[15px] leading-[1.9] text-muted mb-8">
           {config.orgName}（以下「当社」といいます）は、「{config.siteName}」（以下「本サービス」といいます）における
           個人情報の取扱いについて、以下のとおりプライバシーポリシー（以下「本ポリシー」といいます）を定めます。
         </p>

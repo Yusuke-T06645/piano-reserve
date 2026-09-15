@@ -33,7 +33,7 @@ const STATUS_LABEL: Record<ReservationView["status"], { label: string; tone: "su
 };
 
 const selectClass =
-  "w-full rounded-[11px] border-[1.5px] border-navy/[0.16] bg-white px-4 py-3 text-sm text-ink";
+  "w-full min-h-12 rounded-[11px] border-[1.5px] border-navy/30 bg-white px-4 py-3 text-base text-ink";
 
 export function ManagePanel({
   token,
@@ -130,13 +130,14 @@ export function ManagePanel({
   return (
     <div className="space-y-7">
       <div className="rounded-[22px] border border-navy/[0.09] bg-white p-6 sm:p-9 shadow-soft">
-        <div className="flex items-center justify-between mb-4">
-          <p className="text-[12.5px] text-muted">予約番号 {reservation.id}</p>
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
+          <p className="text-[14px] font-bold text-muted whitespace-nowrap">予約番号 {reservation.id}</p>
           <Badge tone={statusInfo.tone}>{statusInfo.label}</Badge>
         </div>
         <p className="font-display text-[22px] font-bold text-navy">{formatJapaneseDate(reservation.date)}</p>
-        <p className="mt-2 mb-7 text-sm text-muted">
+        <p className="mt-2 mb-7 text-[16px] text-ink">
           {reservation.slotStart}〜{reservation.slotEnd} ／ {reservation.name} 様
+          <span className="ml-2 text-[15px] text-muted">（料金 無料）</span>
         </p>
 
         {message && (
@@ -147,13 +148,13 @@ export function ManagePanel({
 
         {canChange && mode === "idle" && (
           <>
-            <p className="mb-4 text-[12.5px] text-muted">
+            <p className="mb-4 text-[15px] leading-[1.8] text-muted">
               日時の変更は{changeDeadlineText}まで承ります（ご利用{changeDeadlineHours}時間前が締切です）。
             </p>
-            <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button
                 variant="outline"
-                className="flex-1"
+                className="sm:flex-1"
                 onClick={() => setMode("reschedule")}
                 disabled={!canReschedule}
               >
@@ -163,7 +164,7 @@ export function ManagePanel({
                 </svg>
                 日時を変更する
               </Button>
-              <Button variant="danger" className="flex-1" onClick={() => setMode("confirmCancel")}>
+              <Button variant="danger" className="sm:flex-1" onClick={() => setMode("confirmCancel")}>
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   <circle cx="12" cy="12" r="9" />
                   <path d="M9 9l6 6M15 9l-6 6" />
@@ -185,8 +186,8 @@ export function ManagePanel({
 
         {mode === "confirmCancel" && (
           <div className="rounded-2xl border border-danger/25 bg-danger-soft p-5">
-            <p className="text-sm text-ink mb-4">本当にこのご予約をキャンセルしますか？この操作は取り消せません。</p>
-            <div className="flex gap-3">
+            <p className="text-[16px] leading-[1.8] text-ink mb-4">本当にこのご予約をキャンセルしますか？この操作は取り消せません。</p>
+            <div className="flex flex-col sm:flex-row gap-3">
               <Button variant="danger" onClick={doCancel} disabled={busy}>
                 {busy ? "処理中…" : "はい、キャンセルする"}
               </Button>
@@ -210,7 +211,7 @@ export function ManagePanel({
 
       {mode === "reschedule" && (
         <div className="rounded-[22px] bg-cream p-6 sm:p-8">
-          <p className="mb-5 text-xs text-muted">
+          <p className="mb-5 text-[15px] leading-[1.8] text-muted">
             ※日時の変更は{changeDeadlineText}（ご利用{changeDeadlineHours}時間前）まで承ります。
           </p>
           <div className="mb-6">

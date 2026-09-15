@@ -89,3 +89,44 @@ export function isSlotPastCutoff(date: string, slotStart: string): boolean {
 }
 
 export { minutesToTime, monthKey, timeToMinutes };
+
+/** 開放日の状況。表示文言・次の行動の案内をこの区分で切り替える */
+export type DayStatus =
+  /** 予約できる空き時間がある */
+  | "open"
+  /** 全枠が埋まっている(キャンセル待ちは可能) */
+  | "full"
+  /** 当日の受付時間を過ぎている(締切済み) */
+  | "closed"
+  /** 調律等による休止日 */
+  | "blackout";
+
+export type DaySummary = {
+  date: string;
+  status: DayStatus;
+  freeMinutes: number;
+  waitlistCount: number;
+};
+
+/** 開放予定日の一覧を、そのまま画面表示に使える状況(空きあり/満席/受付終了/休止)付きで返す */
+export async function listDaySummaries(): Promise<DaySummary[]> {
+  const dates = await listBookableDates();
+  return Promise.all(
+    dates.map(async (d): Promise<DaySummary> => {
+      if (!d.available) {
+        return { date: d.date, status: "blackout", freeMinutes: 0, waitlistCount: 0 };
+      }
+      const availability = await getDayAvailability(d.date);
+      const freeMinutes = freeMinutesInDay(availability);
+      const fullyClosed = availability.busyRanges.some(
+        (r) => r.kind === "cutoff" && r.start === availability.openTime && r.end === availability.closeTime
+      );
+      const status: DayStatus = fullyClosed
+        ? "closed"
+        : freeMinutes >= config.granularityMinutes
+          ? "open"
+          : "full";
+      return { date: d.date, status, freeMinutes, waitlistCount: availability.waitlistCount };
+    })
+  );
+}

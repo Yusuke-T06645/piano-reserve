@@ -11,13 +11,16 @@
   --color-gold: #d9b27e;
   --color-gold-light: #f0deb8;
   --color-gold-soft: #fbf3e4;
+  /* 白・クリーム背景の上に文字として置くための濃いゴールド(コントラスト比 5.9:1) */
+  --color-gold-ink: #7d5f33;
   --color-cream: #f7f3ec;
   --color-paper: #ffffff;
   --color-ink: #221c16;
   --color-muted: #6e6155;
-  --color-danger: #c1584e;
+  /* 淡い背景の上でも通常文字のコントラスト比4.5:1以上を満たす濃さに調整している */
+  --color-danger: #b04b42;
   --color-danger-soft: #fbede9;
-  --color-success: #3f8f63;
+  --color-success: #2f7a51;
   --color-success-soft: #eaf5ee;
 
   --background: #ffffff;
@@ -38,6 +41,7 @@
   --color-gold: var(--color-gold);
   --color-gold-light: var(--color-gold-light);
   --color-gold-soft: var(--color-gold-soft);
+  --color-gold-ink: var(--color-gold-ink);
   --color-cream: var(--color-cream);
   --color-paper: var(--color-paper);
   --color-ink: var(--color-ink);
@@ -56,10 +60,36 @@
   --font-display: "Zen Old Mincho", "Hiragino Mincho ProN", serif;
 }
 
+html {
+  /* 固定ヘッダーがページ内リンク・フォーカス移動先を隠さないようにする */
+  scroll-padding-top: 88px;
+}
+
+@media (max-width: 640px) {
+  html {
+    scroll-padding-top: 80px;
+  }
+}
+
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  /* スマートフォンでの読みやすさを優先し、本文の基準サイズを16pxにする */
+  font-size: 16px;
+  line-height: 1.8;
+}
+
+/* 固定ヘッダー分の余白。フォーカス移動やアンカー遷移で見出し・入力欄が隠れないようにする */
+:where(h1, h2, h3, section, [id], input, select, textarea, summary) {
+  scroll-margin-top: 96px;
+}
+
+/* 入力欄はiOSでの自動ズームを避けるため16px以上を保つ */
+input,
+select,
+textarea {
+  font-size: max(16px, 1em);
 }
 
 /* 鍵盤モチーフの区切り線(ヘッダー下に使用) */
@@ -95,11 +125,13 @@ input[type="radio"] {
   accent-color: var(--color-teal);
 }
 
-/* アクセシビリティ: キーボード操作時のフォーカスを明確に表示する */
+/* アクセシビリティ: キーボード操作時のフォーカスを明確に表示する。
+   明るい背景でも濃紺の背景でも視認できるよう、ゴールドの輪郭 + 濃紺のリングの2重表示にする。 */
 :focus-visible {
   outline: 3px solid var(--color-gold);
   outline-offset: 2px;
   border-radius: 2px;
+  box-shadow: 0 0 0 6px rgba(18, 35, 46, 0.45);
 }
 
 .skip-link {

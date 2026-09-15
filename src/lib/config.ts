@@ -10,14 +10,31 @@ export const config = {
   // (空の場合は notifications.ts 側で送信をスキップしてログに警告を出す)
   adminNotifyEmail: process.env.ADMIN_NOTIFY_EMAIL || "",
   supportEmail: process.env.SUPPORT_EMAIL || "soumubu@tanakagumi.co.jp",
-  supportPhone: process.env.SUPPORT_PHONE || "",
+  supportPhone: process.env.SUPPORT_PHONE || "011-611-3331",
 
   // 会場案内(予約前・完了画面の両方で表示する)
-  venueName: process.env.VENUE_NAME || "本社新社屋 1階ホール（指定エリア）",
-  venueAddress: process.env.VENUE_ADDRESS || "住所は運営にてご設定ください（VENUE_ADDRESS）",
-  venueAccess: process.env.VENUE_ACCESS || "アクセス方法は運営にてご設定ください（VENUE_ACCESS）",
+  // 未確認の項目は推測で記載せず空のままにしておくこと。
+  // 空の項目は公開画面に表示せず、代わりに問い合わせ先を案内する(src/components/VenueInfo.tsx)。
+  venueName: process.env.VENUE_NAME || "株式会社田中組 本社 1階ホール（指定エリア）",
+  venueAddress: process.env.VENUE_ADDRESS || "北海道札幌市中央区北6条西11丁目26番地",
+  /** 最寄り駅・バス停からのアクセス(改行はそのまま表示される) */
+  venueAccess:
+    process.env.VENUE_ACCESS ||
+    "JR桑園駅から徒歩約11分\n地下鉄 西11丁目駅から徒歩約14分\nJR札幌駅から徒歩約18分",
+  /** 建物の入口と受付場所 */
+  venueEntrance:
+    process.env.VENUE_ENTRANCE ||
+    "1階のガラス張りの正面玄関からお入りください。受付は無人です。受付に置かれた電話機で内線「9501」（総務部）をお呼び出しください。",
+  /** 駐車場・駐輪場の案内(台数は未確認のため記載していない) */
+  venueParking:
+    process.env.VENUE_PARKING || "敷地内の来客用駐車場・駐輪場を無料でご利用いただけます。",
+  /** 段差・車いすでの入館に関する案内 */
+  venueAccessibility:
+    process.env.VENUE_ACCESSIBILITY ||
+    "車いすでのご来館が可能です。なお、館内に多目的トイレはございませんので、あらかじめご了承ください。",
   venueMapUrl: process.env.VENUE_MAP_URL || "",
-  venueChecklist: "受付にてお名前をお伝えいただくか、QRコードまたは予約番号をご提示ください。上履きの必要はありません。",
+  venueChecklist:
+    "当日は、受付でQRコード・予約番号をご提示いただくか、お名前をお伝えください。上履きの必要はありません。",
 
   // 開放日ルール: 毎月 第1・第3金曜日
   eligibleWeekday: 5, // 0=日,1=月,...5=金
@@ -79,4 +96,14 @@ export function generateTimeGrid(): string[] {
     points.push(minutesToTime(m));
   }
   return points;
+}
+
+/**
+ * 地図を開くリンクを返す。
+ * VENUE_MAP_URL が設定されていればそれを、未設定の場合は住所からGoogleマップの検索URLを組み立てる。
+ */
+export function venueMapLink(): string {
+  if (config.venueMapUrl) return config.venueMapUrl;
+  if (!config.venueAddress) return "";
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(config.venueAddress)}`;
 }
