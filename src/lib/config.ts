@@ -31,7 +31,7 @@ export const config = {
   /** 段差・車いすでの入館に関する案内 */
   venueAccessibility:
     process.env.VENUE_ACCESSIBILITY ||
-    "車いすでのご来館が可能です。なお、館内に多目的トイレはございませんので、あらかじめご了承ください。",
+    "車いすでのご来館が可能です。1階に多目的トイレがございますので、ご自由にご利用ください。",
   venueMapUrl: process.env.VENUE_MAP_URL || "",
   venueChecklist:
     "当日は、受付でQRコード・予約番号をご提示いただくか、お名前をお伝えください。上履きの必要はありません。",

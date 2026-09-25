@@ -18,7 +18,7 @@ export function Footer() {
               <span className="font-display text-[17px] font-bold text-white">{config.siteShortName}</span>
             </div>
             <p className="mt-4 text-[15px] text-white/85 leading-[1.8] max-w-sm">
-              {config.orgName}が地域貢献の一環として運営する、グランドピアノ一般開放プログラムです。
+              {config.orgName}が地域貢献の一環として運営する、グランドピアノ開放事業です。
             </p>
           </div>
           <div>
@@ -50,7 +50,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-10 pt-5 border-t border-white/15 text-[13px] text-white/75">
-          © {config.orgName} グランドピアノ一般開放プログラム
+          © {config.orgName} グランドピアノ開放事業
         </div>
       </div>
     </footer>
