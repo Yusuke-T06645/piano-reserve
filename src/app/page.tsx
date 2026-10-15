@@ -4,6 +4,7 @@ import { Card } from "@/components/ui";
 import { VenueInfo } from "@/components/VenueInfo";
 import { TiltCard } from "@/components/TiltCard";
 import { MiniKeyboard } from "@/components/MiniKeyboard";
+import { LogoMark } from "@/components/LogoMark";
 import { config, isFixedSlotMode, maxGroupsPerDay } from "@/lib/config";
 import { listDaySummaries, type DaySummary } from "@/lib/availability";
 import { formatJapaneseDate } from "@/lib/dates";
@@ -97,6 +98,13 @@ export default async function Home() {
           className="aurora absolute left-1/3 top-1/4 h-72 w-72 rounded-full bg-teal/20 blur-3xl pointer-events-none"
           aria-hidden
         />
+        {/* ロゴの透かし(装飾)。淡い面と細い金の輪郭線で、背景になじませる */}
+        <div
+          className="hero-watermark absolute pointer-events-none -right-16 top-[290px] w-[280px] sm:-right-10 sm:w-[380px] lg:right-auto lg:left-[37%] lg:top-[16%] lg:w-[520px]"
+          aria-hidden
+        >
+          <LogoMark className="watermark-breathe w-full h-auto text-gold-light" fillOpacity={0.07} strokeOpacity={0.5} />
+        </div>
         {/* 立ちのぼる音符(装飾) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
           {HERO_NOTES.map((n, i) => (
