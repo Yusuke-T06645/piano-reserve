@@ -156,11 +156,17 @@ export default async function Home() {
                 <span className="text-shimmer">地域のみなさま</span>へ。
               </span>
             </h1>
-            <p style={{ "--i": 3 } as React.CSSProperties} className="hero-in mt-4 max-w-md text-[16px] sm:text-[17px] leading-[1.9] text-white/85">
-              {config.orgName}が所有するグランドピアノを、地域のみなさまに開放しています。
-              <span className="hidden sm:inline">
-                毎月第1・第3金曜日の{config.openTime}〜{config.closeTime}
-                の間で、ご希望の時間帯を選んでご予約いただけます。
+            {/* 文節ごとに inline-block で区切り、単語の途中で改行されないようにする */}
+            <p style={{ "--i": 3 } as React.CSSProperties} className="hero-in mt-4 max-w-md text-[16px] sm:text-[17px] leading-[1.9] text-white/85 [&_span]:inline-block">
+              <span>{config.orgName}が所有する</span>
+              <span>グランドピアノを、</span>
+              <span>地域のみなさまに</span>
+              <span>開放しています。</span>
+              <span className="hidden! sm:block! mt-1">
+                <span>毎月第1・第3金曜日の</span>
+                <span>{config.openTime}〜{config.closeTime}の間で、</span>
+                <span>ご希望の時間帯を選んで</span>
+                <span>ご予約いただけます。</span>
               </span>
             </p>
 
