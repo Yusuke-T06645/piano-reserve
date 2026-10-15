@@ -100,6 +100,22 @@ async function ensureSheetExists(tabName: string, headers: string[]) {
   verifiedTabs.add(tabName);
 }
 
+/**
+ * セルの値を復元する。真偽値は大文字小文字を区別せずに判定する。
+ * 以前は String(false) = "false" を RAW で書き込んでいたため、シート上には
+ * 小文字の文字列 "false" が残っている。これを "TRUE"/"FALSE" だけで判定すると
+ * 文字列 "false"(truthy)のまま扱われ、撮影同意「なし」が管理画面で「あり」と表示されていた。
+ */
+export function parseCell(raw: unknown): unknown {
+  if (typeof raw === "boolean") return raw;
+  if (typeof raw === "string") {
+    const lower = raw.toLowerCase();
+    if (lower === "true") return true;
+    if (lower === "false") return false;
+  }
+  return raw;
+}
+
 async function readTable<T>(tabName: string, headers: string[]): Promise<T[]> {
   await ensureSheetExists(tabName, headers);
   const sheets = await getSheetsClient();
@@ -115,9 +131,7 @@ async function readTable<T>(tabName: string, headers: string[]): Promise<T[]> {
       headers.forEach((h, i) => {
         const raw = row[i];
         if (raw === undefined || raw === "") return;
-        if (raw === "TRUE") obj[h] = true;
-        else if (raw === "FALSE") obj[h] = false;
-        else obj[h] = raw;
+        obj[h] = parseCell(raw);
       });
       return obj as T;
     });
@@ -127,7 +141,14 @@ async function writeTable(tabName: string, headers: string[], rows: Record<strin
   const sheets = await getSheetsClient();
   const values = [
     headers,
-    ...rows.map((row) => headers.map((h) => (row[h] === undefined || row[h] === null ? "" : String(row[h])))),
+    // 真偽値は文字列化せずそのまま渡し、シート上でも TRUE/FALSE の真偽値として保存する
+    ...rows.map((row) =>
+      headers.map((h) => {
+        const v = row[h];
+        if (v === undefined || v === null) return "";
+        return typeof v === "boolean" ? v : String(v);
+      })
+    ),
   ];
   // 既存データをクリアしてから書き込み(件数が少ない運用を想定した単純な全件洗い替え方式)
   await sheets.spreadsheets.values.clear({
