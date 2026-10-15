@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
 import { minutesToTime, timeToMinutes } from "@/lib/config";
 import type { BusyRange } from "@/lib/store/types";
+import { SlotPicker } from "./SlotPicker";
 
 type Gap = { start: number; end: number };
 type DragMode = "start" | "end" | "move" | null;
@@ -52,19 +53,7 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max);
 }
 
-export function TimeRangeSelector({
-  date,
-  openTime,
-  closeTime,
-  granularityMinutes,
-  maxUsageMinutes,
-  busyRanges,
-  waitlistCount,
-  onConfirm,
-  confirmLabel = "この時間で入力へ進む",
-  confirmDisabled = false,
-  showWaitlistCta = true,
-}: {
+type TimeRangeSelectorProps = {
   date: string;
   openTime: string;
   closeTime: string;
@@ -77,7 +66,34 @@ export function TimeRangeSelector({
   confirmLabel?: string;
   confirmDisabled?: boolean;
   showWaitlistCta?: boolean;
-}) {
+};
+
+/**
+ * 利用時間の選択。1組の利用時間が時間枠1つ分に固定されている場合(例: 20分×1日3組)は
+ * 長さを調整する操作が不要なため、時間枠をカードから選ぶ SlotPicker を使う。
+ * それ以外は、ドラッグ・＋／−で開始/終了時刻を自由に調整するバーを使う。
+ */
+export function TimeRangeSelector(props: TimeRangeSelectorProps) {
+  const { granularityMinutes, maxUsageMinutes, ...rest } = props;
+  if (granularityMinutes === maxUsageMinutes) {
+    return <SlotPicker {...rest} slotMinutes={granularityMinutes} />;
+  }
+  return <FreeRangeSelector {...props} />;
+}
+
+function FreeRangeSelector({
+  date,
+  openTime,
+  closeTime,
+  granularityMinutes,
+  maxUsageMinutes,
+  busyRanges,
+  waitlistCount,
+  onConfirm,
+  confirmLabel = "この時間で入力へ進む",
+  confirmDisabled = false,
+  showWaitlistCta = true,
+}: TimeRangeSelectorProps) {
   const router = useRouter();
   const trackRef = useRef<HTMLDivElement>(null);
   const dragRef = useRef<{ mode: DragMode; gap: Gap; pointerId: number; grabOffsetMin: number } | null>(null);
@@ -90,16 +106,6 @@ export function TimeRangeSelector({
     () => mergeAndInvert(busyRanges, windowStart, windowEnd, granularityMinutes),
     [busyRanges, windowStart, windowEnd, granularityMinutes]
   );
-  // 1組の利用時間が時間枠1つ分に固定されている場合は、時間枠のボタンから選ぶ方式にする
-  const fixedSlots = granularityMinutes === maxUsageMinutes;
-  const slotOptions = useMemo(() => {
-    const options: { start: number; end: number; available: boolean }[] = [];
-    for (let t = windowStart; t + granularityMinutes <= windowEnd; t += granularityMinutes) {
-      const end = t + granularityMinutes;
-      options.push({ start: t, end, available: gaps.some((g) => t >= g.start && end <= g.end) });
-    }
-    return options;
-  }, [gaps, windowStart, windowEnd, granularityMinutes]);
   const largestGap = useMemo(
     () => gaps.reduce((best, g) => (g.end - g.start > (best?.end ?? 0) - (best?.start ?? 0) ? g : best), gaps[0]),
     [gaps]
@@ -243,38 +249,8 @@ export function TimeRangeSelector({
         </span>
       </div>
 
-      {/* 固定の時間枠から選ぶボタン */}
-      {fixedSlots && (
-        <div className="mb-7">
-          <p className="mb-2.5 text-[14px] font-bold text-navy">時間枠を選ぶ</p>
-          <div className="flex flex-wrap gap-2.5">
-            {slotOptions.map((slot, i) => {
-              const selected = selection.start === slot.start && selection.end === slot.end;
-              return (
-                <button
-                  key={slot.start}
-                  type="button"
-                  aria-pressed={selected}
-                  disabled={!slot.available}
-                  onClick={() => updateSelection({ start: slot.start, end: slot.end })}
-                  className={
-                    selected
-                      ? "inline-flex min-h-11 items-center justify-center rounded-full bg-teal-dark px-5 text-[15px] font-bold text-white"
-                      : "inline-flex min-h-11 items-center justify-center rounded-full border-[1.5px] border-navy/25 bg-white px-5 text-[15px] font-bold text-navy hover:border-teal disabled:cursor-not-allowed disabled:opacity-45"
-                  }
-                >
-                  {String.fromCharCode(0x2460 + i)} {minutesToTime(slot.start)}〜{minutesToTime(slot.end)}
-                  {!slot.available && <span className="ml-1.5 text-[13px]">（予約できません）</span>}
-                  {selected && <span className="sr-only">（選択中）</span>}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
       {/* 利用時間の補助ボタン */}
-      {!fixedSlots && durationPresets.length > 0 && (
+      {durationPresets.length > 0 && (
         <div className="mb-7">
           <p className="mb-2.5 text-[14px] font-bold text-navy">利用時間から選ぶ</p>
           <div className="flex flex-wrap gap-2.5">
@@ -438,8 +414,7 @@ export function TimeRangeSelector({
         </span>
       </div>
 
-      {/* fine adjust(固定の時間枠では長さを変えられないため表示しない) */}
-      {!fixedSlots && (
+      {/* fine adjust */}
       <div className="mt-6 flex flex-col sm:flex-row gap-4">
         <div className="flex flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl bg-cream px-4 py-3">
           <span className="text-[15px] font-bold text-navy">開始時刻</span>
@@ -494,7 +469,6 @@ export function TimeRangeSelector({
           </div>
         </div>
       </div>
-      )}
 
       <div className="mt-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <p className="text-[14px] leading-[1.8] text-muted">
