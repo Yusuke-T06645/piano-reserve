@@ -470,7 +470,7 @@ input[type="radio"] {
   animation: key-note 1200ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* ヒーロー背景のロゴの透かし: ふわっと現れ、端に向かって溶けるように消える */
+/* ヒーロー背景のロゴの透かし: ふわっと現れる */
 @keyframes watermark-in {
   from {
     opacity: 0;
@@ -482,8 +482,6 @@ input[type="radio"] {
   }
 }
 .hero-watermark {
-  -webkit-mask-image: radial-gradient(closest-side, #000 70%, transparent 100%);
-  mask-image: radial-gradient(closest-side, #000 70%, transparent 100%);
   animation: watermark-in 2.4s cubic-bezier(0.22, 1, 0.36, 1) 0.3s both;
 }
 /* 光をゆっくり呼吸させる */

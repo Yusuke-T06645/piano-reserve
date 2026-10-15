@@ -98,13 +98,6 @@ export default async function Home() {
           className="aurora absolute left-1/3 top-1/4 h-72 w-72 rounded-full bg-teal/20 blur-3xl pointer-events-none"
           aria-hidden
         />
-        {/* ロゴの透かし(装飾)。淡い面と細い金の輪郭線で、背景になじませる */}
-        <div
-          className="hero-watermark absolute pointer-events-none -right-16 top-[290px] w-[280px] sm:-right-10 sm:w-[380px] lg:right-auto lg:left-[37%] lg:top-[16%] lg:w-[520px]"
-          aria-hidden
-        >
-          <LogoMark className="watermark-breathe w-full h-auto text-gold-light" fillOpacity={0.07} strokeOpacity={0.5} />
-        </div>
         {/* 立ちのぼる音符(装飾) */}
         <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
           {HERO_NOTES.map((n, i) => (
@@ -143,7 +136,16 @@ export default async function Home() {
           </g>
         </svg>
 
-        <div className="relative mx-auto max-w-[1400px] grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+        <div className="relative isolate mx-auto max-w-[1400px] grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+          {/* ロゴの透かし(装飾)。文字・カード・ボタンと重ならない余白に収める。
+              md〜lg: 見出し右側の空き / lg〜xl: 写真上の空き / xl〜: 見出し(幅約480px固定)と写真の間。
+              スマホは文字が全幅を使い重ならない余白がないため表示しない */}
+          <div
+            className="hero-watermark absolute -z-10 pointer-events-none hidden md:block md:right-0 md:-top-10 md:w-[280px] lg:-top-14 lg:w-[240px] xl:right-auto xl:left-[500px] xl:-top-6 xl:w-[320px] 2xl:-top-14 2xl:w-[400px]"
+            aria-hidden
+          >
+            <LogoMark className="watermark-breathe w-full h-auto text-gold-light" fillOpacity={0.06} strokeOpacity={0.4} />
+          </div>
           <div>
             <span style={{ "--i": 0 } as React.CSSProperties} className="hero-in inline-flex items-center gap-2 rounded-full bg-gold-light/15 border border-gold-light/35 px-4 py-2 text-[13px] font-bold tracking-wide text-gold-light">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
