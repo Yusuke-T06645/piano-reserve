@@ -4,6 +4,7 @@ import { Card } from "@/components/ui";
 import { VenueInfo } from "@/components/VenueInfo";
 import { TiltCard } from "@/components/TiltCard";
 import { MiniKeyboard } from "@/components/MiniKeyboard";
+import { LogoMark } from "@/components/LogoMark";
 import { config, isFixedSlotMode, maxGroupsPerDay } from "@/lib/config";
 import { listDaySummaries, type DaySummary } from "@/lib/availability";
 import { formatJapaneseDate } from "@/lib/dates";
@@ -135,7 +136,16 @@ export default async function Home() {
           </g>
         </svg>
 
-        <div className="relative mx-auto max-w-[1400px] grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+        <div className="relative isolate mx-auto max-w-[1400px] grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
+          {/* ロゴの透かし(装飾)。文字・カード・ボタンと重ならない余白に収める。
+              md〜lg: 見出し右側の空き / lg〜xl: 写真上の空き / xl〜: 見出し(幅約480px固定)と写真の間。
+              スマホは文字が全幅を使い重ならない余白がないため表示しない */}
+          <div
+            className="hero-watermark absolute -z-10 pointer-events-none hidden md:block md:right-0 md:-top-10 md:w-[280px] lg:-top-14 lg:w-[240px] xl:right-auto xl:left-[500px] xl:-top-6 xl:w-[320px] 2xl:-top-14 2xl:w-[400px]"
+            aria-hidden
+          >
+            <LogoMark className="watermark-breathe w-full h-auto text-gold-light" fillOpacity={0.06} strokeOpacity={0.4} />
+          </div>
           <div>
             <span style={{ "--i": 0 } as React.CSSProperties} className="hero-in inline-flex items-center gap-2 rounded-full bg-gold-light/15 border border-gold-light/35 px-4 py-2 text-[13px] font-bold tracking-wide text-gold-light">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
@@ -147,7 +157,7 @@ export default async function Home() {
             </span>
 
             {/* 1. まず「何を開放しているか」を伝える */}
-            <h1 className="font-display mt-5 text-[30px] sm:text-[44px] lg:text-[52px] font-bold leading-[1.35] sm:leading-[1.4] text-white tracking-wide">
+            <h1 className="font-display mt-5 text-[30px] sm:text-[44px] xl:text-[52px] font-bold leading-[1.35] sm:leading-[1.4] text-white tracking-wide">
               <span style={{ "--i": 1 } as React.CSSProperties} className="hero-in inline-block">
                 グランドピアノを、
               </span>
@@ -156,11 +166,17 @@ export default async function Home() {
                 <span className="text-shimmer">地域のみなさま</span>へ。
               </span>
             </h1>
-            <p style={{ "--i": 3 } as React.CSSProperties} className="hero-in mt-4 max-w-md text-[16px] sm:text-[17px] leading-[1.9] text-white/85">
-              {config.orgName}が所有するグランドピアノを、地域のみなさまに開放しています。
-              <span className="hidden sm:inline">
-                毎月第1・第3金曜日の{config.openTime}〜{config.closeTime}
-                の間で、ご希望の時間帯を選んでご予約いただけます。
+            {/* 文節ごとに inline-block で区切り、単語の途中で改行されないようにする */}
+            <p style={{ "--i": 3 } as React.CSSProperties} className="hero-in mt-4 max-w-md text-[16px] sm:text-[17px] leading-[1.9] text-white/85 [&_span]:inline-block">
+              <span>{config.orgName}が所有する</span>
+              <span>グランドピアノを、</span>
+              <span>地域のみなさまに</span>
+              <span>開放しています。</span>
+              <span className="hidden! sm:block! mt-1">
+                <span>毎月第1・第3金曜日の</span>
+                <span>{config.openTime}〜{config.closeTime}の間で、</span>
+                <span>ご希望の時間帯を選んで</span>
+                <span>ご予約いただけます。</span>
               </span>
             </p>
 
