@@ -2,7 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui";
 import { VenueInfo } from "@/components/VenueInfo";
-import { config } from "@/lib/config";
+import { config, isFixedSlotMode, maxGroupsPerDay } from "@/lib/config";
 import { listDaySummaries, type DaySummary } from "@/lib/availability";
 import { formatJapaneseDate } from "@/lib/dates";
 
@@ -260,7 +260,9 @@ export default async function Home() {
               {config.openTime} 〜 {config.closeTime}
             </p>
             <p className="mt-2.5 text-[15px] text-muted leading-[1.8]">
-              1組あたり最大{config.maxUsageMinutes}分、自由に時間を選べます
+              {isFixedSlotMode()
+                ? `1組${config.maxUsageMinutes}分・1日${maxGroupsPerDay()}組まで（時間枠からお選びください）`
+                : `1組あたり最大${config.maxUsageMinutes}分、自由に時間を選べます`}
             </p>
           </Card>
           <Card className="p-7">
@@ -282,7 +284,7 @@ export default async function Home() {
             <ol className="space-y-6">
               {[
                 "開放日の一覧から希望の日を選ぶ",
-                "利用したい時間帯を選ぶ（1組最大60分）",
+                `利用したい時間帯を選ぶ（1組最大${config.maxUsageMinutes}分）`,
                 "お名前・連絡先を入力して予約を確定する",
                 "当日は、受付でQRコード・予約番号をご提示いただくか、お名前をお伝えください。",
               ].map((step, i) => (

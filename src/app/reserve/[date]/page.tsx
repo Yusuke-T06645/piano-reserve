@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { Stepper } from "@/components/ui";
 import { freeMinutesInDay, getDayAvailability, isDateBookable } from "@/lib/availability";
 import { formatJapaneseDate } from "@/lib/dates";
-import { config } from "@/lib/config";
+import { config, isFixedSlotMode, maxGroupsPerDay } from "@/lib/config";
 import { TimeRangeSelector } from "./TimeRangeSelector";
 
 export const dynamic = "force-dynamic";
@@ -26,7 +26,12 @@ export default async function DateSlotsPage({ params }: { params: Promise<{ date
           {formatJapaneseDate(date)}の利用時間を選ぶ
         </h1>
         <p className="mt-3 mb-8 text-[16px] text-muted leading-[1.8]">
-          {hasFreeTime ? (
+          {hasFreeTime && isFixedSlotMode() ? (
+            <>
+              {config.openTime}〜{config.closeTime}の時間枠（1枠{config.granularityMinutes}分・1日{maxGroupsPerDay()}
+              組まで）から、ご希望の枠をお選びください。
+            </>
+          ) : hasFreeTime ? (
             <>
               {config.openTime}〜{config.closeTime}の間で、ご希望の利用時間をお選びください（{config.granularityMinutes}
               分単位・1組最大{config.maxUsageMinutes}分）。「15分」などのボタン、つまみのドラッグ、＋／−ボタンのいずれでも調整できます。

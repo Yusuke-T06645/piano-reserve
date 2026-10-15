@@ -55,33 +55,24 @@ export async function getDayAvailability(date: string): Promise<DayAvailability>
   };
 }
 
-/** busyRanges(重複しうる)を分単位でマージし、まだ空いている合計時間(分)を返す */
-export function freeMinutesInDay(day: Pick<DayAvailability, "openTime" | "closeTime" | "busyRanges">): number {
-  const totalMinutes = timeToMinutes(day.closeTime) - timeToMinutes(day.openTime);
-  const intervals = day.busyRanges
-    .map((r) => [timeToMinutes(r.start), timeToMinutes(r.end)] as const)
-    .sort((a, b) => a[0] - b[0]);
+/**
+ * まだ予約できる合計時間(分)を返す。
+ * 時間枠(granularityMinutes刻み)のうち、予約済み・受付終了の範囲と少しでも重なる枠は数えない。
+ * 例: 20分枠で 16:45〜17:00 が予約済みの場合、16:40〜16:45 の5分は単独では予約できないため空きに含めない。
+ */
+export function freeMinutesInDay(
+  day: Pick<DayAvailability, "openTime" | "closeTime" | "granularityMinutes" | "busyRanges">
+): number {
+  const open = timeToMinutes(day.openTime);
+  const close = timeToMinutes(day.closeTime);
+  const step = day.granularityMinutes;
+  const busy = day.busyRanges.map((r) => [timeToMinutes(r.start), timeToMinutes(r.end)] as const);
 
-  let busyMinutes = 0;
-  let curStart: number | null = null;
-  let curEnd = 0;
-  for (const [s, e] of intervals) {
-    if (curStart === null) {
-      curStart = s;
-      curEnd = e;
-      continue;
-    }
-    if (s <= curEnd) {
-      curEnd = Math.max(curEnd, e);
-    } else {
-      busyMinutes += curEnd - curStart;
-      curStart = s;
-      curEnd = e;
-    }
+  let free = 0;
+  for (let t = open; t + step <= close; t += step) {
+    if (!busy.some(([s, e]) => s < t + step && e > t)) free += step;
   }
-  if (curStart !== null) busyMinutes += curEnd - curStart;
-
-  return Math.max(0, totalMinutes - busyMinutes);
+  return free;
 }
 
 export function isSlotPastCutoff(date: string, slotStart: string): boolean {

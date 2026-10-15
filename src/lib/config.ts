@@ -39,12 +39,17 @@ export const config = {
   // 開放日ルール: 毎月 第1・第3金曜日
   eligibleWeekday: 5, // 0=日,1=月,...5=金
   eligibleOccurrences: [1, 3] as const,
+  // 上記ルールに該当しても開放しない日(予約画面・管理画面の開放日一覧から完全に除外する)。
+  // 休止日(調律日等)と違い「休止日」としても表示しない。
+  excludedDates: ["2027-01-01"] as readonly string[],
 
   // 開放時間・利用時間設定
   openTime: "16:00",
   closeTime: "17:00",
-  granularityMinutes: 5, // 利用時間はこの単位でドラッグ選択・調整できる
-  maxUsageMinutes: 60, // 1回のご利用の最大時間
+  // granularityMinutes と maxUsageMinutes を同じ値にすると、開放時間を等分した固定の時間枠
+  // (16:00〜16:20 / 16:20〜16:40 / 16:40〜17:00 の1日3組)から選ぶ方式になる
+  granularityMinutes: 20, // 利用時間はこの単位で選択・調整できる
+  maxUsageMinutes: 20, // 1回のご利用の最大時間
   capacityPerSlot: 1, // ピアノは1台のため同時1組まで(時間帯が重複する予約は不可)
 
   // 予約可能期間
@@ -85,6 +90,16 @@ export function minutesToTime(mins: number): string {
 /** openTime〜closeTime の開放時間の長さ(分)を返す */
 export function totalOpenMinutes(): number {
   return timeToMinutes(config.closeTime) - timeToMinutes(config.openTime);
+}
+
+/** 1組の利用時間が時間枠1つ分に固定されている(=固定の時間枠から選ぶ方式)かどうか */
+export function isFixedSlotMode(): boolean {
+  return config.granularityMinutes === config.maxUsageMinutes;
+}
+
+/** 1日に受け付けられる最大組数(開放時間を時間枠の長さで割った数) */
+export function maxGroupsPerDay(): number {
+  return Math.floor(totalOpenMinutes() / config.granularityMinutes);
 }
 
 /** openTime〜closeTime を granularityMinutes 刻みで分割した時刻一覧(グリッド線)を返す */
