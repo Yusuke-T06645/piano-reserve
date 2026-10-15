@@ -157,7 +157,7 @@ export default async function Home() {
             </span>
 
             {/* 1. まず「何を開放しているか」を伝える */}
-            <h1 className="font-display mt-5 text-[30px] sm:text-[44px] lg:text-[52px] font-bold leading-[1.35] sm:leading-[1.4] text-white tracking-wide">
+            <h1 className="font-display mt-5 text-[30px] sm:text-[44px] xl:text-[52px] font-bold leading-[1.35] sm:leading-[1.4] text-white tracking-wide">
               <span style={{ "--i": 1 } as React.CSSProperties} className="hero-in inline-block">
                 グランドピアノを、
               </span>
