@@ -80,10 +80,37 @@ const SHEET_ID = () => {
 // APIコールが発生し、"Read requests per minute" のクォータを倍消費してしまう。
 const verifiedTabs = new Set<string>();
 
+function errorStatus(err: unknown): number | undefined {
+  const e = err as { status?: unknown; code?: unknown; response?: { status?: unknown } };
+  for (const v of [e?.status, e?.response?.status, e?.code]) {
+    const n = Number(v);
+    if (Number.isInteger(n) && n > 0) return n;
+  }
+  return undefined;
+}
+
+/**
+ * Sheets APIの一時的なエラー(読み取りクォータ超過の429や5xx)は、少し待って再試行する。
+ * 再試行しないと、アクセスが集中した瞬間(デプロイ直後で全インスタンスがコールドスタートした時など)に
+ * 予約画面がそのままサーバーエラーになってしまう。
+ */
+export async function withSheetsRetry<T>(fn: () => Promise<T>, delaysMs: number[] = [500, 1500, 3000]): Promise<T> {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      return await fn();
+    } catch (err) {
+      const status = errorStatus(err);
+      const retryable = status === 429 || (status !== undefined && status >= 500 && status < 600);
+      if (!retryable || attempt >= delaysMs.length) throw err;
+      await new Promise((resolve) => setTimeout(resolve, delaysMs[attempt] + Math.random() * 250));
+    }
+  }
+}
+
 async function ensureSheetExists(tabName: string, headers: string[]) {
   if (verifiedTabs.has(tabName)) return;
   const sheets = await getSheetsClient();
-  const meta = await sheets.spreadsheets.get({ spreadsheetId: SHEET_ID() });
+  const meta = await withSheetsRetry(() => sheets.spreadsheets.get({ spreadsheetId: SHEET_ID() }));
   const exists = meta.data.sheets?.some((s) => s.properties?.title === tabName);
   if (!exists) {
     await sheets.spreadsheets.batchUpdate({
@@ -116,20 +143,48 @@ export function parseCell(raw: unknown): unknown {
   return raw;
 }
 
-async function readTable<T>(tabName: string, headers: string[]): Promise<T[]> {
+/**
+ * 読み取り結果の短時間キャッシュ(タブ単位)。
+ * 予約画面の開放日一覧は1回の表示で「開放日の数×(予約+キャンセル待ち)」回シートを読むため、
+ * 同じタブの読み取りを共有しないと Sheets API の読み取りクォータ(1分あたりの上限)をすぐに超えてしまう。
+ * 予約の確定・更新など正確さが必要な処理は fresh: true で必ず最新を読む。
+ * 同じインスタンス内で書き込んだ場合はキャッシュを破棄する。
+ */
+const READ_CACHE_TTL_MS = 3000;
+const readCache = new Map<string, { at: number; rows: Promise<unknown[][]> }>();
+
+async function fetchRows(tabName: string, headers: string[]): Promise<unknown[][]> {
   await ensureSheetExists(tabName, headers);
   const sheets = await getSheetsClient();
-  const res = await sheets.spreadsheets.values.get({
-    spreadsheetId: SHEET_ID(),
-    range: `${tabName}!A2:${String.fromCharCode(64 + headers.length)}100000`,
+  const res = await withSheetsRetry(() =>
+    sheets.spreadsheets.values.get({
+      spreadsheetId: SHEET_ID(),
+      range: `${tabName}!A2:${String.fromCharCode(64 + headers.length)}100000`,
+    })
+  );
+  return res.data.values ?? [];
+}
+
+function readRows(tabName: string, headers: string[], fresh: boolean): Promise<unknown[][]> {
+  const cached = readCache.get(tabName);
+  if (!fresh && cached && Date.now() - cached.at < READ_CACHE_TTL_MS) return cached.rows;
+  const rows = fetchRows(tabName, headers);
+  readCache.set(tabName, { at: Date.now(), rows });
+  // 失敗した読み取りはキャッシュに残さない
+  rows.catch(() => {
+    if (readCache.get(tabName)?.rows === rows) readCache.delete(tabName);
   });
-  const rows = res.data.values ?? [];
+  return rows;
+}
+
+async function readTable<T>(tabName: string, headers: string[], options: { fresh?: boolean } = {}): Promise<T[]> {
+  const rows = await readRows(tabName, headers, options.fresh ?? false);
   return rows
-    .filter((row) => row.some((cell) => cell !== undefined && cell !== ""))
+    .filter((row) => Array.isArray(row) && row.some((cell) => cell !== undefined && cell !== ""))
     .map((row) => {
       const obj: Record<string, unknown> = {};
       headers.forEach((h, i) => {
-        const raw = row[i];
+        const raw = (row as unknown[])[i];
         if (raw === undefined || raw === "") return;
         obj[h] = parseCell(raw);
       });
@@ -138,6 +193,7 @@ async function readTable<T>(tabName: string, headers: string[]): Promise<T[]> {
 }
 
 async function writeTable(tabName: string, headers: string[], rows: Record<string, unknown>[]) {
+  readCache.delete(tabName);
   const sheets = await getSheetsClient();
   const values = [
     headers,
@@ -151,16 +207,21 @@ async function writeTable(tabName: string, headers: string[], rows: Record<strin
     ),
   ];
   // 既存データをクリアしてから書き込み(件数が少ない運用を想定した単純な全件洗い替え方式)
-  await sheets.spreadsheets.values.clear({
-    spreadsheetId: SHEET_ID(),
-    range: `${tabName}!A2:Z100000`,
-  });
-  await sheets.spreadsheets.values.update({
-    spreadsheetId: SHEET_ID(),
-    range: `${tabName}!A1`,
-    valueInputOption: "RAW",
-    requestBody: { values },
-  });
+  // clear/update はどちらも同じ内容で再実行しても結果が変わらないため、一時的なエラーは再試行する
+  await withSheetsRetry(() =>
+    sheets.spreadsheets.values.clear({
+      spreadsheetId: SHEET_ID(),
+      range: `${tabName}!A2:Z100000`,
+    })
+  );
+  await withSheetsRetry(() =>
+    sheets.spreadsheets.values.update({
+      spreadsheetId: SHEET_ID(),
+      range: `${tabName}!A1`,
+      valueInputOption: "RAW",
+      requestBody: { values },
+    })
+  );
 }
 
 function nowIso() {
@@ -180,7 +241,7 @@ export class GoogleSheetsStore implements ReservationStore {
       createdAt: nowIso(),
       updatedAt: nowIso(),
     };
-    const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS);
+    const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS, { fresh: true });
     all.push(reservation);
     await writeTable(TABS.reservations, RESERVATION_HEADERS, all as unknown as Record<string, unknown>[]);
     return reservation;
@@ -210,7 +271,7 @@ export class GoogleSheetsStore implements ReservationStore {
   }
 
   async updateReservation(id: string, patch: Partial<Reservation>): Promise<Reservation> {
-    const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS);
+    const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS, { fresh: true });
     const idx = all.findIndex((r) => r.id === id);
     if (idx === -1) throw new Error(`Reservation not found: ${id}`);
     all[idx] = { ...all[idx], ...patch, updatedAt: nowIso() };
@@ -224,7 +285,7 @@ export class GoogleSheetsStore implements ReservationStore {
     slotEnd: string,
     excludeReservationId?: string
   ): Promise<number> {
-    const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS);
+    const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS, { fresh: true });
     return all.filter(
       (r) =>
         r.id !== excludeReservationId &&
@@ -236,7 +297,7 @@ export class GoogleSheetsStore implements ReservationStore {
   }
 
   async countMonthlyReservationsByEmail(email: string, monthKey: string): Promise<number> {
-    const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS);
+    const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS, { fresh: true });
     return all.filter(
       (r) =>
         r.email.toLowerCase() === email.toLowerCase() &&
@@ -246,18 +307,18 @@ export class GoogleSheetsStore implements ReservationStore {
   }
 
   async addNoShowStrike(strike: Omit<NoShowStrike, "createdAt">): Promise<void> {
-    const all = await readTable<NoShowStrike>(TABS.noShowStrikes, NOSHOW_HEADERS);
+    const all = await readTable<NoShowStrike>(TABS.noShowStrikes, NOSHOW_HEADERS, { fresh: true });
     all.push({ ...strike, createdAt: nowIso() });
     await writeTable(TABS.noShowStrikes, NOSHOW_HEADERS, all as unknown as Record<string, unknown>[]);
   }
 
   async countRecentNoShowStrikes(email: string, sinceIso: string): Promise<number> {
-    const all = await readTable<NoShowStrike>(TABS.noShowStrikes, NOSHOW_HEADERS);
+    const all = await readTable<NoShowStrike>(TABS.noShowStrikes, NOSHOW_HEADERS, { fresh: true });
     return all.filter((s) => s.email.toLowerCase() === email.toLowerCase() && s.createdAt >= sinceIso).length;
   }
 
   async getLatestPenaltyUntil(email: string): Promise<string | null> {
-    const all = await readTable<NoShowStrike>(TABS.noShowStrikes, NOSHOW_HEADERS);
+    const all = await readTable<NoShowStrike>(TABS.noShowStrikes, NOSHOW_HEADERS, { fresh: true });
     const strikes = all
       .filter((s) => s.email.toLowerCase() === email.toLowerCase())
       .sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -273,7 +334,7 @@ export class GoogleSheetsStore implements ReservationStore {
 
   async addWaitlistEntry(input: Omit<WaitlistEntry, "id" | "createdAt">): Promise<WaitlistEntry> {
     const entry: WaitlistEntry = { ...input, id: `WL-${randomUUID().slice(0, 8).toUpperCase()}`, createdAt: nowIso() };
-    const all = await readTable<WaitlistEntry>(TABS.waitlist, WAITLIST_HEADERS);
+    const all = await readTable<WaitlistEntry>(TABS.waitlist, WAITLIST_HEADERS, { fresh: true });
     all.push(entry);
     await writeTable(TABS.waitlist, WAITLIST_HEADERS, all as unknown as Record<string, unknown>[]);
     return entry;
@@ -287,7 +348,7 @@ export class GoogleSheetsStore implements ReservationStore {
   }
 
   async markWaitlistPromoted(id: string, reservationId: string): Promise<void> {
-    const all = await readTable<WaitlistEntry>(TABS.waitlist, WAITLIST_HEADERS);
+    const all = await readTable<WaitlistEntry>(TABS.waitlist, WAITLIST_HEADERS, { fresh: true });
     const idx = all.findIndex((w) => w.id === id);
     if (idx === -1) return;
     all[idx].promotedAt = nowIso();
@@ -301,14 +362,14 @@ export class GoogleSheetsStore implements ReservationStore {
   }
 
   async addBlackoutDate(entry: Omit<BlackoutDate, "createdAt">): Promise<void> {
-    const all = await readTable<BlackoutDate>(TABS.blackoutDates, BLACKOUT_HEADERS);
+    const all = await readTable<BlackoutDate>(TABS.blackoutDates, BLACKOUT_HEADERS, { fresh: true });
     const filtered = all.filter((b) => b.date !== entry.date);
     filtered.push({ ...entry, createdAt: nowIso() });
     await writeTable(TABS.blackoutDates, BLACKOUT_HEADERS, filtered as unknown as Record<string, unknown>[]);
   }
 
   async removeBlackoutDate(date: string): Promise<void> {
-    const all = await readTable<BlackoutDate>(TABS.blackoutDates, BLACKOUT_HEADERS);
+    const all = await readTable<BlackoutDate>(TABS.blackoutDates, BLACKOUT_HEADERS, { fresh: true });
     const filtered = all.filter((b) => b.date !== date);
     await writeTable(TABS.blackoutDates, BLACKOUT_HEADERS, filtered as unknown as Record<string, unknown>[]);
   }
@@ -322,7 +383,7 @@ export class GoogleSheetsStore implements ReservationStore {
   }
 
   async anonymizeReservationsOlderThan(cutoffIso: string): Promise<number> {
-    const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS);
+    const all = await readTable<Reservation>(TABS.reservations, RESERVATION_HEADERS, { fresh: true });
     let count = 0;
     const updated = all.map((r) => {
       if (!r.anonymized && r.createdAt < cutoffIso) {
