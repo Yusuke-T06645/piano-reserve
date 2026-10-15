@@ -60,9 +60,11 @@ function nthWeekdayOfMonth(d: Date): number {
 
 /**
  * 「毎月第1・第3金曜日」のルールに該当する日付かどうかを判定する。
+ * config.excludedDates に登録した日は開放日として扱わない。
  * ブラックアウト日(調律日等)の除外はデータ層側で別途行う。
  */
 export function isEligibleOpenDate(iso: IsoDate): boolean {
+  if (config.excludedDates.includes(iso)) return false;
   const d = fromIsoDate(iso);
   if (d.getUTCDay() !== config.eligibleWeekday) return false;
   const nth = nthWeekdayOfMonth(d);

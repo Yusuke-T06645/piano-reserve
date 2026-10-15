@@ -9,7 +9,12 @@ import type { BusyRange } from "@/lib/store/types";
 type Gap = { start: number; end: number };
 type DragMode = "start" | "end" | "move" | null;
 
-function mergeAndInvert(busyRanges: BusyRange[], windowStart: number, windowEnd: number): Gap[] {
+/**
+ * 予約済み・受付終了の範囲を除いた空き時間帯を返す。
+ * 空き時間帯の端は時間枠(granularity刻み)に揃える。既存予約が枠の途中で終わる場合
+ * (例: 20分枠で 16:45〜17:00 が予約済み)、その手前の端数(16:40〜16:45)は選べないため除外する。
+ */
+function mergeAndInvert(busyRanges: BusyRange[], windowStart: number, windowEnd: number, granularity: number): Gap[] {
   const intervals = busyRanges
     .map((r) => [timeToMinutes(r.start), timeToMinutes(r.end)] as const)
     .sort((a, b) => a[0] - b[0]);
@@ -31,7 +36,12 @@ function mergeAndInvert(busyRanges: BusyRange[], windowStart: number, windowEnd:
     cursor = Math.max(cursor, e);
   }
   if (cursor < windowEnd) gaps.push({ start: cursor, end: windowEnd });
-  return gaps.filter((g) => g.end - g.start >= 1);
+  return gaps
+    .map((g) => ({
+      start: Math.ceil(g.start / granularity) * granularity,
+      end: Math.floor(g.end / granularity) * granularity,
+    }))
+    .filter((g) => g.end - g.start >= granularity);
 }
 
 function snap(minutes: number, granularity: number): number {
@@ -76,7 +86,20 @@ export function TimeRangeSelector({
   const windowEnd = timeToMinutes(closeTime);
   const windowTotal = windowEnd - windowStart;
 
-  const gaps = useMemo(() => mergeAndInvert(busyRanges, windowStart, windowEnd), [busyRanges, windowStart, windowEnd]);
+  const gaps = useMemo(
+    () => mergeAndInvert(busyRanges, windowStart, windowEnd, granularityMinutes),
+    [busyRanges, windowStart, windowEnd, granularityMinutes]
+  );
+  // 1組の利用時間が時間枠1つ分に固定されている場合は、時間枠のボタンから選ぶ方式にする
+  const fixedSlots = granularityMinutes === maxUsageMinutes;
+  const slotOptions = useMemo(() => {
+    const options: { start: number; end: number; available: boolean }[] = [];
+    for (let t = windowStart; t + granularityMinutes <= windowEnd; t += granularityMinutes) {
+      const end = t + granularityMinutes;
+      options.push({ start: t, end, available: gaps.some((g) => t >= g.start && end <= g.end) });
+    }
+    return options;
+  }, [gaps, windowStart, windowEnd, granularityMinutes]);
   const largestGap = useMemo(
     () => gaps.reduce((best, g) => (g.end - g.start > (best?.end ?? 0) - (best?.start ?? 0) ? g : best), gaps[0]),
     [gaps]
@@ -220,8 +243,38 @@ export function TimeRangeSelector({
         </span>
       </div>
 
+      {/* 固定の時間枠から選ぶボタン */}
+      {fixedSlots && (
+        <div className="mb-7">
+          <p className="mb-2.5 text-[14px] font-bold text-navy">時間枠を選ぶ</p>
+          <div className="flex flex-wrap gap-2.5">
+            {slotOptions.map((slot, i) => {
+              const selected = selection.start === slot.start && selection.end === slot.end;
+              return (
+                <button
+                  key={slot.start}
+                  type="button"
+                  aria-pressed={selected}
+                  disabled={!slot.available}
+                  onClick={() => updateSelection({ start: slot.start, end: slot.end })}
+                  className={
+                    selected
+                      ? "inline-flex min-h-11 items-center justify-center rounded-full bg-teal-dark px-5 text-[15px] font-bold text-white"
+                      : "inline-flex min-h-11 items-center justify-center rounded-full border-[1.5px] border-navy/25 bg-white px-5 text-[15px] font-bold text-navy hover:border-teal disabled:cursor-not-allowed disabled:opacity-45"
+                  }
+                >
+                  {String.fromCharCode(0x2460 + i)} {minutesToTime(slot.start)}〜{minutesToTime(slot.end)}
+                  {!slot.available && <span className="ml-1.5 text-[13px]">（予約できません）</span>}
+                  {selected && <span className="sr-only">（選択中）</span>}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* 利用時間の補助ボタン */}
-      {durationPresets.length > 0 && (
+      {!fixedSlots && durationPresets.length > 0 && (
         <div className="mb-7">
           <p className="mb-2.5 text-[14px] font-bold text-navy">利用時間から選ぶ</p>
           <div className="flex flex-wrap gap-2.5">
@@ -385,7 +438,8 @@ export function TimeRangeSelector({
         </span>
       </div>
 
-      {/* fine adjust */}
+      {/* fine adjust(固定の時間枠では長さを変えられないため表示しない) */}
+      {!fixedSlots && (
       <div className="mt-6 flex flex-col sm:flex-row gap-4">
         <div className="flex flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl bg-cream px-4 py-3">
           <span className="text-[15px] font-bold text-navy">開始時刻</span>
@@ -440,6 +494,7 @@ export function TimeRangeSelector({
           </div>
         </div>
       </div>
+      )}
 
       <div className="mt-7 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <p className="text-[14px] leading-[1.8] text-muted">
