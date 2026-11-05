@@ -21,11 +21,10 @@ export default async function DateSlotsPage({ params }: { params: Promise<{ date
       <div className="mx-auto max-w-[1400px]">
         <Stepper current={2} />
 
-        <p className="text-[13px] font-bold tracking-widest text-gold-ink uppercase">STEP 2 / 3</p>
-        <h1 className="font-display mt-2.5 text-2xl sm:text-[30px] font-bold text-navy">
+        <h1 className="font-display text-[28px] sm:text-[32px] font-medium leading-[1.3] text-navy">
           {formatJapaneseDate(date)}の利用時間を選ぶ
         </h1>
-        <p className="mt-3 mb-8 text-[16px] text-muted leading-[1.8]">
+        <p className="mt-4 mb-8 text-[16px] text-muted leading-[1.8]">
           {hasFreeTime && isFixedSlotMode() ? (
             <>
               {config.openTime}〜{config.closeTime}の時間枠（1枠{config.granularityMinutes}分・1日{maxGroupsPerDay()}
@@ -53,9 +52,9 @@ export default async function DateSlotsPage({ params }: { params: Promise<{ date
           waitlistCount={availability.waitlistCount}
         />
 
-        <p className="mt-9">
-          <Link href="/reserve" className="inline-flex min-h-11 items-center gap-1.5 text-[15px] font-bold text-teal-dark hover:underline">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+        <p className="mt-8">
+          <Link href="/reserve" className="inline-flex min-h-11 items-center gap-2 text-[15px] font-medium text-teal-dark hover:underline">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
               <path d="M19 12H5M11 18l-6-6 6-6" />
             </svg>
             他の開放日を選びなおす

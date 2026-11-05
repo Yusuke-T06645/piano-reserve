@@ -10,7 +10,7 @@ import { config } from "@/lib/config";
 type Mode = "book" | "waitlist";
 
 const inputClass =
-  "w-full rounded-[11px] border-[1.5px] border-navy/30 px-4 py-3 text-base text-ink focus-visible:outline-none focus:border-teal";
+  "w-full rounded-[10px] border border-navy/25 bg-white px-4 py-3 text-base text-ink transition-colors focus-visible:outline-none focus:border-teal-dark focus:ring-2 focus:ring-teal-dark/20";
 
 const FIELD_LABELS: Record<string, string> = {
   name: "お名前",
@@ -207,41 +207,41 @@ function BookingFormFields({
   const confirmCard = (
     <section
       aria-labelledby="booking-summary-heading"
-      className="rounded-[20px] border-[1.5px] border-teal/30 bg-teal-soft/60 p-5 sm:p-6"
+      className="rounded-xl border border-teal-dark/25 bg-teal-soft/50 p-5 sm:p-6"
     >
-      <h2 id="booking-summary-heading" className="text-[16px] font-bold text-navy">
+      <h2 id="booking-summary-heading" className="text-[16px] font-medium text-navy">
         {mode === "book" ? "ご予約内容の確認" : "キャンセル待ちの登録内容"}
       </h2>
       <dl className="mt-4 space-y-3 text-[16px] leading-[1.7] text-ink">
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <dt className="w-[92px] shrink-0 text-[14px] font-bold text-muted">利用日</dt>
-          <dd className="font-display text-[18px] font-bold text-navy">{formatJapaneseDate(date)}</dd>
+          <dt className="w-24 shrink-0 text-[14px] text-muted">利用日</dt>
+          <dd className="font-display text-[18px] font-medium text-navy tabular-nums">{formatJapaneseDate(date)}</dd>
         </div>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <dt className="w-[92px] shrink-0 text-[14px] font-bold text-muted">時間</dt>
-          <dd className="font-display text-[18px] font-bold text-navy">
+          <dt className="w-24 shrink-0 text-[14px] text-muted">時間</dt>
+          <dd className="font-display text-[18px] font-medium text-navy tabular-nums">
             {slotStart} 〜 {slotEnd}
           </dd>
         </div>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <dt className="w-[92px] shrink-0 text-[14px] font-bold text-muted">利用時間</dt>
+          <dt className="w-24 shrink-0 text-[14px] text-muted">利用時間</dt>
           <dd>{durationMinutes}分</dd>
         </div>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <dt className="w-[92px] shrink-0 text-[14px] font-bold text-muted">料金</dt>
+          <dt className="w-24 shrink-0 text-[14px] text-muted">料金</dt>
           <dd>無料</dd>
         </div>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <dt className="w-[92px] shrink-0 text-[14px] font-bold text-muted">会場</dt>
+          <dt className="w-24 shrink-0 text-[14px] text-muted">会場</dt>
           <dd>{config.venueName}</dd>
         </div>
       </dl>
       <p className="mt-4">
         <Link
           href={`/reserve/${date}`}
-          className="inline-flex min-h-11 items-center gap-1.5 rounded-full border-[1.5px] border-teal-dark px-4 text-[15px] font-bold text-teal-dark hover:bg-white"
+          className="inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-navy/20 bg-white px-4 text-[15px] font-medium text-teal-dark transition-colors hover:bg-cream"
         >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
             <path d="M19 12H5M11 18l-6-6 6-6" />
           </svg>
           日時を変更する
@@ -256,7 +256,7 @@ function BookingFormFields({
   return (
     <div className="grid lg:grid-cols-[1fr_340px] gap-8 items-start">
       {/* 入力 → 同意 → 内容確認 → 確定ボタン の順に並べる */}
-      <div className="rounded-[22px] border border-navy/[0.09] bg-white p-5 sm:p-10 shadow-soft">
+      <div className="rounded-2xl border border-navy/[0.08] bg-white p-5 sm:p-8">
         {serverError && (
           <div className="mb-6">
             <Alert tone="warning">{serverError}</Alert>
@@ -268,15 +268,15 @@ function BookingFormFields({
             ref={errorSummaryRef}
             tabIndex={-1}
             role="alert"
-            className="mb-6 rounded-2xl border border-danger/40 bg-danger-soft p-5 focus-visible:outline-none"
+            className="mb-6 rounded-xl border border-danger/40 bg-danger-soft p-5 focus-visible:outline-none"
           >
-            <p className="font-bold text-danger text-[16px] mb-2.5">
+            <p className="font-medium text-danger text-[16px] mb-2">
               入力内容をご確認ください（{Object.keys(fieldErrors).length}件）
             </p>
             <ul className="space-y-2 text-[15px] leading-[1.7] text-danger">
               {Object.entries(fieldErrors).map(([field, message]) => (
                 <li key={field}>
-                  <a href={`#${field}`} className="font-bold underline hover:no-underline">
+                  <a href={`#${field}`} className="font-medium underline hover:no-underline">
                     {FIELD_LABELS[field] || field}
                   </a>
                   : {message}
@@ -340,11 +340,11 @@ function BookingFormFields({
           </div>
 
           <fieldset>
-            <legend className="block text-[15px] font-bold text-navy mb-2.5">
+            <legend className="block text-[15px] font-medium text-navy mb-2">
               ご利用者の区分 <span className="text-danger">*</span>
             </legend>
             <div className="flex flex-wrap gap-x-7 gap-y-2">
-              <label className="inline-flex min-h-11 items-center gap-2.5 text-[16px] text-ink">
+              <label className="inline-flex min-h-11 items-center gap-2 text-[16px] text-ink">
                 <input
                   type="radio"
                   name="ageCategory"
@@ -354,7 +354,7 @@ function BookingFormFields({
                 />
                 成人
               </label>
-              <label className="inline-flex min-h-11 items-center gap-2.5 text-[16px] text-ink">
+              <label className="inline-flex min-h-11 items-center gap-2 text-[16px] text-ink">
                 <input
                   type="radio"
                   name="ageCategory"
@@ -400,8 +400,8 @@ function BookingFormFields({
           </div>
 
           {/* 同意事項 */}
-          <div className="rounded-2xl bg-cream p-5 flex flex-col gap-3">
-            <label htmlFor="agreedToTerms" className="flex items-start gap-2.5 text-[15px] text-ink leading-[1.8]">
+          <div className="rounded-xl bg-cream p-5 flex flex-col gap-3">
+            <label htmlFor="agreedToTerms" className="flex items-start gap-2 text-[15px] text-ink leading-[1.8]">
               <input
                 id="agreedToTerms"
                 type="checkbox"
@@ -412,7 +412,7 @@ function BookingFormFields({
                 aria-describedby={fieldErrors.agreedToTerms ? "agreedToTerms-error" : undefined}
               />
               <span>
-                <a href="/terms" target="_blank" className="font-bold text-teal-dark underline">
+                <a href="/terms" target="_blank" className="font-medium text-teal-dark underline">
                   利用規約
                 </a>
                 （キャンセルポリシー・免責事項を含む）に同意します <span className="text-danger">*</span>
@@ -420,7 +420,7 @@ function BookingFormFields({
             </label>
             <FieldError id="agreedToTerms-error">{fieldErrors.agreedToTerms}</FieldError>
 
-            <label htmlFor="agreedToNoise" className="flex items-start gap-2.5 text-[15px] text-ink leading-[1.8]">
+            <label htmlFor="agreedToNoise" className="flex items-start gap-2 text-[15px] text-ink leading-[1.8]">
               <input
                 id="agreedToNoise"
                 type="checkbox"
@@ -435,12 +435,12 @@ function BookingFormFields({
             <FieldError id="agreedToNoise-error">{fieldErrors.agreedToNoise}</FieldError>
           </div>
 
-          <div className="rounded-2xl border border-navy/[0.09] bg-white p-5 flex flex-col gap-2.5">
-            <p className="text-[15px] font-bold text-navy">撮影・広報でのご使用について（任意）</p>
+          <div className="rounded-xl border border-navy/[0.08] bg-white p-5 flex flex-col gap-2">
+            <p className="text-[15px] font-medium text-navy">撮影・広報でのご使用について（任意）</p>
             <p className="text-[14px] text-muted leading-[1.8]">
               当日、会場の様子や演奏の写真を撮影し、当社の広報活動（ウェブサイト・SNS・パンフレット等）に使用させていただく場合があります。ご同意いただけない場合も、ご予約・ご利用には影響ございません。
             </p>
-            <label htmlFor="photoConsent" className="flex items-start gap-2.5 text-[15px] text-ink leading-[1.8]">
+            <label htmlFor="photoConsent" className="flex items-start gap-2 text-[15px] text-ink leading-[1.8]">
               <input
                 id="photoConsent"
                 type="checkbox"
@@ -459,7 +459,7 @@ function BookingFormFields({
             <Button type="submit" size="lg" className="w-full" disabled={submitting}>
               {submitting ? "送信中…" : mode === "book" ? "予約を確定する" : "キャンセル待ちに登録する"}
             </Button>
-            <p className="mt-2.5 text-center text-[14px] leading-[1.7] text-muted">
+            <p className="mt-2 text-center text-[14px] leading-[1.7] text-muted">
               {mode === "book"
                 ? "このボタンを押すとご予約が確定し、確認メールをお送りします。"
                 : "このボタンを押すとキャンセル待ちの登録が完了します。"}
@@ -469,10 +469,10 @@ function BookingFormFields({
       </div>
 
       {/* 補足情報 */}
-      <div className="flex flex-col gap-5">
-        <div className="rounded-[20px] border border-navy/[0.09] bg-white p-6">
-          <p className="mb-3.5 text-[15px] font-bold text-navy">当日のお願い</p>
-          <ul className="space-y-2.5 text-[14px] text-ink leading-[1.8]">
+      <div className="flex flex-col gap-4">
+        <div className="rounded-2xl border border-navy/[0.08] bg-white p-6">
+          <p className="mb-3 text-[15px] font-medium text-navy">当日のお願い</p>
+          <ul className="space-y-2 text-[14px] text-ink leading-[1.8]">
             <li className="flex gap-2">
               <span aria-hidden className="mt-[0.65em] h-2 w-2 shrink-0 rounded-full bg-gold" />演奏時間の厳守にご協力ください
             </li>
@@ -485,8 +485,8 @@ function BookingFormFields({
           </ul>
         </div>
 
-        <div className="rounded-[20px] border border-navy/[0.09] bg-white p-6">
-          <p className="mb-3 text-[15px] font-bold text-navy">当日の受付方法</p>
+        <div className="rounded-2xl border border-navy/[0.08] bg-white p-6">
+          <p className="mb-3 text-[15px] font-medium text-navy">当日の受付方法</p>
           <p className="text-[14px] text-ink leading-[1.8]">{config.venueChecklist}</p>
         </div>
       </div>

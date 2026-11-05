@@ -2,21 +2,29 @@ import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui";
 import { VenueInfo } from "@/components/VenueInfo";
-import { TiltCard } from "@/components/TiltCard";
 import { MiniKeyboard } from "@/components/MiniKeyboard";
-import { LogoMark } from "@/components/LogoMark";
+import { SlotKeys, buildSlots, type Slot } from "@/components/SlotKeys";
 import { config, isFixedSlotMode, maxGroupsPerDay } from "@/lib/config";
-import { listDaySummaries, type DaySummary } from "@/lib/availability";
+import { getDayAvailability, listDaySummaries, type DaySummary } from "@/lib/availability";
 import { formatJapaneseDate } from "@/lib/dates";
 
 export const dynamic = "force-dynamic";
 
-/** 次回の開放日と、その日が予約できない場合に次に予約できる日を求める */
-async function getOpenDayStatus(): Promise<{ next: DaySummary | null; nextBookable: DaySummary | null }> {
+/** 次回の開放日と、その日が予約できない場合に次に予約できる日、次回の時間枠ごとの空き状況を求める */
+async function getOpenDayStatus(): Promise<{
+  next: DaySummary | null;
+  nextBookable: DaySummary | null;
+  nextSlots: Slot[] | null;
+}> {
   const summaries = await listDaySummaries();
   const next = summaries[0] ?? null;
   const nextBookable = summaries.find((d) => d.status === "open") ?? null;
-  return { next, nextBookable };
+  let nextSlots: Slot[] | null = null;
+  if (next && next.status !== "blackout") {
+    const day = await getDayAvailability(next.date);
+    nextSlots = buildSlots(day.openTime, day.closeTime, day.granularityMinutes, day.busyRanges);
+  }
+  return { next, nextBookable, nextSlots };
 }
 
 const STATUS_TEXT: Record<DaySummary["status"], (d: DaySummary) => string> = {
@@ -25,18 +33,6 @@ const STATUS_TEXT: Record<DaySummary["status"], (d: DaySummary) => string> = {
   closed: () => "本日の受付は終了しました",
   blackout: () => "休止日（調律・点検等のため）",
 };
-
-/** ヒーロー背景で立ちのぼる音符の配置(装飾) */
-const HERO_NOTES = [
-  { glyph: "♪", left: "6%", bottom: "8%", size: "22px", d: "13s", delay: "0s", o: 0.3 },
-  { glyph: "♫", left: "18%", bottom: "30%", size: "30px", d: "16s", delay: "4s", o: 0.22 },
-  { glyph: "♩", left: "38%", bottom: "4%", size: "20px", d: "12s", delay: "7s", o: 0.28 },
-  { glyph: "♬", left: "52%", bottom: "18%", size: "26px", d: "15s", delay: "2s", o: 0.2 },
-  { glyph: "♪", left: "70%", bottom: "6%", size: "24px", d: "14s", delay: "9s", o: 0.26 },
-  { glyph: "♫", left: "88%", bottom: "24%", size: "20px", d: "11s", delay: "5s", o: 0.3 },
-];
-
-const MARQUEE_ITEMS = ["GRAND PIANO", "無料で弾ける", "OPEN TO THE COMMUNITY", "事前予約制", "YAMAHA", "毎月 第1・第3金曜", "PLAY FREELY"];
 
 const FAQ: { q: string; a: React.ReactNode }[] = [
   {
@@ -60,11 +56,11 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
     a: (
       <>
         キャンセル・日時の変更は、確認メールに記載のリンク（
-        <Link href="/manage/lookup" className="font-bold text-teal-dark underline">
+        <Link href="/manage/lookup" className="font-medium text-teal-dark underline">
           予約の確認・変更・キャンセル
         </Link>
         ）から、ご利用の{config.selfServiceChangeDeadlineHours}時間前まで手続きできます。締切を過ぎた場合や当日に遅れる場合は、
-        <a href={`mailto:${config.supportEmail}`} className="font-bold text-teal-dark underline">
+        <a href={`mailto:${config.supportEmail}`} className="font-medium text-teal-dark underline">
           {config.supportEmail}
         </a>
         {config.supportPhone && `（電話: ${config.supportPhone}）`}
@@ -79,327 +75,175 @@ const FAQ: { q: string; a: React.ReactNode }[] = [
 ];
 
 export default async function Home() {
-  const { next, nextBookable } = await getOpenDayStatus();
+  const { next, nextBookable, nextSlots } = await getOpenDayStatus();
   const canReserveNow = nextBookable !== null;
 
   return (
     <>
-      {/* ヒーローセクション */}
-      <section className="relative overflow-hidden bg-linear-to-br from-navy-dark via-navy to-teal-dark px-4 sm:px-6 lg:px-16 pt-12 sm:pt-16 lg:pt-20 pb-16 sm:pb-20 lg:pb-24">
-        <div
-          className="aurora absolute -right-24 -top-24 h-96 w-96 rounded-full bg-gold/25 blur-3xl pointer-events-none"
-          aria-hidden
-        />
-        <div
-          className="aurora-slow absolute -left-16 -bottom-32 h-80 w-80 rounded-full bg-teal/30 blur-3xl pointer-events-none"
-          aria-hidden
-        />
-        <div
-          className="aurora absolute left-1/3 top-1/4 h-72 w-72 rounded-full bg-teal/20 blur-3xl pointer-events-none"
-          aria-hidden
-        />
-        {/* 立ちのぼる音符(装飾) */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden>
-          {HERO_NOTES.map((n, i) => (
-            <span
-              key={i}
-              className="note-drift absolute font-display text-gold-light"
-              style={
-                {
-                  left: n.left,
-                  bottom: n.bottom,
-                  fontSize: n.size,
-                  "--d": n.d,
-                  "--delay": n.delay,
-                  "--o": n.o,
-                } as React.CSSProperties
-              }
-            >
-              {n.glyph}
-            </span>
-          ))}
-        </div>
-        <svg
-          width="640"
-          height="140"
-          viewBox="0 0 640 140"
-          className="absolute left-0 top-8 opacity-10 pointer-events-none hidden sm:block"
-          aria-hidden
-          fill="none"
-        >
-          <g stroke="#F0DEB8" strokeWidth="1">
-            <line x1="0" y1="10" x2="640" y2="10" />
-            <line x1="0" y1="34" x2="640" y2="34" />
-            <line x1="0" y1="58" x2="640" y2="58" />
-            <line x1="0" y1="82" x2="640" y2="82" />
-            <line x1="0" y1="106" x2="640" y2="106" />
-          </g>
-        </svg>
-
-        <div className="relative isolate mx-auto max-w-[1400px] grid lg:grid-cols-2 gap-10 lg:gap-14 items-center">
-          {/* ロゴの透かし(装飾)。文字・カード・ボタンと重ならない余白に収める。
-              md〜lg: 見出し右側の空き / lg〜xl: 写真上の空き / xl〜: 見出し(幅約480px固定)と写真の間。
-              スマホは文字が全幅を使い重ならない余白がないため表示しない */}
-          <div
-            className="hero-watermark absolute -z-10 pointer-events-none hidden md:block md:right-0 md:-top-10 md:w-[280px] lg:-top-14 lg:w-[240px] xl:right-auto xl:left-[500px] xl:-top-6 xl:w-[320px] 2xl:-top-14 2xl:w-[400px]"
-            aria-hidden
-          >
-            <LogoMark className="watermark-breathe w-full h-auto text-gold-light" fillOpacity={0.06} strokeOpacity={0.4} />
-          </div>
+      {/* ヒーロー: 左に案内と次回の開放日、右に実際のピアノの写真 */}
+      <section className="bg-navy-dark px-4 sm:px-6 lg:px-16 pt-12 sm:pt-16 lg:pt-24 pb-16 sm:pb-20 lg:pb-24">
+        <div className="mx-auto max-w-[1400px] grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-12 lg:gap-16 items-center">
           <div>
-            <span style={{ "--i": 0 } as React.CSSProperties} className="hero-in inline-flex items-center gap-2 rounded-full bg-gold-light/15 border border-gold-light/35 px-4 py-2 text-[13px] font-bold tracking-wide text-gold-light">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M9 18V5l10-2v13" />
-                <circle cx="6.5" cy="18" r="2.5" />
-                <circle cx="16.5" cy="16" r="2.5" />
-              </svg>
+            <p style={{ "--i": 0 } as React.CSSProperties} className="rise-in text-[14px] text-gold-light">
               {config.orgName} 地域開放事業
-            </span>
+            </p>
 
             {/* 1. まず「何を開放しているか」を伝える */}
-            <h1 className="font-display mt-5 text-[30px] sm:text-[44px] xl:text-[52px] font-bold leading-[1.35] sm:leading-[1.4] text-white tracking-wide">
-              <span style={{ "--i": 1 } as React.CSSProperties} className="hero-in inline-block">
-                グランドピアノを、
-              </span>
+            <h1
+              style={{ "--i": 1 } as React.CSSProperties}
+              className="rise-in font-display mt-4 text-[36px] sm:text-[48px] xl:text-[56px] font-medium leading-[1.3] text-white"
+            >
+              <span className="inline-block">グランドピアノを、</span>
               <br />
-              <span style={{ "--i": 2 } as React.CSSProperties} className="hero-in inline-block">
-                <span className="text-shimmer">地域のみなさま</span>へ。
+              <span className="inline-block">
+                <span className="text-gold-light">地域のみなさま</span>へ。
               </span>
             </h1>
             {/* 文節ごとに inline-block で区切り、単語の途中で改行されないようにする */}
-            <p style={{ "--i": 3 } as React.CSSProperties} className="hero-in mt-4 max-w-md text-[16px] sm:text-[17px] leading-[1.9] text-white/85 [&_span]:inline-block">
+            <p
+              style={{ "--i": 2 } as React.CSSProperties}
+              className="rise-in mt-6 max-w-[34rem] text-[16px] sm:text-[18px] leading-[1.9] text-white/75 [&_span]:inline-block"
+            >
               <span>{config.orgName}が所有する</span>
               <span>グランドピアノを、</span>
               <span>地域のみなさまに</span>
-              <span>開放しています。</span>
-              <span className="hidden! sm:block! mt-1">
-                <span>毎月第1・第3金曜日の</span>
-                <span>{config.openTime}〜{config.closeTime}の間で、</span>
-                <span>ご希望の時間帯を選んで</span>
-                <span>ご予約いただけます。</span>
-              </span>
+              <span>無料で開放しています。</span>
+              <span>毎月第1・第3金曜日の</span>
+              <span>{config.openTime}〜{config.closeTime}の間で、</span>
+              <span>1組{config.maxUsageMinutes}分まで</span>
+              <span>ご予約いただけます。</span>
             </p>
 
             {/* 2. 次回の開放日・時間・空き状況(実際の予約データに連動) */}
             <div
-              style={{ "--i": 4 } as React.CSSProperties}
-              className="hero-in mt-6 rounded-2xl border border-white/20 bg-white/12 p-5 backdrop-blur-md shadow-[inset_0_1px_0_rgba(255,255,255,0.15)]"
+              style={{ "--i": 3 } as React.CSSProperties}
+              className="rise-in mt-8 max-w-[34rem] rounded-2xl border border-white/10 bg-white/[0.05] p-6"
             >
-              <p className="text-[13px] font-bold tracking-widest text-gold-light uppercase">次回の開放日</p>
+              <p className="text-[14px] text-white/60">次回の開放日</p>
               {next ? (
                 <>
-                  <p className="font-display mt-1.5 text-[20px] sm:text-[22px] font-bold text-white">
+                  <p className="font-display mt-1 text-[24px] font-medium text-white">
                     {formatJapaneseDate(next.date)}
-                    <span className="ml-2 text-[16px] font-semibold text-white/85">
+                    <span className="block sm:inline sm:ml-3 font-sans text-[16px] text-white/75 tabular-nums whitespace-nowrap">
                       {config.openTime}〜{config.closeTime}
                     </span>
                   </p>
-                  <p className="mt-2.5 flex items-center gap-2 text-[16px] font-bold text-gold-light">
-                    <span
-                      aria-hidden
-                      className={
-                        next.status === "open"
-                          ? "live-ping relative h-2.5 w-2.5 shrink-0 rounded-full bg-gold-light"
-                          : "h-2.5 w-2.5 shrink-0 rounded-full border-2 border-gold-light"
-                      }
-                    />
-                    {STATUS_TEXT[next.status](next)}
-                  </p>
+                  {nextSlots && nextSlots.length > 0 && (
+                    <SlotKeys slots={nextSlots} closeTime={config.closeTime} tone="dark" className="mt-5" />
+                  )}
+                  <p className="mt-4 text-[15px] text-white">{STATUS_TEXT[next.status](next)}</p>
                   {next.status !== "open" && (
-                    <p className="mt-2 text-[15px] leading-[1.8] text-white/85">
+                    <p className="mt-1 text-[15px] leading-[1.8] text-white/75">
                       {nextBookable
-                        ? `次に予約できる日は ${formatJapaneseDate(nextBookable.date)}（残り${nextBookable.freeMinutes}分）です。`
+                        ? `次に予約できる日は ${formatJapaneseDate(nextBookable.date)}（残り${nextBookable.freeMinutes}分）です`
                         : "現在ご予約いただける日がありません。開放日が追加され次第このページでお知らせします。"}
                     </p>
                   )}
                 </>
               ) : (
-                <p className="mt-1.5 text-[16px] leading-[1.8] text-white/85">
+                <p className="mt-1 text-[16px] leading-[1.8] text-white/75">
                   現在、開放予定日はありません。次回の日程が決まり次第このページでお知らせします。
                 </p>
               )}
             </div>
 
-            {/* 3. 料金・予約方法・利用時間 */}
-            <ul style={{ "--i": 5 } as React.CSSProperties} className="hero-in mt-5 flex flex-wrap gap-2">
-              {["無料", "事前予約制", `1組最大${config.maxUsageMinutes}分`, "毎月第1・第3金曜"].map((item) => (
-                <li
-                  key={item}
-                  className="rounded-full border border-white/25 bg-white/10 px-3.5 py-1.5 text-[14px] font-bold text-white transition-colors hover:border-gold-light/60 hover:bg-gold-light/15"
-                >
-                  {item}
-                </li>
-              ))}
-            </ul>
-
-            {/* 4. 行動につながるボタン */}
-            <div style={{ "--i": 6 } as React.CSSProperties} className="hero-in mt-7 flex flex-col sm:flex-row flex-wrap gap-3">
+            {/* 3. 行動につながるボタン(主と副の2つだけ) */}
+            <div style={{ "--i": 4 } as React.CSSProperties} className="rise-in mt-8 flex flex-col sm:flex-row gap-3">
               <Link
                 href="/reserve"
-                className="btn-shine inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-linear-to-br from-gold-light to-gold px-7 py-4 text-base font-bold text-navy-dark shadow-[0_16px_30px_-10px_rgba(217,178,126,0.5)] hover:brightness-105"
+                className="group inline-flex min-h-12 items-center justify-center gap-2 rounded-[10px] bg-gold px-6 text-base font-medium text-navy-dark transition-[background-color,transform] duration-150 hover:bg-gold-light active:scale-[0.98]"
               >
                 {canReserveNow ? "空き枠を確認して予約する" : "開放日の一覧を見る"}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                   <path d="M5 12h14M13 6l6 6-6 6" />
                 </svg>
               </Link>
               <Link
                 href="/manage/lookup"
-                className="inline-flex min-h-12 items-center justify-center rounded-full border-[1.5px] border-white/60 px-7 py-4 text-base font-bold text-white transition-colors hover:bg-white/10 hover:border-white"
+                className="inline-flex min-h-12 items-center justify-center rounded-[10px] border border-white/15 bg-white/[0.06] px-6 text-base font-medium text-white transition-colors duration-150 hover:bg-white/[0.12]"
               >
                 予約の確認・変更・キャンセル
               </Link>
             </div>
-            <p style={{ "--i": 7 } as React.CSSProperties} className="hero-in mt-4">
-              <a
-                href="#guide"
-                className="inline-flex min-h-11 items-center text-[15px] font-bold text-white underline underline-offset-4 hover:text-gold-light"
-              >
-                ご利用の流れ・会場のご案内を見る
-              </a>
-            </p>
           </div>
 
-          <div style={{ "--i": 3 } as React.CSSProperties} className="hero-in relative flex flex-col items-center gap-7">
-            <div
-              className="aurora absolute h-[300px] w-[300px] sm:h-[460px] sm:w-[460px] rounded-full bg-gold-light/20 blur-2xl pointer-events-none"
-              aria-hidden
-            />
-            <div className="float-y w-full flex justify-center">
-              <TiltCard className="w-full max-w-[420px] sm:max-w-[520px] rounded-[26px]">
-                <div className="relative rounded-[26px] overflow-hidden shadow-hero border border-gold-light/35">
-                  <Image
-                    src="/piano-hero.jpg"
-                    alt={`${config.orgName}本社に設置されているヤマハ製グランドピアノ`}
-                    width={1344}
-                    height={1008}
-                    priority
-                    className="block w-full h-auto"
-                  />
-                  <div className="absolute inset-x-0 bottom-0 px-5 py-4 bg-linear-to-t from-navy-dark/90 via-navy-dark/40 to-transparent">
-                    <p className="text-white text-[13px] font-bold tracking-wide">
-                      YAMAHA グランドピアノ ／ {config.venueName}
-                    </p>
-                  </div>
-                </div>
-                {/* 写真から少し浮かせたバッジ */}
-                <div
-                  className="absolute -left-3 sm:-left-6 top-6 rounded-2xl border border-white/30 bg-white/90 px-4 py-2.5 shadow-elevated backdrop-blur-md"
-                  style={{ transform: "translateZ(40px)" }}
-                >
-                  <p className="text-[11px] font-bold tracking-widest text-gold-ink">FREE</p>
-                  <p className="font-display text-[15px] font-bold text-navy leading-tight">利用料 無料</p>
-                </div>
-              </TiltCard>
-            </div>
+          <div style={{ "--i": 2 } as React.CSSProperties} className="rise-in flex flex-col items-center gap-8">
+            <figure className="w-full">
+              <Image
+                src="/piano-hero.jpg"
+                alt={`${config.orgName}本社に設置されているヤマハ製グランドピアノ`}
+                width={1344}
+                height={1008}
+                priority
+                sizes="(min-width: 1024px) 50vw, 100vw"
+                className="block w-full h-auto rounded-2xl border border-white/10"
+              />
+              <figcaption className="mt-3 text-[13px] text-white/60">
+                ヤマハのグランドピアノ ／ {config.venueName}
+              </figcaption>
+            </figure>
             <MiniKeyboard />
           </div>
         </div>
-
-        <svg
-          viewBox="0 0 1440 84"
-          preserveAspectRatio="none"
-          className="absolute inset-x-0 bottom-0 w-full h-12 sm:h-[84px] text-white"
-          aria-hidden
-        >
-          <path
-            fill="currentColor"
-            d="M0,44 C110,14 200,74 320,50 C440,26 520,78 640,54 C760,30 840,76 960,52 C1080,28 1170,72 1280,50 C1340,39 1400,34 1440,40 L1440,84 L0,84 Z"
-          />
-        </svg>
       </section>
 
-      {/* 流れるテキスト帯(装飾) */}
-      <div className="marquee overflow-hidden border-y border-navy/[0.08] bg-white py-4" aria-hidden>
-        <div className="marquee-track flex w-max">
-          {[0, 1].map((dup) => (
-            <div key={dup} className="flex shrink-0 items-center">
-              {MARQUEE_ITEMS.map((item) => (
-                <span key={item} className="flex items-center font-display text-[18px] sm:text-[22px] font-bold tracking-wider text-navy/80">
-                  <span className="px-6 sm:px-8">{item}</span>
-                  <span className="text-gold">✦</span>
-                </span>
-              ))}
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* 開放情報 */}
-      <section id="guide" className="scroll-mt-24 px-4 sm:px-6 lg:px-16 pt-14 sm:pt-[72px]">
-        <div className="mx-auto max-w-[1400px] grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16 sm:mb-[88px]">
-          <Card className="lift-card reveal p-7">
-            <div className="lift-icon flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-soft text-gold-ink">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <rect x="3" y="5" width="18" height="16" rx="3" />
-                <path d="M8 3v4M16 3v4M3 10h18" />
-              </svg>
-            </div>
-            <p className="mt-5 text-[13px] font-bold tracking-widest text-gold-ink uppercase">開放日</p>
-            <p className="font-display mt-2 text-2xl font-bold text-navy">毎月 第1・第3金曜日</p>
-            <p className="mt-2.5 text-[15px] text-muted leading-[1.8]">開放日は当日の状況により休止する場合があります</p>
-          </Card>
-          <Card className="lift-card reveal p-7">
-            <div className="lift-icon flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-soft text-teal-dark">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v5l3.5 2" />
-              </svg>
-            </div>
-            <p className="mt-5 text-[13px] font-bold tracking-widest text-teal-dark uppercase">時間</p>
-            <p className="font-display mt-2 text-2xl font-bold text-navy">
-              {config.openTime} 〜 {config.closeTime}
-            </p>
-            <p className="mt-2.5 text-[15px] text-muted leading-[1.8]">
+      <section id="guide" className="scroll-mt-24 px-4 sm:px-6 lg:px-16 pt-16 sm:pt-20">
+        <dl className="mx-auto max-w-[1400px] grid sm:grid-cols-[1.4fr_1fr_1fr] rounded-2xl border border-navy/[0.08] bg-white mb-16 sm:mb-20 divide-y sm:divide-y-0 sm:divide-x divide-navy/[0.08]">
+          <div className="p-6 sm:p-8">
+            <dt className="text-[14px] text-muted">開放日</dt>
+            <dd className="font-display mt-2 text-[28px] sm:text-[32px] font-medium leading-[1.3] text-navy">毎月 第1・第3金曜日</dd>
+            <dd className="mt-2 text-[15px] text-muted leading-[1.8]">当日の状況により休止する場合があります</dd>
+          </div>
+          <div className="p-6 sm:p-8">
+            <dt className="text-[14px] text-muted">時間</dt>
+            <dd className="font-display mt-2 text-[24px] font-medium text-navy tabular-nums">
+              {config.openTime}〜{config.closeTime}
+            </dd>
+            <dd className="mt-2 text-[15px] text-muted leading-[1.8]">
               {isFixedSlotMode()
-                ? `1組${config.maxUsageMinutes}分・1日${maxGroupsPerDay()}組まで（時間枠からお選びください）`
-                : `1組あたり最大${config.maxUsageMinutes}分、自由に時間を選べます`}
-            </p>
-          </Card>
-          <Card className="lift-card reveal p-7">
-            <div className="lift-icon flex h-12 w-12 items-center justify-center rounded-2xl bg-navy-soft text-navy">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <circle cx="12" cy="12" r="9" />
-                <path d="M9 6l3 5 3-5M12 11v7M9 13h6M9 16h6" />
-              </svg>
-            </div>
-            <p className="mt-5 text-[13px] font-bold tracking-widest text-navy uppercase">利用料金</p>
-            <p className="font-display mt-2 text-2xl font-bold text-navy">無料</p>
-            <p className="mt-2.5 text-[15px] text-muted leading-[1.8]">事前のWeb予約が必要です</p>
-          </Card>
-        </div>
+                ? `1組${config.maxUsageMinutes}分・1日${maxGroupsPerDay()}組まで`
+                : `1組あたり最大${config.maxUsageMinutes}分`}
+            </dd>
+          </div>
+          <div className="p-6 sm:p-8">
+            <dt className="text-[14px] text-muted">利用料金</dt>
+            <dd className="font-display mt-2 text-[24px] font-medium text-navy">無料</dd>
+            <dd className="mt-2 text-[15px] text-muted leading-[1.8]">事前のWeb予約が必要です</dd>
+          </div>
+        </dl>
 
-        <div className="mx-auto max-w-[1400px] grid lg:grid-cols-2 gap-10 lg:gap-16 pb-16 sm:pb-20 lg:pb-24">
+        <div className="mx-auto max-w-[1400px] grid lg:grid-cols-2 gap-12 lg:gap-16 pb-16 sm:pb-20 lg:pb-24">
           <div>
-            <h2 className="font-display text-xl sm:text-2xl font-bold text-navy mb-8">ご利用の流れ</h2>
+            <h2 className="font-display text-[24px] sm:text-[28px] font-medium text-navy mb-8">ご利用の流れ</h2>
             <ol className="relative space-y-6">
-              <span aria-hidden className="grow-line absolute left-5 top-5 bottom-5 w-0.5 -translate-x-1/2 bg-linear-to-b from-teal via-gold to-teal/20" />
+              <span aria-hidden className="absolute left-4 top-4 bottom-4 w-px -translate-x-1/2 bg-navy/15" />
               {[
                 "開放日の一覧から希望の日を選ぶ",
                 `利用したい時間帯を選ぶ（1組最大${config.maxUsageMinutes}分）`,
                 "お名前・連絡先を入力して予約を確定する",
-                "当日は、受付でQRコード・予約番号をご提示いただくか、お名前をお伝えください。",
+                "当日は、受付でQRコード・予約番号をご提示いただくか、お名前をお伝えください",
               ].map((step, i) => (
-                <li key={i} className="reveal group relative flex gap-4 items-start">
-                  <span className="relative shrink-0 h-10 w-10 rounded-full bg-teal text-white text-[16px] font-bold flex items-center justify-center ring-4 ring-white transition-transform duration-300 group-hover:scale-110 group-hover:bg-gold group-hover:text-navy-dark">
+                <li key={i} className="relative flex gap-4 items-start">
+                  <span className="relative shrink-0 h-8 w-8 rounded-full border border-navy/15 bg-white text-[14px] font-medium text-navy flex items-center justify-center tabular-nums">
                     {i + 1}
                   </span>
-                  <span className="pt-1.5 text-[16px] leading-[1.8] text-ink">{step}</span>
+                  <span className="pt-0.5 text-[16px] leading-[1.8] text-ink">{step}</span>
                 </li>
               ))}
             </ol>
             <Link
               href="/reserve"
-              className="btn-shine mt-8 inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-linear-to-br from-navy to-navy-dark px-7 py-4 text-base font-bold text-white shadow-[0_12px_24px_-12px_rgba(18,35,46,0.5)] hover:brightness-110"
+              className="mt-8 inline-flex min-h-12 items-center justify-center rounded-[10px] bg-teal-dark px-6 text-base font-medium text-white transition-[background-color,transform] duration-150 hover:bg-navy active:scale-[0.98]"
             >
-              {canReserveNow ? "今すぐ予約する" : "開放日の一覧を見る"}
+              {canReserveNow ? "日付を選んで予約する" : "開放日の一覧を見る"}
             </Link>
 
             <VenueInfo className="mt-12" />
           </div>
 
-          <Card className="reveal bg-cream border-none p-7 sm:p-9">
-            <h2 className="font-display text-lg sm:text-[22px] font-bold text-navy mb-4">ご利用にあたってのお願い</h2>
+          <Card className="bg-cream border-none shadow-none p-6 sm:p-8">
+            <h2 className="font-display text-[22px] font-medium text-navy mb-4">ご利用にあたってのお願い</h2>
             <ul className="space-y-3 text-[15px] text-ink leading-[1.8]">
               <li className="flex gap-2.5">
                 <span aria-hidden className="mt-[0.65em] h-2 w-2 shrink-0 rounded-full bg-gold" />
@@ -411,14 +255,14 @@ export default async function Home() {
               </li>
             </ul>
             <details className="mt-4 group">
-              <summary className="cursor-pointer list-none inline-flex min-h-11 items-center gap-1.5 text-[15px] font-bold text-teal-dark">
+              <summary className="cursor-pointer list-none inline-flex min-h-11 items-center gap-2 text-[15px] font-medium text-teal-dark">
                 <svg
-                  width="14"
-                  height="14"
+                  width="16"
+                  height="16"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
-                  strokeWidth="2.4"
+                  strokeWidth="1.5"
                   strokeLinecap="round"
                   strokeLinejoin="round"
                   aria-hidden
@@ -430,7 +274,7 @@ export default async function Home() {
               </summary>
               <div className="mt-3 space-y-5">
                 <div>
-                  <p className="text-[14px] font-bold text-navy mb-2">演奏時のルール</p>
+                  <p className="text-[14px] font-medium text-navy mb-2">演奏時のルール</p>
                   <ul className="space-y-3 text-[15px] text-ink leading-[1.8]">
                     <li className="flex gap-2.5">
                       <span aria-hidden className="mt-[0.65em] h-2 w-2 shrink-0 rounded-full bg-gold" />
@@ -443,7 +287,7 @@ export default async function Home() {
                   </ul>
                 </div>
                 <div>
-                  <p className="text-[14px] font-bold text-navy mb-2">撮影・SNSについて</p>
+                  <p className="text-[14px] font-medium text-navy mb-2">撮影・SNSについて</p>
                   <ul className="space-y-3 text-[15px] text-ink leading-[1.8]">
                     <li className="flex gap-2.5">
                       <span aria-hidden className="mt-[0.65em] h-2 w-2 shrink-0 rounded-full bg-gold" />
@@ -460,7 +304,7 @@ export default async function Home() {
                   </ul>
                 </div>
                 <div>
-                  <p className="text-[14px] font-bold text-navy mb-2">安全・設備について</p>
+                  <p className="text-[14px] font-medium text-navy mb-2">安全・設備について</p>
                   <ul className="space-y-3 text-[15px] text-ink leading-[1.8]">
                     <li className="flex gap-2.5">
                       <span aria-hidden className="mt-[0.65em] h-2 w-2 shrink-0 rounded-full bg-gold" />
@@ -485,7 +329,7 @@ export default async function Home() {
                   </ul>
                 </div>
                 <div>
-                  <p className="text-[14px] font-bold text-navy mb-2">禁止事項</p>
+                  <p className="text-[14px] font-medium text-navy mb-2">禁止事項</p>
                   <ul className="space-y-3 text-[15px] text-ink leading-[1.8]">
                     <li className="flex gap-2.5">
                       <span aria-hidden className="mt-[0.65em] h-2 w-2 shrink-0 rounded-full bg-gold" />
@@ -506,7 +350,7 @@ export default async function Home() {
                   </ul>
                 </div>
                 <div>
-                  <p className="text-[14px] font-bold text-navy mb-2">そのほか</p>
+                  <p className="text-[14px] font-medium text-navy mb-2">そのほか</p>
                   <ul className="space-y-3 text-[15px] text-ink leading-[1.8]">
                     <li className="flex gap-2.5">
                       <span aria-hidden className="mt-[0.65em] h-2 w-2 shrink-0 rounded-full bg-gold" />
@@ -521,10 +365,10 @@ export default async function Home() {
               </div>
             </details>
             <div className="mt-5 flex flex-wrap gap-x-6 gap-y-2 text-[15px]">
-              <Link href="/terms" className="inline-flex min-h-11 items-center font-bold text-teal-dark hover:underline">
+              <Link href="/terms" className="inline-flex min-h-11 items-center font-medium text-teal-dark hover:underline">
                 利用規約を読む
               </Link>
-              <Link href="/privacy" className="inline-flex min-h-11 items-center font-bold text-teal-dark hover:underline">
+              <Link href="/privacy" className="inline-flex min-h-11 items-center font-medium text-teal-dark hover:underline">
                 プライバシーポリシー
               </Link>
             </div>
@@ -532,13 +376,13 @@ export default async function Home() {
         </div>
 
         {/* はじめての方向けのFAQ */}
-        <div className="reveal mx-auto max-w-[900px] pb-16 sm:pb-20 lg:pb-24">
-          <h2 className="font-display text-xl sm:text-2xl font-bold text-navy mb-2">よくあるご質問</h2>
-          <p className="mb-7 text-[15px] text-muted leading-[1.8]">はじめてご利用になる方からよくいただくご質問をまとめました。</p>
+        <div className="mx-auto max-w-[900px] pb-16 sm:pb-20 lg:pb-24">
+          <h2 className="font-display text-[24px] sm:text-[28px] font-medium text-navy mb-2">よくあるご質問</h2>
+          <p className="mb-8 text-[15px] text-muted leading-[1.8]">はじめてご利用になる方からよくいただくご質問をまとめました。</p>
           <div className="divide-y divide-navy/[0.09] rounded-2xl border border-navy/[0.09] bg-white">
             {FAQ.map(({ q, a }) => (
-              <details key={q} className="group px-5 sm:px-7 transition-colors hover:bg-cream/60 open:bg-cream/40">
-                <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 py-4 text-[16px] font-bold text-navy">
+              <details key={q} className="group px-5 sm:px-8 transition-colors hover:bg-cream/60 open:bg-cream/40">
+                <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 py-4 text-[16px] font-medium text-navy">
                   {q}
                   <svg
                     width="18"
@@ -546,11 +390,11 @@ export default async function Home() {
                     viewBox="0 0 24 24"
                     fill="none"
                     stroke="currentColor"
-                    strokeWidth="2.4"
+                    strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                     aria-hidden
-                    className="shrink-0 text-teal-dark transition-transform group-open:rotate-90"
+                    className="shrink-0 text-muted transition-transform group-open:rotate-90"
                   >
                     <path d="M9 6l6 6-6 6" />
                   </svg>
@@ -559,9 +403,9 @@ export default async function Home() {
               </details>
             ))}
           </div>
-          <p className="mt-5 text-[15px] leading-[1.8] text-muted">
+          <p className="mt-6 text-[15px] leading-[1.8] text-muted">
             ここに掲載のないご質問は
-            <a href={`mailto:${config.supportEmail}`} className="font-bold text-teal-dark underline">
+            <a href={`mailto:${config.supportEmail}`} className="font-medium text-teal-dark underline">
               {config.supportEmail}
             </a>
             {config.supportPhone && `（電話: ${config.supportPhone}）`}

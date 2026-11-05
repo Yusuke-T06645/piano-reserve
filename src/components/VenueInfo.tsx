@@ -38,11 +38,11 @@ export function VenueInfo({ className = "" }: { className?: string }) {
   const pendingItems = items.filter((item) => item.value.trim().length === 0);
 
   return (
-    <div className={`rounded-2xl border border-navy/[0.09] bg-white p-6 sm:p-7 ${className}`}>
-      <h2 className="font-display text-lg font-bold text-navy mb-4">会場のご案内</h2>
+    <div className={`rounded-2xl border border-navy/[0.08] bg-white p-6 sm:p-8 ${className}`}>
+      <h2 className="font-display text-[22px] font-medium text-navy mb-4">会場のご案内</h2>
       <dl className="space-y-4 text-[15px] text-ink leading-[1.8]">
         <div>
-          <dt className="font-bold text-muted text-[13px]">会場</dt>
+          <dt className="text-muted text-[14px]">会場</dt>
           <dd>
             {config.venueName}
             <br />
@@ -54,9 +54,9 @@ export function VenueInfo({ className = "" }: { className?: string }) {
                   href={mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-full border border-teal/30 bg-teal-soft px-4 font-bold text-teal-dark hover:brightness-95"
+                  className="mt-2 inline-flex min-h-11 items-center gap-2 rounded-[10px] border border-navy/15 bg-white px-4 font-medium text-teal-dark transition-colors hover:bg-cream"
                 >
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
                     <path d="M12 21s7-6.2 7-11a7 7 0 10-14 0c0 4.8 7 11 7 11z" />
                     <circle cx="12" cy="10" r="2.5" />
                   </svg>
@@ -69,13 +69,13 @@ export function VenueInfo({ className = "" }: { className?: string }) {
 
         {publishedItems.map((item) => (
           <div key={item.label}>
-            <dt className="font-bold text-muted text-[13px]">{item.label}</dt>
+            <dt className="text-muted text-[14px]">{item.label}</dt>
             <dd className="whitespace-pre-line">{item.value}</dd>
           </div>
         ))}
 
         <div>
-          <dt className="font-bold text-muted text-[13px]">当日の受付方法</dt>
+          <dt className="text-muted text-[14px]">当日の受付方法</dt>
           <dd>{config.venueChecklist}</dd>
         </div>
       </dl>
@@ -89,7 +89,7 @@ export function VenueInfo({ className = "" }: { className?: string }) {
               width={photo.width}
               height={photo.height}
               sizes="(min-width: 640px) 320px, 100vw"
-              className="block w-full h-auto rounded-xl border border-navy/[0.09]"
+              className="block w-full h-auto rounded-xl border border-navy/[0.08]"
             />
             <figcaption className="mt-2 text-[14px] leading-[1.7] text-muted">{photo.caption}</figcaption>
           </figure>
@@ -100,7 +100,7 @@ export function VenueInfo({ className = "" }: { className?: string }) {
         <p className="mt-5 rounded-xl bg-cream px-4 py-3.5 text-[14px] text-ink leading-[1.8]">
           {pendingItems.map((item) => item.label).join("・")}
           に関するご案内は、準備でき次第このページに掲載します。 お急ぎの場合は
-          <a href={`mailto:${config.supportEmail}`} className="font-bold text-teal-dark underline">
+          <a href={`mailto:${config.supportEmail}`} className="font-medium text-teal-dark underline">
             {config.supportEmail}
           </a>
           {config.supportPhone && `（電話: ${config.supportPhone}）`}

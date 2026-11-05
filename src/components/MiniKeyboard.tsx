@@ -23,21 +23,15 @@ const BLACK_KEYS = [
   { name: "ラ♯", freq: 466.16, after: 5 },
 ];
 
-const NOTE_GLYPHS = ["♪", "♫", "♩", "♬"];
-
-type FloatingNote = { id: number; left: number; glyph: string; x: number; r: number };
-
 /**
- * ヒーローに置く「触れると音が鳴る」ミニ鍵盤。
+ * ヒーローに置く「触れると音が鳴る」ミニ鍵盤。押した鍵盤が少し沈み、色が変わる。
  * 音は Web Audio API で合成しており、利用者が鍵盤に触れたときだけ鳴る。
  */
 export function MiniKeyboard() {
   const ctxRef = useRef<AudioContext | null>(null);
-  const idRef = useRef(0);
   const [active, setActive] = useState<string | null>(null);
-  const [notes, setNotes] = useState<FloatingNote[]>([]);
 
-  function play(freq: number, keyId: string, leftPercent: number) {
+  function play(freq: number, keyId: string) {
     try {
       const Ctx = window.AudioContext ?? (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
       ctxRef.current ??= new Ctx();
@@ -77,24 +71,12 @@ export function MiniKeyboard() {
 
     setActive(keyId);
     window.setTimeout(() => setActive((cur) => (cur === keyId ? null : cur)), 160);
-
-    const id = ++idRef.current;
-    const note: FloatingNote = {
-      id,
-      left: leftPercent,
-      glyph: NOTE_GLYPHS[id % NOTE_GLYPHS.length],
-      // 押すたびに少しずつ違う方向へ飛ばす(乱数を使わず番号から決める)
-      x: ((id * 37) % 50) - 25,
-      r: ((id * 53) % 50) - 25,
-    };
-    setNotes((prev) => [...prev.slice(-8), note]);
-    window.setTimeout(() => setNotes((prev) => prev.filter((n) => n.id !== id)), 1300);
   }
 
-  function onKey(e: KeyboardEvent, freq: number, keyId: string, left: number) {
+  function onKey(e: KeyboardEvent, freq: number, keyId: string) {
     if (e.key === "Enter" || e.key === " ") {
       e.preventDefault();
-      if (!e.repeat) play(freq, keyId, left);
+      if (!e.repeat) play(freq, keyId);
     }
   }
 
@@ -102,31 +84,29 @@ export function MiniKeyboard() {
 
   return (
     <div className="relative w-full max-w-[420px] sm:max-w-[520px]">
-      <p className="mb-2.5 flex items-center justify-center gap-2 text-[13px] font-bold tracking-wide text-gold-light">
-        <span aria-hidden>♪</span>
-        鍵盤にふれてみてください（音が出ます）
+      <p className="mb-2 text-center text-[13px] text-white/60">
+        鍵盤にふれると音が出ます
       </p>
       <div
         role="group"
         aria-label="ミニ鍵盤（押すと音が鳴ります）"
-        className="relative h-24 sm:h-28 select-none touch-manipulation rounded-xl border border-gold-light/30 bg-navy-dark/70 p-1.5 shadow-hero backdrop-blur-sm"
+        className="relative h-24 sm:h-28 select-none touch-manipulation rounded-xl border border-white/10 bg-black/30 p-1.5"
       >
         <div className="relative h-full">
           {WHITE_KEYS.map((k, i) => {
             const keyId = `w${i}`;
-            const left = i * whiteWidth + whiteWidth / 2;
             return (
               <button
                 key={keyId}
                 type="button"
                 aria-label={k.name}
                 data-active={active === keyId}
-                onPointerDown={() => play(k.freq, keyId, left)}
-                onKeyDown={(e) => onKey(e, k.freq, keyId, left)}
-                className="mini-key absolute top-0 bottom-0 rounded-b-md border-x border-navy/15 bg-linear-to-b from-white to-[#f3efe6] shadow-[inset_0_-6px_0_rgba(0,0,0,0.06)] hover:to-gold-soft data-[active=true]:from-gold-soft data-[active=true]:to-gold-light data-[active=true]:shadow-none"
+                onPointerDown={() => play(k.freq, keyId)}
+                onKeyDown={(e) => onKey(e, k.freq, keyId)}
+                className="mini-key absolute top-0 bottom-0 rounded-b-md border-x border-navy/15 bg-[#fbf9f4] shadow-[inset_0_-4px_0_rgba(18,35,46,0.08)] hover:bg-white data-[active=true]:bg-gold-light data-[active=true]:shadow-none"
                 style={{ left: `${i * whiteWidth}%`, width: `${whiteWidth}%` }}
               >
-                <span className="absolute inset-x-0 bottom-1.5 text-center text-[10px] font-bold text-muted/80">{k.name}</span>
+                <span className="absolute inset-x-0 bottom-2 text-center text-[11px] text-muted">{k.name}</span>
               </button>
             );
           })}
@@ -140,30 +120,14 @@ export function MiniKeyboard() {
                 type="button"
                 aria-label={k.name}
                 data-active={active === keyId}
-                onPointerDown={() => play(k.freq, keyId, center)}
-                onKeyDown={(e) => onKey(e, k.freq, keyId, center)}
-                className="mini-key absolute top-0 z-10 h-[60%] rounded-b-md bg-linear-to-b from-[#2a2a2a] to-black shadow-[0_3px_6px_rgba(0,0,0,0.45)] hover:from-[#3a3a3a] data-[active=true]:from-teal-dark data-[active=true]:to-navy-dark"
+                onPointerDown={() => play(k.freq, keyId)}
+                onKeyDown={(e) => onKey(e, k.freq, keyId)}
+                className="mini-key absolute top-0 z-10 h-[60%] rounded-b-md bg-[#17191b] hover:bg-[#2a2c2e] data-[active=true]:bg-teal-dark"
                 style={{ left: `${center - width / 2}%`, width: `${width}%` }}
               />
             );
           })}
         </div>
-        {notes.map((n) => (
-          <span
-            key={n.id}
-            aria-hidden
-            className="key-note pointer-events-none absolute top-0 text-2xl font-bold text-gold-light drop-shadow"
-            style={
-              {
-                left: `${n.left}%`,
-                "--note-x": `${n.x}px`,
-                "--note-r": `${n.r}deg`,
-              } as React.CSSProperties
-            }
-          >
-            {n.glyph}
-          </span>
-        ))}
       </div>
     </div>
   );
