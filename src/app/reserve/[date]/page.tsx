@@ -17,7 +17,7 @@ export default async function DateSlotsPage({ params }: { params: Promise<{ date
   const hasFreeTime = freeMinutesInDay(availability) >= config.granularityMinutes;
 
   return (
-    <div className="px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
+    <div className="bg-cream px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
       <div className="mx-auto max-w-[1400px]">
         <Stepper current={2} />
 

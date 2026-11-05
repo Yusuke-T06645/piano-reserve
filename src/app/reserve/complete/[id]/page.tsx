@@ -78,7 +78,7 @@ export default async function CompletePage({
   const emailFailed = mail === "failed";
 
   return (
-    <div className="px-4 sm:px-6 lg:px-16 py-14 sm:py-[72px]">
+    <div className="bg-cream px-4 sm:px-6 lg:px-16 py-14 sm:py-16">
       <div className="mx-auto max-w-xl text-center">
         <span className="inline-flex items-center gap-2 text-[14px] font-medium text-success">
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>

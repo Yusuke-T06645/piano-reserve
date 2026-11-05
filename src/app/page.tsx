@@ -3,6 +3,8 @@ import Image from "next/image";
 import { Card } from "@/components/ui";
 import { VenueInfo } from "@/components/VenueInfo";
 import { MiniKeyboard } from "@/components/MiniKeyboard";
+import { LogoMark } from "@/components/LogoMark";
+import { KeyboardEdge } from "@/components/KeyboardEdge";
 import { SlotKeys, buildSlots, type Slot } from "@/components/SlotKeys";
 import { config, isFixedSlotMode, maxGroupsPerDay } from "@/lib/config";
 import { getDayAvailability, listDaySummaries, type DaySummary } from "@/lib/availability";
@@ -81,10 +83,17 @@ export default async function Home() {
   return (
     <>
       {/* ヒーロー: 左に案内と次回の開放日、右に実際のピアノの写真 */}
-      <section className="bg-navy-dark px-4 sm:px-6 lg:px-16 pt-12 sm:pt-16 lg:pt-24 pb-16 sm:pb-20 lg:pb-24">
-        <div className="mx-auto max-w-[1400px] grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-12 lg:gap-16 items-center">
+      <section className="relative overflow-hidden bg-linear-to-b from-navy-dark to-[#173040] px-4 sm:px-6 lg:px-16 pt-12 sm:pt-16 lg:pt-24 pb-24 sm:pb-28 lg:pb-32">
+        {/* 田中組のロゴマークの透かし(静止)。文字と重ならない左下の余白に置く */}
+        <LogoMark
+          className="pointer-events-none absolute -bottom-10 -right-16 hidden w-[300px] h-auto text-gold-light xl:block"
+          fillOpacity={0.03}
+          strokeOpacity={0.12}
+        />
+        <div className="relative mx-auto max-w-[1400px] grid lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] gap-12 lg:gap-16 items-center">
           <div>
-            <p style={{ "--i": 0 } as React.CSSProperties} className="rise-in text-[14px] text-gold-light">
+            <p style={{ "--i": 0 } as React.CSSProperties} className="rise-in flex items-center gap-2 text-[14px] text-gold-light">
+              <LogoMark className="h-6 w-auto text-gold-light" />
               {config.orgName} 地域開放事業
             </p>
 
@@ -117,9 +126,15 @@ export default async function Home() {
             {/* 2. 次回の開放日・時間・空き状況(実際の予約データに連動) */}
             <div
               style={{ "--i": 3 } as React.CSSProperties}
-              className="rise-in mt-8 max-w-[34rem] rounded-2xl border border-white/10 bg-white/[0.05] p-6"
+              className="rise-in mt-8 max-w-[34rem] rounded-2xl border border-gold-light/20 bg-white/[0.05] p-6"
             >
-              <p className="text-[14px] text-white/60">次回の開放日</p>
+              <p className="flex items-center gap-2 text-[14px] text-gold-light">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <rect x="3" y="5" width="18" height="16" rx="3" />
+                  <path d="M8 3v4M16 3v4M3 10h18" />
+                </svg>
+                次回の開放日
+              </p>
               {next ? (
                 <>
                   <p className="font-display mt-1 text-[24px] font-medium text-white">
@@ -168,7 +183,7 @@ export default async function Home() {
           </div>
 
           <div style={{ "--i": 2 } as React.CSSProperties} className="rise-in flex flex-col items-center gap-8">
-            <figure className="w-full">
+            <figure className="relative w-full rounded-[20px] border border-gold-light/20 bg-white/[0.04] p-2">
               <Image
                 src="/piano-hero.jpg"
                 alt={`${config.orgName}本社に設置されているヤマハ製グランドピアノ`}
@@ -176,28 +191,48 @@ export default async function Home() {
                 height={1008}
                 priority
                 sizes="(min-width: 1024px) 50vw, 100vw"
-                className="block w-full h-auto rounded-2xl border border-white/10"
+                className="block w-full h-auto rounded-xl"
               />
-              <figcaption className="mt-3 text-[13px] text-white/60">
-                ヤマハのグランドピアノ ／ {config.venueName}
-              </figcaption>
+              {/* 真鍮の銘板のようなラベル */}
+              <span className="absolute left-6 top-6 rounded-md bg-gold px-3 py-1 font-display text-[14px] font-medium text-navy-dark">
+                YAMAHA グランドピアノ
+              </span>
+              <figcaption className="px-2 pt-3 pb-1 text-[13px] text-white/60">{config.venueName}</figcaption>
             </figure>
             <MiniKeyboard />
           </div>
         </div>
+        {/* ヒーローの下端を鍵盤の並びで締める */}
+        <KeyboardEdge className="absolute inset-x-0 bottom-0 block" />
       </section>
 
       {/* 開放情報 */}
-      <section id="guide" className="scroll-mt-24 px-4 sm:px-6 lg:px-16 pt-16 sm:pt-20">
+      <section id="guide" className="scroll-mt-24 bg-cream px-4 sm:px-6 lg:px-16 pt-16 sm:pt-20">
         <dl className="mx-auto max-w-[1400px] grid sm:grid-cols-[1.4fr_1fr_1fr] rounded-2xl border border-navy/[0.08] bg-white mb-16 sm:mb-20 divide-y sm:divide-y-0 sm:divide-x divide-navy/[0.08]">
           <div className="p-6 sm:p-8">
-            <dt className="text-[14px] text-muted">開放日</dt>
-            <dd className="font-display mt-2 text-[28px] sm:text-[32px] font-medium leading-[1.3] text-navy">毎月 第1・第3金曜日</dd>
+            <dt className="flex items-center gap-2 text-[14px] text-gold-ink">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gold-soft">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <rect x="3" y="5" width="18" height="16" rx="3" />
+                  <path d="M8 3v4M16 3v4M3 10h18" />
+                </svg>
+              </span>
+              開放日
+            </dt>
+            <dd className="font-display mt-4 text-[28px] sm:text-[32px] font-medium leading-[1.3] text-navy">毎月 第1・第3金曜日</dd>
             <dd className="mt-2 text-[15px] text-muted leading-[1.8]">当日の状況により休止する場合があります</dd>
           </div>
           <div className="p-6 sm:p-8">
-            <dt className="text-[14px] text-muted">時間</dt>
-            <dd className="font-display mt-2 text-[24px] font-medium text-navy tabular-nums">
+            <dt className="flex items-center gap-2 text-[14px] text-gold-ink">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gold-soft">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <circle cx="12" cy="12" r="9" />
+                  <path d="M12 7v5l3.5 2" />
+                </svg>
+              </span>
+              時間
+            </dt>
+            <dd className="font-display mt-4 text-[24px] font-medium text-navy tabular-nums">
               {config.openTime}〜{config.closeTime}
             </dd>
             <dd className="mt-2 text-[15px] text-muted leading-[1.8]">
@@ -207,17 +242,27 @@ export default async function Home() {
             </dd>
           </div>
           <div className="p-6 sm:p-8">
-            <dt className="text-[14px] text-muted">利用料金</dt>
-            <dd className="font-display mt-2 text-[24px] font-medium text-navy">無料</dd>
+            <dt className="flex items-center gap-2 text-[14px] text-gold-ink">
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-gold-soft">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+                  <path d="M9 18V5l10-2v13" />
+                  <circle cx="6.5" cy="18" r="2.5" />
+                  <circle cx="16.5" cy="16" r="2.5" />
+                </svg>
+              </span>
+              利用料金
+            </dt>
+            <dd className="font-display mt-4 text-[24px] font-medium text-navy">無料</dd>
             <dd className="mt-2 text-[15px] text-muted leading-[1.8]">事前のWeb予約が必要です</dd>
           </div>
         </dl>
 
-        <div className="mx-auto max-w-[1400px] grid lg:grid-cols-2 gap-12 lg:gap-16 pb-16 sm:pb-20 lg:pb-24">
+        <div className="mx-auto max-w-[1400px] grid lg:grid-cols-2 items-start gap-12 lg:gap-16 pb-16 sm:pb-20 lg:pb-24">
           <div>
-            <h2 className="font-display text-[24px] sm:text-[28px] font-medium text-navy mb-8">ご利用の流れ</h2>
+            <p className="text-[14px] text-gold-ink">はじめての方へ</p>
+            <h2 className="font-display mt-2 text-[24px] sm:text-[28px] font-medium text-navy mb-8">ご利用の流れ</h2>
             <ol className="relative space-y-6">
-              <span aria-hidden className="absolute left-4 top-4 bottom-4 w-px -translate-x-1/2 bg-navy/15" />
+              <span aria-hidden className="absolute left-5 top-5 bottom-5 w-px -translate-x-1/2 bg-gold" />
               {[
                 "開放日の一覧から希望の日を選ぶ",
                 `利用したい時間帯を選ぶ（1組最大${config.maxUsageMinutes}分）`,
@@ -225,10 +270,10 @@ export default async function Home() {
                 "当日は、受付でQRコード・予約番号をご提示いただくか、お名前をお伝えください",
               ].map((step, i) => (
                 <li key={i} className="relative flex gap-4 items-start">
-                  <span className="relative shrink-0 h-8 w-8 rounded-full border border-navy/15 bg-white text-[14px] font-medium text-navy flex items-center justify-center tabular-nums">
+                  <span className="relative shrink-0 h-10 w-10 rounded-full bg-navy font-display text-[18px] font-medium text-gold-light flex items-center justify-center tabular-nums">
                     {i + 1}
                   </span>
-                  <span className="pt-0.5 text-[16px] leading-[1.8] text-ink">{step}</span>
+                  <span className="pt-1.5 text-[16px] leading-[1.8] text-ink">{step}</span>
                 </li>
               ))}
             </ol>
@@ -242,7 +287,7 @@ export default async function Home() {
             <VenueInfo className="mt-12" />
           </div>
 
-          <Card className="bg-cream border-none shadow-none p-6 sm:p-8">
+          <Card className="border-navy/[0.08] shadow-none p-6 sm:p-8">
             <h2 className="font-display text-[22px] font-medium text-navy mb-4">ご利用にあたってのお願い</h2>
             <ul className="space-y-3 text-[15px] text-ink leading-[1.8]">
               <li className="flex gap-2.5">
@@ -375,13 +420,17 @@ export default async function Home() {
           </Card>
         </div>
 
-        {/* はじめての方向けのFAQ */}
+      </section>
+
+      {/* はじめての方向けのFAQ */}
+      <section className="px-4 sm:px-6 lg:px-16 pt-16 sm:pt-20">
         <div className="mx-auto max-w-[900px] pb-16 sm:pb-20 lg:pb-24">
-          <h2 className="font-display text-[24px] sm:text-[28px] font-medium text-navy mb-2">よくあるご質問</h2>
+          <p className="text-[14px] text-gold-ink">ご利用の前に</p>
+          <h2 className="font-display mt-2 text-[24px] sm:text-[28px] font-medium text-navy mb-2">よくあるご質問</h2>
           <p className="mb-8 text-[15px] text-muted leading-[1.8]">はじめてご利用になる方からよくいただくご質問をまとめました。</p>
           <div className="divide-y divide-navy/[0.09] rounded-2xl border border-navy/[0.09] bg-white">
             {FAQ.map(({ q, a }) => (
-              <details key={q} className="group px-5 sm:px-8 transition-colors hover:bg-cream/60 open:bg-cream/40">
+              <details key={q} className="group px-5 sm:px-8 transition-colors hover:bg-cream/60 open:bg-cream/60">
                 <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 py-4 text-[16px] font-medium text-navy">
                   {q}
                   <svg

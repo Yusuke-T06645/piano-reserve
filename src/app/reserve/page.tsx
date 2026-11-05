@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Stepper } from "@/components/ui";
-import { listDaySummaries, type DaySummary } from "@/lib/availability";
+import { getDayAvailability, listDaySummaries, type DaySummary } from "@/lib/availability";
+import { SlotKeys, buildSlots, type Slot } from "@/components/SlotKeys";
 import { formatJapaneseDate } from "@/lib/dates";
 import { config } from "@/lib/config";
 
@@ -26,9 +27,20 @@ function statusLabel(d: DaySummary): { text: string; dot: string } {
 export default async function ReservePage() {
   const days = await listDaySummaries();
   const nextBookable = days.find((d) => d.status === "open");
+  // 予約できる日(空きあり・満席)は、時間枠ごとの空き状況を小さな鍵盤で見せる
+  const slotsByDate = new Map<string, Slot[]>(
+    await Promise.all(
+      days
+        .filter((d) => d.status === "open" || d.status === "full")
+        .map(async (d) => {
+          const day = await getDayAvailability(d.date);
+          return [d.date, buildSlots(day.openTime, day.closeTime, day.granularityMinutes, day.busyRanges)] as const;
+        })
+    )
+  );
 
   return (
-    <div className="px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
+    <div className="bg-cream px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
       <div className="mx-auto max-w-[1400px]">
         <Stepper current={1} />
 
@@ -77,7 +89,7 @@ export default async function ReservePage() {
                 className={
                   selectable
                     ? "h-full rounded-2xl border border-navy/[0.08] bg-white p-6 transition-colors duration-150 group-hover:border-teal-dark/40 group-hover:bg-teal-soft/30"
-                    : "h-full rounded-2xl border border-dashed border-navy/20 bg-cream p-6"
+                    : "h-full rounded-2xl border border-dashed border-navy/20 bg-transparent p-6"
                 }
               >
                 <p className={`font-display text-[20px] font-medium ${selectable ? "text-navy" : "text-muted"}`}>
@@ -86,6 +98,9 @@ export default async function ReservePage() {
                 <p className="mt-1 text-[14px] text-muted tabular-nums">
                   {config.openTime}〜{config.closeTime}
                 </p>
+                {slotsByDate.has(d.date) && (
+                  <SlotKeys slots={slotsByDate.get(d.date)!} closeTime={config.closeTime} compact className="mt-4" />
+                )}
                 <p className="mt-4 flex items-center gap-2 text-[14px] text-ink">
                   <span aria-hidden className={`h-2 w-2 shrink-0 rounded-full ${label.dot}`} />
                   {label.text}

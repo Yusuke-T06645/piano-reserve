@@ -28,19 +28,22 @@ const STATUS_TEXT: Record<SlotStatus, string> = {
 
 /**
  * その日の空き状況を鍵盤で表す。1枠が白鍵1つで、埋まった枠は黒く塗る。
- * トップページの「次回の開放日」と、時間枠の選択画面だけで使う。
+ * 鍵盤の枠(筐体)は濃紺で、白鍵が浮き立つようにする。選んだ枠はミニ鍵盤を押したときと同じ金色になる。
  */
 export function SlotKeys({
   slots,
   closeTime,
   tone = "light",
   selectedStart = null,
+  compact = false,
   className,
 }: {
   slots: Slot[];
   closeTime: string;
   tone?: "light" | "dark";
   selectedStart?: string | null;
+  /** 一覧のカード用の小さい表示。文字は読み上げ用にだけ残す */
+  compact?: boolean;
   className?: string;
 }) {
   const dark = tone === "dark";
@@ -48,7 +51,7 @@ export function SlotKeys({
     <div className={className}>
       <ul
         aria-label="時間枠ごとの空き状況"
-        className={clsx("flex gap-1 rounded-[10px] p-1", dark ? "bg-black/30" : "bg-navy/[0.06]")}
+        className={clsx("flex gap-1 p-1", compact ? "rounded-lg" : "rounded-[10px]", dark ? "bg-black/30" : "bg-navy")}
       >
         {slots.map((slot) => {
           const isOpen = slot.status === "open";
@@ -57,9 +60,10 @@ export function SlotKeys({
             <li
               key={slot.start}
               className={clsx(
-                "flex h-14 flex-1 items-end justify-center rounded-b-md rounded-t-[2px] pb-2 text-[12px] transition-colors duration-150",
+                "flex flex-1 items-end justify-center rounded-b-md rounded-t-[2px] text-[12px] transition-colors duration-150",
+                compact ? "h-8" : "h-14 pb-2",
                 isSelected
-                  ? "bg-teal-dark text-white"
+                  ? "bg-gold-light text-navy-dark"
                   : isOpen
                     ? "bg-[#fbf9f4] text-muted shadow-[inset_0_-4px_0_rgba(18,35,46,0.08)]"
                     : "bg-[#17191b] text-white/60"
@@ -68,13 +72,14 @@ export function SlotKeys({
               <span className="sr-only">
                 {slot.start}〜{slot.end}
               </span>
-              <span className={clsx(slots.length > 4 && "sr-only")}>
+              <span className={clsx((compact || slots.length > 4) && "sr-only")}>
                 {isSelected ? "選択中" : STATUS_TEXT[slot.status]}
               </span>
             </li>
           );
         })}
       </ul>
+      {!compact && (
       <div
         aria-hidden
         className={clsx("relative mt-2 flex text-[12px] tabular-nums", dark ? "text-white/60" : "text-muted")}
@@ -86,6 +91,7 @@ export function SlotKeys({
         ))}
         <span className="absolute right-1">{closeTime}</span>
       </div>
+      )}
     </div>
   );
 }
