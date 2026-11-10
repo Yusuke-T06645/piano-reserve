@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@astryxdesign/core/Icon";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -181,7 +182,7 @@ export function SlotPicker({
                     : isOpen
                       ? // 待機中の鍵盤: 下端に厚みを持たせ、ホバーで少し浮き、押すと沈む
                         "border-2 border-navy/[0.12] bg-white shadow-[inset_0_-7px_0_rgba(27,58,75,.07),0_10px_22px_-18px_rgba(18,35,46,.5)] hover:-translate-y-0.5 hover:border-teal/60 hover:shadow-[inset_0_-7px_0_rgba(46,124,138,.12),0_18px_30px_-18px_rgba(31,85,96,.55)] active:translate-y-[3px] active:shadow-[inset_0_-3px_0_rgba(27,58,75,.1)]"
-                      : "border-2 border-dashed border-navy/[0.18] bg-[#F5F1EC]",
+                      : "border-2 border-dashed border-navy/[0.18] bg-sand-soft",
                   "has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold"
                 )}
               >
@@ -224,7 +225,7 @@ export function SlotPicker({
                         ? "bg-white/20 text-white"
                         : isOpen
                           ? "bg-teal-soft text-teal-dark group-hover:bg-teal group-hover:text-white"
-                          : "bg-[#EDE8DF] text-muted"
+                          : "bg-sand text-muted"
                     )}
                   >
                     {slot.index + 1}
@@ -234,16 +235,14 @@ export function SlotPicker({
                       key={`check-${burst}`}
                       className="slot-pop inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-[12.5px] font-bold text-teal-dark"
                     >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                        <path d="M5 12l5 5L19 7" />
-                      </svg>
+                      <Icon icon="check" size="xsm" />
                       選択中
                     </span>
                   ) : (
                     <span
                       className={clsx(
                         "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] font-bold",
-                        isOpen ? "bg-success-soft text-success" : "bg-[#EDE8DF] text-muted"
+                        isOpen ? "bg-success-soft text-success" : "bg-sand text-muted"
                       )}
                     >
                       {isOpen && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />}

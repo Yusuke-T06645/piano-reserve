@@ -1,3 +1,5 @@
+import { Icon } from "@astryxdesign/core/Icon";
+import { SiteIcon } from "@/components/icons";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { Button, Alert } from "@/components/ui";
@@ -81,9 +83,7 @@ export default async function CompletePage({
     <div className="px-4 sm:px-6 lg:px-16 py-14 sm:py-[72px]">
       <div className="mx-auto max-w-xl text-center">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-4 py-2 text-[14px] font-bold text-success">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M5 12.5l4.5 4.5L19 7" />
-          </svg>
+          <Icon icon="check" size="sm" />
           予約完了
         </span>
         <h1 className="font-display mt-5 text-2xl sm:text-[32px] font-bold text-navy">ご予約ありがとうございました</h1>
@@ -127,18 +127,13 @@ export default async function CompletePage({
         <div className="mt-6 grid sm:grid-cols-2 gap-3.5">
           <a href={googleCalendarUrl} target="_blank" rel="noopener noreferrer">
             <Button variant="outline" className="w-full">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <rect x="3" y="5" width="18" height="16" rx="3" />
-                <path d="M8 3v4M16 3v4M3 10h18M12 13v6M9 16h6" />
-              </svg>
+              <SiteIcon name="calendarAdd" size="sm" />
               Googleカレンダーに追加
             </Button>
           </a>
           <a href={icsDataUrl} download={`piano-reserve-${reservation.id}.ics`}>
             <Button variant="outline" className="w-full">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M12 3v13m0 0l-4-4m4 4l4-4M4 20h16" />
-              </svg>
+              <SiteIcon name="download" size="sm" />
               .icsファイルで保存
             </Button>
           </a>

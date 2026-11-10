@@ -1,4 +1,9 @@
-import Link from "next/link";
+import { Badge } from "@astryxdesign/core/Badge";
+import { Banner } from "@astryxdesign/core/Banner";
+import { Button } from "@astryxdesign/core/Button";
+import { Card } from "@astryxdesign/core/Card";
+import { Icon } from "@astryxdesign/core/Icon";
+import { List, ListItem } from "@astryxdesign/core/List";
 import { Stepper } from "@/components/ui";
 import { listDaySummaries, type DaySummary } from "@/lib/availability";
 import { formatJapaneseDate } from "@/lib/dates";
@@ -6,33 +11,24 @@ import { config } from "@/lib/config";
 
 export const dynamic = "force-dynamic";
 
-/** 日付カードに表示する状況ラベル（色だけでなく文言でも区別できるようにする） */
-function statusLabel(d: DaySummary): { text: string; className: string; stripe: string } {
+/**
+ * 日付ごとの状況。色だけでなく文言でも区別できるようにする。
+ * スマートフォンの1行に収まるよう、バッジは短い言葉にして詳しい説明は2行目(note)に出す。
+ */
+function dayStatus(d: DaySummary): { badge: string; variant: "success" | "warning" | "neutral"; note: string } {
   switch (d.status) {
     case "open":
-      return {
-        text: `空きあり（残り${d.freeMinutes}分）`,
-        className: "bg-success-soft text-success",
-        stripe: "bg-success",
-      };
+      return { badge: "空きあり", variant: "success", note: `残り${d.freeMinutes}分` };
     case "full":
       return {
-        text: d.waitlistCount > 0 ? "満席（キャンセル待ち受付中）" : "満席（キャンセル待ち可）",
-        className: "bg-gold-soft text-gold-ink",
-        stripe: "bg-gold",
+        badge: "満席",
+        variant: "warning",
+        note: d.waitlistCount > 0 ? "キャンセル待ち受付中" : "キャンセル待ちできます",
       };
     case "closed":
-      return {
-        text: "本日の受付は終了しました",
-        className: "bg-[#EDE8DF] text-muted",
-        stripe: "bg-navy/[0.16]",
-      };
+      return { badge: "受付終了", variant: "neutral", note: "本日の受付は終了しました" };
     case "blackout":
-      return {
-        text: "休止日（調律・点検等のため）",
-        className: "bg-[#EDE8DF] text-muted",
-        stripe: "bg-navy/[0.16]",
-      };
+      return { badge: "休止日", variant: "neutral", note: "調律・点検等のため" };
   }
 }
 
@@ -52,78 +48,64 @@ export default async function ReservePage() {
         </p>
 
         {nextBookable && (
-          <Link
-            href={`/reserve/${nextBookable.date}`}
-            className="mb-8 flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-teal/25 bg-teal-soft px-5 py-4 sm:px-6"
-          >
-            <span className="flex items-center gap-3">
-              <span className="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-teal text-white">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
-              </span>
-              <span>
-                <span className="block text-[13px] font-bold tracking-widest text-teal-dark uppercase">次に予約できる日</span>
-                <span className="block font-display text-[17px] font-bold text-navy">
-                  {formatJapaneseDate(nextBookable.date)}（残り{nextBookable.freeMinutes}分）
-                </span>
-              </span>
-            </span>
-            <span className="text-[15px] font-bold text-teal-dark">この日の時間を選ぶ →</span>
-          </Link>
-        )}
-
-        {days.length > 0 && !nextBookable && (
-          <div className="mb-8 rounded-2xl border border-gold/40 bg-gold-soft px-5 py-4 sm:px-6">
-            <p className="text-[16px] font-bold text-navy">現在、すぐにご予約いただける空き枠がありません</p>
-            <p className="mt-1.5 text-[15px] leading-[1.8] text-ink">
-              満席の日はキャンセル待ちにご登録いただけます（キャンセルが出た場合、先着順で自動的にご案内します）。
-              休止日・受付終了の日はお選びいただけません。
-            </p>
+          <div className="mb-6 max-w-3xl">
+            <Banner
+              status="info"
+              collapsible={false}
+              title="次に予約できる日"
+              description={`${formatJapaneseDate(nextBookable.date)}（残り${nextBookable.freeMinutes}分）`}
+              endContent={
+                <Button
+                  label="この日の時間を選ぶ"
+                  variant="primary"
+                  size="sm"
+                  href={`/reserve/${nextBookable.date}`}
+                  endContent={<Icon icon="chevronRight" />}
+                />
+              }
+            />
           </div>
         )}
 
-        <ul className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {days.map((d) => {
-            const label = statusLabel(d);
-            const selectable = d.status === "open" || d.status === "full";
-            const card = (
-              <div
-                className={
-                  selectable
-                    ? "relative h-full overflow-hidden rounded-2xl border border-navy/[0.09] bg-white px-6 py-[26px] shadow-soft transition-all group-hover:shadow-elevated group-hover:border-teal/40"
-                    : "relative h-full overflow-hidden rounded-2xl border border-dashed border-navy/[0.28] bg-[#F5F1EC] px-6 py-[26px]"
-                }
-              >
-                <span aria-hidden className={`absolute left-0 top-0 bottom-0 w-1 ${label.stripe}`} />
-                <p className={`font-display text-[19px] font-bold ${selectable ? "text-navy" : "text-muted"}`}>
-                  {formatJapaneseDate(d.date)}
-                </p>
-                <p className="mt-1.5 text-[14px] text-muted">
-                  {config.openTime}〜{config.closeTime}
-                </p>
-                <div className="mt-4">
-                  <span
-                    className={`inline-flex items-center rounded-full px-3.5 py-1.5 text-[13px] font-bold ${label.className}`}
-                  >
-                    {label.text}
-                  </span>
-                </div>
-              </div>
-            );
-            return (
-              <li key={d.date}>
-                {selectable ? (
-                  <Link href={`/reserve/${d.date}`} className="group block h-full">
-                    {card}
-                  </Link>
-                ) : (
-                  card
-                )}
-              </li>
-            );
-          })}
-        </ul>
+        {days.length > 0 && !nextBookable && (
+          <div className="mb-6 max-w-3xl">
+            <Banner
+              status="warning"
+              collapsible={false}
+              title="現在、すぐにご予約いただける空き枠がありません"
+              description="満席の日はキャンセル待ちにご登録いただけます（キャンセルが出た場合、先着順で自動的にご案内します）。休止日・受付終了の日はお選びいただけません。"
+            />
+          </div>
+        )}
+
+        {/* 開放日は1行ずつの一覧にして、スマートフォンでも一度に多くの日を見比べられるようにする */}
+        {days.length > 0 && (
+          <div className="max-w-3xl">
+            <Card padding={2}>
+              <List hasDividers edge="outset" header={<span className="sr-only">開放日の一覧</span>}>
+                {days.map((d) => {
+                  const status = dayStatus(d);
+                  const selectable = d.status === "open" || d.status === "full";
+                  return (
+                    <ListItem
+                      key={d.date}
+                      label={<span className="font-display text-[17px] sm:text-[19px] font-bold">{formatJapaneseDate(d.date)}</span>}
+                      description={`${config.openTime}〜${config.closeTime}・${status.note}`}
+                      href={selectable ? `/reserve/${d.date}` : undefined}
+                      isDisabled={!selectable}
+                      endContent={
+                        <span className="flex items-center gap-2">
+                          <Badge label={status.badge} variant={status.variant} />
+                          {selectable && <Icon icon="chevronRight" color="secondary" />}
+                        </span>
+                      }
+                    />
+                  );
+                })}
+              </List>
+            </Card>
+          </div>
+        )}
 
         {days.length === 0 && (
           <p className="text-[16px] leading-[1.8] text-ink">

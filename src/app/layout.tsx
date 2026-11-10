@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
+import "./layers.css";
 import "./globals.css";
+import { AppTheme } from "@/components/AppTheme";
 import { Header } from "@/components/Header";
 import { Footer } from "@/components/Footer";
 import { config } from "@/lib/config";
@@ -13,6 +15,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="ja" className="h-full antialiased">
       <body className="min-h-full flex flex-col bg-white text-ink">
+        <AppTheme>
         <a href="#main-content" className="skip-link">
           本文へスキップ
         </a>
@@ -21,6 +24,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
           {children}
         </main>
         <Footer />
+        </AppTheme>
       </body>
     </html>
   );

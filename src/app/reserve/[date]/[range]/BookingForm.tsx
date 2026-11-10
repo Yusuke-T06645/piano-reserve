@@ -1,8 +1,12 @@
 "use client";
 
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Card } from "@astryxdesign/core/Card";
+import { HStack } from "@astryxdesign/core/HStack";
+import { Icon } from "@astryxdesign/core/Icon";
+import { MetadataList, MetadataListItem } from "@astryxdesign/core/MetadataList";
+import { Button as AstryxButton } from "@astryxdesign/core/Button";
 import { Button, Label, FieldError, Alert } from "@/components/ui";
 import { formatJapaneseDate } from "@/lib/dates";
 import { config } from "@/lib/config";
@@ -203,58 +207,74 @@ function BookingFormFields({
 
   const durationMinutes = slotDurationMinutes(slotStart, slotEnd);
 
+  /** 予約内容(日時・料金・会場)。確認カードと、PCの右側に固定表示する要約で共通に使う */
+  const summaryList = (
+    <MetadataList label={{ width: 72 }}>
+      <MetadataListItem label="利用日">
+        <span className="font-display text-[17px] font-bold text-navy">{formatJapaneseDate(date)}</span>
+      </MetadataListItem>
+      <MetadataListItem label="時間">
+        <span className="font-display text-[18px] font-bold text-navy">
+          {slotStart} 〜 {slotEnd}
+        </span>
+      </MetadataListItem>
+      <MetadataListItem label="利用時間">{durationMinutes}分</MetadataListItem>
+      <MetadataListItem label="料金">無料</MetadataListItem>
+      <MetadataListItem label="会場">{config.venueName}</MetadataListItem>
+    </MetadataList>
+  );
+
+  const changeDateButton = (
+    <AstryxButton
+      label="日時を変更する"
+      variant="secondary"
+      size="sm"
+      href={`/reserve/${date}`}
+      icon={<Icon icon="chevronLeft" />}
+    />
+  );
+
   /** 確定直前に内容を確認するためのカード（送信ボタンの直前に置く） */
   const confirmCard = (
     <section
       aria-labelledby="booking-summary-heading"
       className="rounded-[20px] border-[1.5px] border-teal/30 bg-teal-soft/60 p-5 sm:p-6"
     >
-      <h2 id="booking-summary-heading" className="text-[16px] font-bold text-navy">
+      <h2 id="booking-summary-heading" className="mb-4 text-[16px] font-bold text-navy">
         {mode === "book" ? "ご予約内容の確認" : "キャンセル待ちの登録内容"}
       </h2>
-      <dl className="mt-4 space-y-3 text-[16px] leading-[1.7] text-ink">
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <dt className="w-[92px] shrink-0 text-[14px] font-bold text-muted">利用日</dt>
-          <dd className="font-display text-[18px] font-bold text-navy">{formatJapaneseDate(date)}</dd>
-        </div>
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <dt className="w-[92px] shrink-0 text-[14px] font-bold text-muted">時間</dt>
-          <dd className="font-display text-[18px] font-bold text-navy">
-            {slotStart} 〜 {slotEnd}
-          </dd>
-        </div>
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <dt className="w-[92px] shrink-0 text-[14px] font-bold text-muted">利用時間</dt>
-          <dd>{durationMinutes}分</dd>
-        </div>
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <dt className="w-[92px] shrink-0 text-[14px] font-bold text-muted">料金</dt>
-          <dd>無料</dd>
-        </div>
-        <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
-          <dt className="w-[92px] shrink-0 text-[14px] font-bold text-muted">会場</dt>
-          <dd>{config.venueName}</dd>
-        </div>
-      </dl>
-      <p className="mt-4">
-        <Link
-          href={`/reserve/${date}`}
-          className="inline-flex min-h-11 items-center gap-1.5 rounded-full border-[1.5px] border-teal-dark px-4 text-[15px] font-bold text-teal-dark hover:bg-white"
-        >
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-            <path d="M19 12H5M11 18l-6-6 6-6" />
-          </svg>
-          日時を変更する
-        </Link>
+      {summaryList}
+      <div className="mt-4">
+        {changeDateButton}
         <span className="mt-2 block text-[14px] leading-[1.7] text-muted">
           入力済みの内容は保持されますので、日時を選びなおしてからこの画面にお戻りください。
         </span>
-      </p>
+      </div>
     </section>
   );
 
   return (
     <div className="grid lg:grid-cols-[1fr_340px] gap-8 items-start">
+      {/* スマートフォン・タブレットでは、入力の前に選んだ日時を一目で確認できるようにする（PCは右側に固定表示） */}
+      <div className="lg:hidden">
+        <Card variant="muted" padding={3}>
+          <HStack gap={3} hAlign="between" vAlign="center" wrap="wrap">
+            <span>
+              <span className="block text-[13px] font-bold text-muted">
+                {mode === "book" ? "ご予約の日時" : "キャンセル待ちの日時"}
+              </span>
+              <span className="block font-display text-[17px] font-bold text-navy">
+                {formatJapaneseDate(date)} {slotStart}〜{slotEnd}
+              </span>
+              <span className="block text-[14px] text-muted">
+                {durationMinutes}分・無料
+              </span>
+            </span>
+            {changeDateButton}
+          </HStack>
+        </Card>
+      </div>
+
       {/* 入力 → 同意 → 内容確認 → 確定ボタン の順に並べる */}
       <div className="rounded-[22px] border border-navy/[0.09] bg-white p-5 sm:p-10 shadow-soft">
         {serverError && (
@@ -468,8 +488,18 @@ function BookingFormFields({
         </form>
       </div>
 
-      {/* 補足情報 */}
-      <div className="flex flex-col gap-5">
+      {/* 補足情報。PCではスクロールしても予約内容が見えるよう右側に固定する */}
+      <div className="flex flex-col gap-5 lg:sticky lg:top-[112px]">
+        <section
+          aria-label={mode === "book" ? "選択中の予約内容" : "選択中のキャンセル待ち内容"}
+          className="hidden lg:block rounded-[20px] border-[1.5px] border-teal/30 bg-teal-soft/60 p-6"
+        >
+          <p className="mb-3.5 text-[15px] font-bold text-navy">
+            {mode === "book" ? "選択中の予約内容" : "選択中のキャンセル待ち内容"}
+          </p>
+          {summaryList}
+          <div className="mt-4">{changeDateButton}</div>
+        </section>
         <div className="rounded-[20px] border border-navy/[0.09] bg-white p-6">
           <p className="mb-3.5 text-[15px] font-bold text-navy">当日のお願い</p>
           <ul className="space-y-2.5 text-[14px] text-ink leading-[1.8]">

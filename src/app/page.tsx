@@ -1,3 +1,5 @@
+import { Icon } from "@astryxdesign/core/Icon";
+import { SiteIcon } from "@/components/icons";
 import Link from "next/link";
 import Image from "next/image";
 import { Card } from "@/components/ui";
@@ -127,7 +129,7 @@ export default async function Home() {
           aria-hidden
           fill="none"
         >
-          <g stroke="#F0DEB8" strokeWidth="1">
+          <g stroke="var(--color-gold-light)" strokeWidth="1">
             <line x1="0" y1="10" x2="640" y2="10" />
             <line x1="0" y1="34" x2="640" y2="34" />
             <line x1="0" y1="58" x2="640" y2="58" />
@@ -148,11 +150,7 @@ export default async function Home() {
           </div>
           <div>
             <span style={{ "--i": 0 } as React.CSSProperties} className="hero-in inline-flex items-center gap-2 rounded-full bg-gold-light/15 border border-gold-light/35 px-4 py-2 text-[13px] font-bold tracking-wide text-gold-light">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <path d="M9 18V5l10-2v13" />
-                <circle cx="6.5" cy="18" r="2.5" />
-                <circle cx="16.5" cy="16" r="2.5" />
-              </svg>
+              <SiteIcon name="musicNote" size="sm" />
               {config.orgName} 地域開放事業
             </span>
 
@@ -239,9 +237,7 @@ export default async function Home() {
                 className="btn-shine inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-linear-to-br from-gold-light to-gold px-7 py-4 text-base font-bold text-navy-dark shadow-[0_16px_30px_-10px_rgba(217,178,126,0.5)] hover:brightness-105"
               >
                 {canReserveNow ? "空き枠を確認して予約する" : "開放日の一覧を見る"}
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M5 12h14M13 6l6 6-6 6" />
-                </svg>
+                <SiteIcon name="arrowRight" size="sm" />
               </Link>
               <Link
                 href="/manage/lookup"
@@ -330,10 +326,7 @@ export default async function Home() {
         <div className="mx-auto max-w-[1400px] grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16 sm:mb-[88px]">
           <Card className="lift-card reveal p-7">
             <div className="lift-icon flex h-12 w-12 items-center justify-center rounded-2xl bg-gold-soft text-gold-ink">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <rect x="3" y="5" width="18" height="16" rx="3" />
-                <path d="M8 3v4M16 3v4M3 10h18" />
-              </svg>
+              <SiteIcon name="calendar" size="lg" />
             </div>
             <p className="mt-5 text-[13px] font-bold tracking-widest text-gold-ink uppercase">開放日</p>
             <p className="font-display mt-2 text-2xl font-bold text-navy">毎月 第1・第3金曜日</p>
@@ -341,10 +334,7 @@ export default async function Home() {
           </Card>
           <Card className="lift-card reveal p-7">
             <div className="lift-icon flex h-12 w-12 items-center justify-center rounded-2xl bg-teal-soft text-teal-dark">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <circle cx="12" cy="12" r="9" />
-                <path d="M12 7v5l3.5 2" />
-              </svg>
+              <SiteIcon name="clock" size="lg" />
             </div>
             <p className="mt-5 text-[13px] font-bold tracking-widest text-teal-dark uppercase">時間</p>
             <p className="font-display mt-2 text-2xl font-bold text-navy">
@@ -358,10 +348,7 @@ export default async function Home() {
           </Card>
           <Card className="lift-card reveal p-7">
             <div className="lift-icon flex h-12 w-12 items-center justify-center rounded-2xl bg-navy-soft text-navy">
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                <circle cx="12" cy="12" r="9" />
-                <path d="M9 6l3 5 3-5M12 11v7M9 13h6M9 16h6" />
-              </svg>
+              <SiteIcon name="yen" size="lg" />
             </div>
             <p className="mt-5 text-[13px] font-bold tracking-widest text-navy uppercase">利用料金</p>
             <p className="font-display mt-2 text-2xl font-bold text-navy">無料</p>
@@ -412,20 +399,7 @@ export default async function Home() {
             </ul>
             <details className="mt-4 group">
               <summary className="cursor-pointer list-none inline-flex min-h-11 items-center gap-1.5 text-[15px] font-bold text-teal-dark">
-                <svg
-                  width="14"
-                  height="14"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2.4"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden
-                  className="transition-transform group-open:rotate-90"
-                >
-                  <path d="M9 6l6 6-6 6" />
-                </svg>
+                <Icon icon="chevronRight" size="sm" className="transition-transform group-open:rotate-90" />
                 その他の注意事項をすべて見る
               </summary>
               <div className="mt-3 space-y-5">
@@ -540,20 +514,7 @@ export default async function Home() {
               <details key={q} className="group px-5 sm:px-7 transition-colors hover:bg-cream/60 open:bg-cream/40">
                 <summary className="flex min-h-14 cursor-pointer list-none items-center justify-between gap-3 py-4 text-[16px] font-bold text-navy">
                   {q}
-                  <svg
-                    width="18"
-                    height="18"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    aria-hidden
-                    className="shrink-0 text-teal-dark transition-transform group-open:rotate-90"
-                  >
-                    <path d="M9 6l6 6-6 6" />
-                  </svg>
+                  <Icon icon="chevronRight" size="md" className="shrink-0 text-teal-dark transition-transform group-open:rotate-90" />
                 </summary>
                 <p className="pb-5 text-[15px] leading-[1.9] text-ink">{a}</p>
               </details>

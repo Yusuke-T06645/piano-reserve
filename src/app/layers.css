@@ -1,0 +1,6 @@
+/*
+ * カスケードレイヤーの順序宣言。layout.tsx で最初に読み込むこと。
+ * Next.js は CSS の @import を先頭に巻き上げるため、globals.css とは別ファイルにしている。
+ * reset(最下位) → Tailwind の theme/base → Astryx の部品・テーマ → Tailwind の components/utilities(最上位)
+ */
+@layer reset, theme, base, astryx-base, astryx-theme, components, utilities;

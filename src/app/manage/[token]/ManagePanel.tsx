@@ -1,5 +1,6 @@
 "use client";
 
+import { SiteIcon } from "@/components/icons";
 import { useEffect, useState } from "react";
 import { Badge, Button, Alert, Label } from "@/components/ui";
 import { formatJapaneseDate } from "@/lib/dates";
@@ -158,17 +159,11 @@ export function ManagePanel({
                 onClick={() => setMode("reschedule")}
                 disabled={!canReschedule}
               >
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <path d="M4 20h4l10-10-4-4L4 16v4z" />
-                  <path d="M13 7l4 4" />
-                </svg>
+                <SiteIcon name="edit" size="sm" />
                 日時を変更する
               </Button>
               <Button variant="danger" className="sm:flex-1" onClick={() => setMode("confirmCancel")}>
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                  <circle cx="12" cy="12" r="9" />
-                  <path d="M9 9l6 6M15 9l-6 6" />
-                </svg>
+                <SiteIcon name="cancel" size="sm" />
                 キャンセルする
               </Button>
             </div>

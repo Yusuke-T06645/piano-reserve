@@ -1,5 +1,6 @@
 "use client";
 
+import { SiteIcon } from "@/components/icons";
 import { useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui";
@@ -348,9 +349,7 @@ function FreeRangeSelector({
             e.preventDefault();
           }}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal-dark)" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
-            <path d="M9 5v14M15 5v14" />
-          </svg>
+          <SiteIcon name="grip" size="xsm" className="text-teal-dark" />
         </div>
         <div
           aria-hidden
@@ -382,9 +381,7 @@ function FreeRangeSelector({
             e.preventDefault();
           }}
         >
-          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--color-teal-dark)" strokeWidth="2.2" strokeLinecap="round" aria-hidden>
-            <path d="M9 5v14M15 5v14" />
-          </svg>
+          <SiteIcon name="grip" size="xsm" className="text-teal-dark" />
         </div>
         <div
           aria-hidden

@@ -1,5 +1,8 @@
 import { ButtonHTMLAttributes, HTMLAttributes, LabelHTMLAttributes, ReactNode } from "react";
 import clsx from "clsx";
+import { Badge as AstryxBadge } from "@astryxdesign/core/Badge";
+import { Banner } from "@astryxdesign/core/Banner";
+import { Stepper as AstryxStepper, Step } from "@astryxdesign/core/Stepper";
 
 export function Container({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return <div className={clsx("mx-auto max-w-5xl px-4 sm:px-6", className)} {...props} />;
@@ -87,129 +90,79 @@ export function FieldError({ id, children }: { id?: string; children?: ReactNode
   );
 }
 
+const badgeVariants = {
+  neutral: "neutral",
+  success: "success",
+  warning: "warning",
+  danger: "error",
+  info: "info",
+} as const;
+
+/** 状態を表す小さなラベル。中身は Astryx の Badge（色はテーマ src/themes/piano で管理） */
 export function Badge({
   children,
   tone = "neutral",
 }: {
   children: ReactNode;
-  tone?: "neutral" | "success" | "warning" | "danger" | "info";
+  tone?: keyof typeof badgeVariants;
 }) {
-  const tones: Record<string, string> = {
-    neutral: "bg-navy-soft text-muted",
-    success: "bg-success-soft text-success",
-    warning: "bg-gold-soft text-gold-ink",
-    danger: "bg-danger-soft text-danger",
-    info: "bg-teal-soft text-teal-dark",
-  };
-  const dotTones: Record<string, string> = {
-    neutral: "bg-muted",
-    success: "bg-success",
-    warning: "bg-gold",
-    danger: "bg-danger",
-    info: "bg-teal-dark",
-  };
-  return (
-    <span
-      className={clsx(
-        "inline-flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-[13px] font-bold",
-        tones[tone]
-      )}
-    >
-      <span aria-hidden className={clsx("h-1.5 w-1.5 rounded-full", dotTones[tone])} />
-      {children}
-    </span>
-  );
+  return <AstryxBadge label={children} variant={badgeVariants[tone]} />;
 }
 
+const alertStatuses = {
+  info: "info",
+  success: "success",
+  warning: "warning",
+  danger: "error",
+} as const;
+
+/**
+ * お知らせ枠。中身は Astryx の Banner。
+ * Banner 自体は読み上げ用のライブリージョンを持たないため、従来どおり role="status" で包んで、
+ * エラーや完了の表示がスクリーンリーダーにも伝わるようにしている。
+ * タイトルがないときは本文をタイトル位置に表示する。
+ */
 export function Alert({
   tone = "info",
   title,
   children,
 }: {
-  tone?: "info" | "success" | "warning" | "danger";
+  tone?: keyof typeof alertStatuses;
   title?: string;
   children: ReactNode;
 }) {
-  const tones: Record<string, string> = {
-    info: "border-teal/20 bg-teal-soft text-teal-dark",
-    success: "border-success/25 bg-success-soft text-success",
-    warning: "border-gold/40 bg-gold-soft text-navy",
-    danger: "border-danger/25 bg-danger-soft text-danger",
-  };
   return (
-    <div role="status" className={clsx("rounded-2xl border px-5 py-4 text-[15px] leading-[1.8]", tones[tone])}>
-      {title && <p className="font-bold mb-1">{title}</p>}
-      {children}
+    <div role="status">
+      <Banner
+        status={alertStatuses[tone]}
+        collapsible={false}
+        title={title ?? children}
+        description={title ? children : undefined}
+      />
     </div>
   );
 }
 
 /**
- * 予約導線（日付→時間→情報入力）の3ステップ進捗表示。
- * スマートフォンでも見出しが省略されないよう短い表記にし、
- * 現在地・完了は色だけでなく形（チェックマーク・下線）とテキストでも区別する。
+ * 予約導線（日付→時間→情報入力）の3ステップ進捗表示。中身は Astryx の Stepper。
+ * 完了・現在地は色だけでなく形（チェックマーク・番号）と読み上げでも区別される。
+ * 画面が狭いときは Stepper が自動で「現在のステップ名」だけの表示に切り替わる。
  */
+const STEPS = ["日付", "時間", "情報入力"] as const;
+
 export function Stepper({ current }: { current: 1 | 2 | 3 }) {
-  const steps: { n: 1 | 2 | 3; label: string }[] = [
-    { n: 1, label: "日付" },
-    { n: 2, label: "時間" },
-    { n: 3, label: "情報入力" },
-  ];
   return (
-    <nav aria-label="予約の進行状況" className="mb-8 sm:mb-12">
-      <ol className="flex items-center gap-0 max-w-xl">
-        {steps.map((step, i) => {
-          const done = step.n < current;
-          const active = step.n === current;
-          return (
-            <li
-              key={step.n}
-              aria-current={active ? "step" : undefined}
-              className={clsx("flex items-center min-w-0", i < steps.length - 1 && "flex-1")}
-            >
-              <span className="flex items-center gap-2 min-w-0">
-                <span
-                  aria-hidden
-                  className={clsx(
-                    "flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-[14px] font-bold",
-                    done && "bg-teal text-white",
-                    active && "bg-navy text-white ring-2 ring-navy ring-offset-2",
-                    !done && !active && "border-2 border-navy/40 bg-white text-muted"
-                  )}
-                >
-                  {done ? (
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M5 12l4 4L19 7" />
-                    </svg>
-                  ) : (
-                    step.n
-                  )}
-                </span>
-                <span
-                  className={clsx(
-                    "text-[14px] leading-tight",
-                    active && "font-bold text-navy underline decoration-2 underline-offset-4",
-                    done && "font-bold text-navy",
-                    !done && !active && "text-muted"
-                  )}
-                >
-                  {step.label}
-                  <span className="sr-only">
-                    {done ? "（完了）" : active ? "（現在のステップ）" : "（未完了）"}
-                  </span>
-                </span>
-              </span>
-              {i < steps.length - 1 && (
-                <span
-                  aria-hidden
-                  className={clsx("h-0.5 flex-1 mx-2 sm:mx-3 min-w-2", done ? "bg-teal" : "bg-navy/25")}
-                />
-              )}
-            </li>
-          );
-        })}
-      </ol>
-    </nav>
+    <div className="mb-8 sm:mb-12 max-w-xl">
+      <AstryxStepper
+        activeStep={current - 1}
+        label="予約の進行状況"
+        horizontalOptions={{ minimumStepWidth: 96, collapsedVariant: "withLabel" }}
+      >
+        {STEPS.map((label, i) => (
+          <Step key={label} step={i} label={label} />
+        ))}
+      </AstryxStepper>
+    </div>
   );
 }
 

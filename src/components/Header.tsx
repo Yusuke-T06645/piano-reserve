@@ -1,3 +1,4 @@
+import { SiteIcon } from "@/components/icons";
 import Link from "next/link";
 import { config } from "@/lib/config";
 import { PianoKeyDivider } from "@/components/ui";
@@ -8,11 +9,7 @@ export function Header() {
       <header className="h-[72px] sm:h-[88px] flex items-center justify-between px-4 sm:px-6 lg:px-16 bg-white border-b border-navy/[0.09]">
         <Link href="/" className="flex min-h-11 items-center gap-3 focus-visible:outline-offset-4">
           <span className="flex h-10 w-10 sm:h-11 sm:w-11 shrink-0 items-center justify-center rounded-full bg-navy text-gold-light">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M9 18V5l10-2v13" />
-              <circle cx="6.5" cy="18" r="2.5" />
-              <circle cx="16.5" cy="16" r="2.5" />
-            </svg>
+            <SiteIcon name="musicNote" size="md" />
           </span>
           <span className="flex flex-col leading-tight">
             <span className="font-display text-lg sm:text-xl font-bold text-navy tracking-wide">

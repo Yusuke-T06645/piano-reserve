@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap");
 @import "tailwindcss";
+@import "@astryxdesign/core/reset.css";
+@import "@astryxdesign/core/astryx.css";
 
 :root {
   --color-navy: #1b3a4b;
@@ -14,6 +16,14 @@
   /* 白・クリーム背景の上に文字として置くための濃いゴールド(コントラスト比 5.9:1) */
   --color-gold-ink: #7d5f33;
   --color-cream: #f7f3ec;
+  /* 選べない状態(満席・受付終了など)の面と小さなラベルの背景 */
+  --color-sand: #ede8df;
+  --color-sand-soft: #f5f1ec;
+  /* ミニ鍵盤の黒鍵 */
+  --color-key-black: #2a2a2a;
+  --color-key-black-hover: #3a3a3a;
+  /* ミニ鍵盤の白鍵の下端 */
+  --color-key-white-edge: #f3efe6;
   --color-paper: #ffffff;
   --color-ink: #221c16;
   --color-muted: #6e6155;
@@ -43,6 +53,11 @@
   --color-gold-soft: var(--color-gold-soft);
   --color-gold-ink: var(--color-gold-ink);
   --color-cream: var(--color-cream);
+  --color-sand: var(--color-sand);
+  --color-sand-soft: var(--color-sand-soft);
+  --color-key-black: var(--color-key-black);
+  --color-key-black-hover: var(--color-key-black-hover);
+  --color-key-white-edge: var(--color-key-white-edge);
   --color-paper: var(--color-paper);
   --color-ink: var(--color-ink);
   --color-muted: var(--color-muted);
@@ -496,4 +511,28 @@ input[type="radio"] {
 }
 .watermark-breathe {
   animation: watermark-breathe 9s ease-in-out infinite;
+}
+
+/* Astryx の reset は素の見出し・段落に行間(見出しは書体も)を指定するため、
+   既存画面の見出し・段落は従来どおり親の行間(本文 1.8)と書体を引き継ぐ。
+   明朝体にしたい見出しは従来どおり font-display クラスで指定する。
+   Astryx の Heading / Text 部品は自身のクラスで行間を持つので影響しない。 */
+@layer base {
+  :where(h1, h2, h3, h4, h5, h6, p) {
+    line-height: inherit;
+  }
+  :where(h1, h2, h3, h4, h5, h6) {
+    font-family: inherit;
+  }
+}
+
+/* Astryx の <Theme> が body 直下に包む要素を作るため、
+   本文(main)を伸ばしてフッターを画面下に置くレイアウトをその要素に引き継ぐ */
+body > [data-astryx-theme] {
+  /* テーマ既定の文字色・行間ではなく、本文の基準(上の body の指定)を引き継ぐ */
+  color: inherit;
+  line-height: inherit;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
 }
