@@ -1,5 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Zen+Old+Mincho:wght@400;600;700&family=Zen+Kaku+Gothic+New:wght@400;500;700;900&display=swap");
 @import "tailwindcss";
+@import "@astryxdesign/core/reset.css";
+@import "@astryxdesign/core/astryx.css";
 
 :root {
   --color-navy: #1b3a4b;
@@ -14,6 +16,14 @@
   /* 白・クリーム背景の上に文字として置くための濃いゴールド(コントラスト比 5.9:1) */
   --color-gold-ink: #7d5f33;
   --color-cream: #f7f3ec;
+  /* 選べない状態(満席・受付終了など)の面と小さなラベルの背景 */
+  --color-sand: #ede8df;
+  --color-sand-soft: #f5f1ec;
+  /* ミニ鍵盤の黒鍵 */
+  --color-key-black: #2a2a2a;
+  --color-key-black-hover: #3a3a3a;
+  /* ミニ鍵盤の白鍵の下端 */
+  --color-key-white-edge: #f3efe6;
   --color-paper: #ffffff;
   --color-ink: #221c16;
   --color-muted: #6e6155;
@@ -43,6 +53,11 @@
   --color-gold-soft: var(--color-gold-soft);
   --color-gold-ink: var(--color-gold-ink);
   --color-cream: var(--color-cream);
+  --color-sand: var(--color-sand);
+  --color-sand-soft: var(--color-sand-soft);
+  --color-key-black: var(--color-key-black);
+  --color-key-black-hover: var(--color-key-black-hover);
+  --color-key-white-edge: var(--color-key-white-edge);
   --color-paper: var(--color-paper);
   --color-ink: var(--color-ink);
   --color-muted: var(--color-muted);
@@ -207,24 +222,6 @@ input[type="radio"] {
   animation: slot-pop 420ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
 }
 
-@keyframes slot-shine {
-  from {
-    transform: translateX(-120%) skewX(-20deg);
-  }
-  to {
-    transform: translateX(260%) skewX(-20deg);
-  }
-}
-.slot-shine::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  width: 40%;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-  animation: slot-shine 900ms ease-out 1;
-  pointer-events: none;
-}
-
 /* ---- トップページの動き ----
    ここから下のアニメーションも、prefers-reduced-motion の場合は上の一括指定で実質無効になる。 */
 
@@ -244,165 +241,6 @@ input[type="radio"] {
 .hero-in {
   animation: hero-in 900ms cubic-bezier(0.22, 1, 0.36, 1) both;
   animation-delay: calc(var(--i, 0) * 110ms + 80ms);
-}
-
-/* 背景の光がゆっくり漂う */
-@keyframes aurora {
-  0%,
-  100% {
-    transform: translate(0, 0) scale(1);
-  }
-  33% {
-    transform: translate(40px, 30px) scale(1.12);
-  }
-  66% {
-    transform: translate(-30px, 20px) scale(0.92);
-  }
-}
-.aurora {
-  animation: aurora 18s ease-in-out infinite;
-}
-.aurora-slow {
-  animation: aurora 26s ease-in-out infinite reverse;
-}
-
-/* 背景で音符がゆっくり立ちのぼる */
-@keyframes note-drift {
-  0% {
-    opacity: 0;
-    transform: translateY(0) rotate(-8deg);
-  }
-  15% {
-    opacity: var(--o, 0.35);
-  }
-  85% {
-    opacity: var(--o, 0.35);
-  }
-  100% {
-    opacity: 0;
-    transform: translateY(-220px) rotate(10deg);
-  }
-}
-.note-drift {
-  animation: note-drift var(--d, 12s) linear infinite;
-  animation-delay: var(--delay, 0s);
-}
-
-/* 見出しのゴールドが光沢のように流れる */
-@keyframes shimmer {
-  to {
-    background-position: 200% center;
-  }
-}
-.text-shimmer {
-  background: linear-gradient(
-    100deg,
-    var(--color-gold-light) 0%,
-    var(--color-gold) 30%,
-    #fff7e6 50%,
-    var(--color-gold) 70%,
-    var(--color-gold-light) 100%
-  );
-  background-size: 200% auto;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: shimmer 6s linear infinite;
-}
-
-/* 写真がゆっくり浮かぶ */
-@keyframes float-y {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
-}
-.float-y {
-  animation: float-y 7s ease-in-out infinite;
-}
-
-/* 予約可能を示すドットの波紋 */
-@keyframes live-ping {
-  0% {
-    transform: scale(1);
-    opacity: 0.7;
-  }
-  100% {
-    transform: scale(2.6);
-    opacity: 0;
-  }
-}
-.live-ping::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 9999px;
-  background: inherit;
-  animation: live-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
-}
-
-/* メインボタンに光が走る */
-.btn-shine {
-  position: relative;
-  overflow: hidden;
-  isolation: isolate;
-  transition:
-    transform 250ms cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 250ms ease;
-}
-.btn-shine::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  width: 45%;
-  z-index: -1;
-  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.55), transparent);
-  transform: translateX(-130%) skewX(-20deg);
-  animation: slot-shine 3.6s ease-in-out 1.6s infinite;
-}
-.btn-shine:hover {
-  transform: translateY(-2px) scale(1.02);
-}
-.btn-shine:hover svg {
-  transform: translateX(3px);
-}
-.btn-shine svg {
-  transition: transform 250ms ease;
-}
-
-/* 流れるテキスト帯 */
-@keyframes marquee {
-  to {
-    transform: translateX(-50%);
-  }
-}
-.marquee-track {
-  animation: marquee 38s linear infinite;
-}
-.marquee:hover .marquee-track {
-  animation-play-state: paused;
-}
-
-/* カードのホバー: 浮き上がり + ゴールドの縁取り */
-.lift-card {
-  transition:
-    transform 350ms cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 350ms ease,
-    border-color 350ms ease;
-}
-.lift-card:hover {
-  transform: translateY(-6px);
-  box-shadow: var(--shadow-elevated);
-  border-color: color-mix(in srgb, var(--color-gold) 55%, transparent);
-}
-.lift-card:hover .lift-icon {
-  transform: rotate(-8deg) scale(1.08);
-}
-.lift-icon {
-  transition: transform 400ms cubic-bezier(0.34, 1.56, 0.64, 1);
 }
 
 /* スクロールに合わせて要素が現れる(CSSスクロール駆動アニメーション)。
@@ -496,4 +334,28 @@ input[type="radio"] {
 }
 .watermark-breathe {
   animation: watermark-breathe 9s ease-in-out infinite;
+}
+
+/* Astryx の reset は素の見出し・段落に行間(見出しは書体も)を指定するため、
+   既存画面の見出し・段落は従来どおり親の行間(本文 1.8)と書体を引き継ぐ。
+   明朝体にしたい見出しは従来どおり font-display クラスで指定する。
+   Astryx の Heading / Text 部品は自身のクラスで行間を持つので影響しない。 */
+@layer base {
+  :where(h1, h2, h3, h4, h5, h6, p) {
+    line-height: inherit;
+  }
+  :where(h1, h2, h3, h4, h5, h6) {
+    font-family: inherit;
+  }
+}
+
+/* Astryx の <Theme> が body 直下に包む要素を作るため、
+   本文(main)を伸ばしてフッターを画面下に置くレイアウトをその要素に引き継ぐ */
+body > [data-astryx-theme] {
+  /* テーマ既定の文字色・行間ではなく、本文の基準(上の body の指定)を引き継ぐ */
+  color: inherit;
+  line-height: inherit;
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
 }

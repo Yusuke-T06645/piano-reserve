@@ -16,7 +16,7 @@ export default function Error({ error, retry }: { error: Error & { digest?: stri
 
   return (
     <div className="px-4 sm:px-6 lg:px-16 py-16 sm:py-24">
-      <div className="mx-auto max-w-[640px] rounded-[22px] border border-navy/[0.09] bg-white p-7 sm:p-10 shadow-soft">
+      <div className="mx-auto max-w-[640px] rounded-lg border border-navy/[0.09] bg-white p-7 sm:p-10 shadow-soft">
         <h1 className="font-display text-xl sm:text-2xl font-bold text-navy">ページを表示できませんでした</h1>
         <p className="mt-4 text-[16px] leading-[1.8] text-ink">
           アクセスが集中しているか、一時的なエラーが発生しています。お手数ですが、少し時間をおいてから「もう一度読み込む」を押してください。
@@ -32,7 +32,7 @@ export default function Error({ error, retry }: { error: Error & { digest?: stri
           <Button onClick={() => retry()}>もう一度読み込む</Button>
           <Link
             href="/"
-            className="inline-flex min-h-11 items-center justify-center rounded-full border-[1.5px] border-navy/25 px-5 text-[15px] font-bold text-navy"
+            className="inline-flex min-h-11 items-center justify-center rounded-md border-[1.5px] border-navy/25 px-5 text-[15px] font-bold text-navy"
           >
             トップページへ戻る
           </Link>

@@ -5,7 +5,7 @@ import { Label, Button, Alert } from "@/components/ui";
 import { config } from "@/lib/config";
 
 const inputClass =
-  "w-full rounded-[11px] border-[1.5px] border-navy/30 px-4 py-3 text-base text-ink focus-visible:outline-none focus:border-teal";
+  "w-full rounded-md border-[1.5px] border-navy/30 px-4 py-3 text-base text-ink focus-visible:outline-none focus:border-teal";
 
 export default function ManageLookupPage() {
   const [reservationId, setReservationId] = useState("");
@@ -31,8 +31,7 @@ export default function ManageLookupPage() {
   return (
     <div className="px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
       <div className="mx-auto max-w-[680px]">
-        <p className="text-center text-[13px] font-bold tracking-widest text-gold-ink uppercase">MY RESERVATION</p>
-        <h1 className="font-display mt-2.5 text-center text-2xl sm:text-[28px] font-bold text-navy">
+        <h1 className="font-display text-center text-2xl sm:text-[28px] font-bold text-navy">
           予約の確認・変更・キャンセル
         </h1>
         <p className="mt-3 mb-9 text-center text-[16px] text-muted leading-[1.8]">
@@ -40,7 +39,7 @@ export default function ManageLookupPage() {
           リンクから、ご予約内容の確認・日時の変更・キャンセルができます。
         </p>
 
-        <div className="rounded-[22px] border border-navy/[0.09] bg-white p-5 sm:p-9 shadow-soft">
+        <div className="rounded-lg border border-navy/[0.09] bg-white p-5 sm:p-9 shadow-soft">
           {done ? (
             <Alert tone="success">
               入力内容に一致するご予約があれば、確認用リンクをメールでお送りしました。
@@ -86,7 +85,7 @@ export default function ManageLookupPage() {
         </div>
 
         {/* 予約番号・確認メールを紛失した場合の案内 */}
-        <div className="mt-6 rounded-[22px] border border-navy/[0.09] bg-cream p-5 sm:p-7">
+        <div className="mt-6 rounded-lg border border-navy/[0.09] bg-cream p-5 sm:p-7">
           <h2 className="text-[17px] font-bold text-navy">予約番号や確認メールが分からない場合</h2>
           <ul className="mt-4 space-y-3.5 text-[15px] leading-[1.9] text-ink">
             <li className="flex gap-2.5">

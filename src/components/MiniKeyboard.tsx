@@ -109,7 +109,7 @@ export function MiniKeyboard() {
       <div
         role="group"
         aria-label="ミニ鍵盤（押すと音が鳴ります）"
-        className="relative h-24 sm:h-28 select-none touch-manipulation rounded-xl border border-gold-light/30 bg-navy-dark/70 p-1.5 shadow-hero backdrop-blur-sm"
+        className="relative h-24 sm:h-28 select-none touch-manipulation rounded-lg border border-gold-light/30 bg-navy-dark/70 p-1.5 shadow-hero backdrop-blur-sm"
       >
         <div className="relative h-full">
           {WHITE_KEYS.map((k, i) => {
@@ -123,7 +123,7 @@ export function MiniKeyboard() {
                 data-active={active === keyId}
                 onPointerDown={() => play(k.freq, keyId, left)}
                 onKeyDown={(e) => onKey(e, k.freq, keyId, left)}
-                className="mini-key absolute top-0 bottom-0 rounded-b-md border-x border-navy/15 bg-linear-to-b from-white to-[#f3efe6] shadow-[inset_0_-6px_0_rgba(0,0,0,0.06)] hover:to-gold-soft data-[active=true]:from-gold-soft data-[active=true]:to-gold-light data-[active=true]:shadow-none"
+                className="mini-key absolute top-0 bottom-0 rounded-b-md border-x border-navy/15 bg-linear-to-b from-white to-key-white-edge shadow-[inset_0_-6px_0_rgba(0,0,0,0.06)] hover:to-gold-soft data-[active=true]:from-gold-soft data-[active=true]:to-gold-light data-[active=true]:shadow-none"
                 style={{ left: `${i * whiteWidth}%`, width: `${whiteWidth}%` }}
               >
                 <span className="absolute inset-x-0 bottom-1.5 text-center text-[10px] font-bold text-muted/80">{k.name}</span>
@@ -142,7 +142,7 @@ export function MiniKeyboard() {
                 data-active={active === keyId}
                 onPointerDown={() => play(k.freq, keyId, center)}
                 onKeyDown={(e) => onKey(e, k.freq, keyId, center)}
-                className="mini-key absolute top-0 z-10 h-[60%] rounded-b-md bg-linear-to-b from-[#2a2a2a] to-black shadow-[0_3px_6px_rgba(0,0,0,0.45)] hover:from-[#3a3a3a] data-[active=true]:from-teal-dark data-[active=true]:to-navy-dark"
+                className="mini-key absolute top-0 z-10 h-[60%] rounded-b-md bg-linear-to-b from-key-black to-black shadow-[0_3px_6px_rgba(0,0,0,0.45)] hover:from-key-black-hover data-[active=true]:from-teal-dark data-[active=true]:to-navy-dark"
                 style={{ left: `${center - width / 2}%`, width: `${width}%` }}
               />
             );

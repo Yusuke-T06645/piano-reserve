@@ -1,5 +1,6 @@
 "use client";
 
+import { Icon } from "@astryxdesign/core/Icon";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -96,16 +97,15 @@ export function SlotPicker({
   const segmentWidth = 100 / Math.max(slots.length, 1);
 
   return (
-    <div className="relative rounded-[26px] border border-navy/[0.09] bg-white p-5 sm:p-10 shadow-soft">
+    <div className="relative rounded-lg border border-navy/[0.09] bg-white p-5 sm:p-10 shadow-soft">
       {/* 見出し */}
       <div className="flex flex-wrap items-end justify-between gap-3 mb-6">
         <div>
-          <p className="text-[12.5px] font-bold tracking-[0.18em] text-gold-ink">CHOOSE YOUR TIME</p>
-          <h2 id={`slot-picker-${date}`} className="mt-1 font-display text-[22px] sm:text-[24px] font-bold text-navy">
+          <h2 id={`slot-picker-${date}`} className="font-display text-[22px] sm:text-[24px] font-bold text-navy">
             弾きたい時間枠をえらぶ
           </h2>
         </div>
-        <span className="inline-flex items-center gap-2 rounded-full bg-navy px-4 py-2 text-[13px] font-bold text-white">
+        <span className="inline-flex items-center gap-2 rounded-md bg-navy px-4 py-2 text-[13px] font-bold text-white">
           <span aria-hidden className="text-gold-light">♪</span>
           1枠{slotMinutes}分・のこり{openCount}枠
         </span>
@@ -132,7 +132,7 @@ export function SlotPicker({
           ))}
           <span
             className={clsx(
-              "absolute inset-y-0 rounded-full bg-linear-to-r from-teal to-teal-dark shadow-[0_0_14px_rgba(46,124,138,.55)]",
+              "absolute inset-y-0 rounded-full bg-teal-dark",
               "transition-[left,opacity] duration-500 ease-[cubic-bezier(0.34,1.56,0.64,1)]",
               selected ? "opacity-100" : "opacity-0"
             )}
@@ -148,7 +148,7 @@ export function SlotPicker({
       </div>
 
       {!hasOpenSlot && (
-        <div className="mb-6 rounded-2xl border border-gold/40 bg-gold-soft px-5 py-4">
+        <div className="mb-6 rounded-lg border border-gold/40 bg-gold-soft px-5 py-4">
           <p className="text-[16px] font-bold text-navy">この日は空いている時間枠がありません</p>
           <p className="mt-1.5 text-[15px] leading-[1.8] text-ink">
             {showWaitlistCta
@@ -172,16 +172,16 @@ export function SlotPicker({
             >
               <label
                 className={clsx(
-                  "group relative flex min-h-[148px] select-none flex-col overflow-visible rounded-[22px] px-5 pt-4 pb-5",
+                  "group relative flex min-h-[148px] select-none flex-col overflow-visible rounded-lg px-5 pt-4 pb-5",
                   "transition-[transform,box-shadow,background-color,border-color] duration-200 ease-out",
                   isOpen && "cursor-pointer",
                   isSelected
                     ? // 押し込まれた鍵盤: 少し沈み、下端の厚みが薄くなる
-                      "translate-y-[3px] border-2 border-teal-dark bg-linear-to-br from-teal to-teal-dark text-white shadow-[inset_0_-3px_0_rgba(0,0,0,.18),0_14px_28px_-16px_rgba(31,85,96,.9)]"
+                      "translate-y-[3px] border-2 border-teal-dark bg-teal-dark text-white shadow-[inset_0_-3px_0_rgba(0,0,0,.18),0_14px_28px_-16px_rgba(31,85,96,.9)]"
                     : isOpen
                       ? // 待機中の鍵盤: 下端に厚みを持たせ、ホバーで少し浮き、押すと沈む
                         "border-2 border-navy/[0.12] bg-white shadow-[inset_0_-7px_0_rgba(27,58,75,.07),0_10px_22px_-18px_rgba(18,35,46,.5)] hover:-translate-y-0.5 hover:border-teal/60 hover:shadow-[inset_0_-7px_0_rgba(46,124,138,.12),0_18px_30px_-18px_rgba(31,85,96,.55)] active:translate-y-[3px] active:shadow-[inset_0_-3px_0_rgba(27,58,75,.1)]"
-                      : "border-2 border-dashed border-navy/[0.18] bg-[#F5F1EC]",
+                      : "border-2 border-dashed border-navy/[0.18] bg-sand-soft",
                   "has-[:focus-visible]:outline-[3px] has-[:focus-visible]:outline-offset-2 has-[:focus-visible]:outline-gold"
                 )}
               >
@@ -224,7 +224,7 @@ export function SlotPicker({
                         ? "bg-white/20 text-white"
                         : isOpen
                           ? "bg-teal-soft text-teal-dark group-hover:bg-teal group-hover:text-white"
-                          : "bg-[#EDE8DF] text-muted"
+                          : "bg-sand text-muted"
                     )}
                   >
                     {slot.index + 1}
@@ -232,18 +232,16 @@ export function SlotPicker({
                   {isSelected ? (
                     <span
                       key={`check-${burst}`}
-                      className="slot-pop inline-flex items-center gap-1 rounded-full bg-white px-3 py-1 text-[12.5px] font-bold text-teal-dark"
+                      className="slot-pop inline-flex items-center gap-1 rounded-md bg-white px-3 py-1 text-[12.5px] font-bold text-teal-dark"
                     >
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-                        <path d="M5 12l5 5L19 7" />
-                      </svg>
+                      <Icon icon="check" size="xsm" />
                       選択中
                     </span>
                   ) : (
                     <span
                       className={clsx(
-                        "inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[12.5px] font-bold",
-                        isOpen ? "bg-success-soft text-success" : "bg-[#EDE8DF] text-muted"
+                        "inline-flex items-center gap-1.5 rounded-md px-3 py-1 text-[12.5px] font-bold",
+                        isOpen ? "bg-success-soft text-success" : "bg-sand text-muted"
                       )}
                     >
                       {isOpen && <span aria-hidden className="h-1.5 w-1.5 rounded-full bg-success animate-pulse" />}
@@ -291,10 +289,10 @@ export function SlotPicker({
       <div className="sticky bottom-3 z-10 mt-8 -mx-2 sm:mx-0">
         <div
           className={clsx(
-            "flex flex-col gap-2.5 rounded-[20px] border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4",
+            "flex flex-col gap-2.5 rounded-lg border px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-6 sm:py-4",
             "transition-[background-color,box-shadow,border-color] duration-300",
             selected
-              ? "border-teal/20 bg-white/85 shadow-[0_18px_40px_-20px_rgba(18,35,46,.45)] backdrop-blur-md"
+              ? "border-teal/20 bg-white/85 backdrop-blur-md"
               : "border-navy/[0.09] bg-cream/80 backdrop-blur-md"
           )}
         >
@@ -315,7 +313,7 @@ export function SlotPicker({
           </div>
           <Button
             size="lg"
-            className={clsx("relative shrink-0 overflow-hidden", selected && "slot-shine")}
+            className="relative shrink-0 overflow-hidden"
             key={selected ? `btn-${burst}` : "btn-idle"}
             disabled={!selected || confirmDisabled}
             onClick={confirm}

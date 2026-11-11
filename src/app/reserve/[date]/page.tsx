@@ -1,3 +1,4 @@
+import { SiteIcon } from "@/components/icons";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Stepper } from "@/components/ui";
@@ -55,9 +56,7 @@ export default async function DateSlotsPage({ params }: { params: Promise<{ date
 
         <p className="mt-9">
           <Link href="/reserve" className="inline-flex min-h-11 items-center gap-1.5 text-[15px] font-bold text-teal-dark hover:underline">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" aria-hidden>
-              <path d="M19 12H5M11 18l-6-6 6-6" />
-            </svg>
+            <SiteIcon name="arrowLeft" size="sm" />
             他の開放日を選びなおす
           </Link>
         </p>

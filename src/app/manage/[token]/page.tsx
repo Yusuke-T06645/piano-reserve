@@ -21,7 +21,6 @@ export default async function ManageTokenPage({ params }: { params: Promise<{ to
   return (
     <div className="px-4 sm:px-6 lg:px-16 py-10 sm:py-14">
       <div className="mx-auto max-w-[680px]">
-        <p className="text-center text-[13px] font-bold tracking-widest text-gold-ink uppercase">MY RESERVATION</p>
         <h1 className="font-display mt-2.5 mb-9 text-center text-2xl sm:text-[28px] font-bold text-navy">
           予約の確認・変更・キャンセル
         </h1>
