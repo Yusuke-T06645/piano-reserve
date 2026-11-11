@@ -19,15 +19,15 @@ export function Header() {
           </span>
         </Link>
         <nav aria-label="メインナビゲーション" className="flex items-center gap-1 sm:gap-1.5">
-          <Link href="/terms" className="hidden md:inline-flex min-h-11 items-center rounded-full px-4 text-[15px] font-medium text-navy hover:bg-cream">
+          <Link href="/terms" className="hidden md:inline-flex min-h-11 items-center rounded-md px-4 text-[15px] font-medium text-navy hover:bg-cream">
             利用規約
           </Link>
-          <Link href="/privacy" className="hidden md:inline-flex min-h-11 items-center rounded-full px-4 text-[15px] font-medium text-navy hover:bg-cream">
+          <Link href="/privacy" className="hidden md:inline-flex min-h-11 items-center rounded-md px-4 text-[15px] font-medium text-navy hover:bg-cream">
             プライバシー
           </Link>
           <Link
             href="/reserve"
-            className="ml-1 sm:ml-2 inline-flex min-h-11 items-center rounded-full px-5 sm:px-6 text-[15px] font-bold text-white bg-linear-to-br from-teal to-teal-dark shadow-[0_8px_18px_-8px_rgba(31,85,96,0.5)] hover:brightness-105 transition-all"
+            className="ml-1 sm:ml-2 inline-flex min-h-11 items-center rounded-md px-5 sm:px-6 text-[15px] font-bold text-white bg-teal-dark hover:brightness-105 transition-all"
           >
             予約する
           </Link>

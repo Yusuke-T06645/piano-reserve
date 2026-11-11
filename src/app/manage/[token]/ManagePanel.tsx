@@ -34,7 +34,7 @@ const STATUS_LABEL: Record<ReservationView["status"], { label: string; tone: "su
 };
 
 const selectClass =
-  "w-full min-h-12 rounded-[11px] border-[1.5px] border-navy/30 bg-white px-4 py-3 text-base text-ink";
+  "w-full min-h-12 rounded-md border-[1.5px] border-navy/30 bg-white px-4 py-3 text-base text-ink";
 
 export function ManagePanel({
   token,
@@ -130,7 +130,7 @@ export function ManagePanel({
 
   return (
     <div className="space-y-7">
-      <div className="rounded-[22px] border border-navy/[0.09] bg-white p-6 sm:p-9 shadow-soft">
+      <div className="rounded-lg border border-navy/[0.09] bg-white p-6 sm:p-9 shadow-soft">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-x-3 gap-y-2">
           <p className="text-[14px] font-bold text-muted whitespace-nowrap">予約番号 {reservation.id}</p>
           <Badge tone={statusInfo.tone}>{statusInfo.label}</Badge>
@@ -180,7 +180,7 @@ export function ManagePanel({
         )}
 
         {mode === "confirmCancel" && (
-          <div className="rounded-2xl border border-danger/25 bg-danger-soft p-5">
+          <div className="rounded-lg border border-danger/25 bg-danger-soft p-5">
             <p className="text-[16px] leading-[1.8] text-ink mb-4">本当にこのご予約をキャンセルしますか？この操作は取り消せません。</p>
             <div className="flex flex-col sm:flex-row gap-3">
               <Button variant="danger" onClick={doCancel} disabled={busy}>
@@ -205,7 +205,7 @@ export function ManagePanel({
       </div>
 
       {mode === "reschedule" && (
-        <div className="rounded-[22px] bg-cream p-6 sm:p-8">
+        <div className="rounded-lg bg-cream p-6 sm:p-8">
           <p className="mb-5 text-[15px] leading-[1.8] text-muted">
             ※日時の変更は{changeDeadlineText}（ご利用{changeDeadlineHours}時間前）まで承ります。
           </p>

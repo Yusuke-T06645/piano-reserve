@@ -203,10 +203,10 @@ export const pianoTheme = {
     "--color-icon-yellow": "light-dark(#524818, #f1e1b9)",
     "--color-text-yellow": "light-dark(#524818, #f1e1b9)",
     "--radius-none": "0px",
-    "--radius-inner": "4px",
-    "--radius-element": "8px",
-    "--radius-container": "12px",
-    "--radius-page": "28px",
+    "--radius-inner": "3px",
+    "--radius-element": "6px",
+    "--radius-container": "9px",
+    "--radius-page": "21px",
     "--radius-full": "9999px",
     "--shadow-low": "0 2px 4px #25252a0d, 0 4px 8px #25252a1a",
     "--shadow-med": "0 2px 4px #25252a0d, 0 4px 12px #25252a1a",
@@ -217,7 +217,7 @@ export const pianoTheme = {
     "--shadow-inset-warning": "inset 0 0 0 2px #84848930",
     "--shadow-inset-error": "inset 0 0 0 2px #84848930",
     "--color-track": "light-dark(#95B0B6, #324B4F)",
-    "--radius-chat": "28px"
+    "--radius-chat": "21px"
   },
   components: {
     "heading": {
@@ -317,7 +317,7 @@ export const pianoTheme = {
     },
     "button": {
       "base": {
-        "borderRadius": "var(--radius-full)"
+        "borderRadius": "var(--radius-element)"
       },
       "variant:secondary": {
         "backgroundColor": "transparent",
@@ -670,7 +670,7 @@ export const pianoTheme = {
       "neutralStyle": "warm"
     },
     "radius": {
-      "base": 4,
+      "base": 3,
       "multiplier": 1
     },
     "motion": {

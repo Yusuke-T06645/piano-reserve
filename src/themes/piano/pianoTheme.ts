@@ -22,8 +22,9 @@ export const pianoTheme = defineTheme({
       fallbacks: '"Hiragino Mincho ProN", serif',
     },
   },
-  // 角丸はサイト既存の値(入力欄 11px・カード 16px 前後)に近づける
-  radius: { base: 4, multiplier: 1 },
+  // 角丸は控えめにする(小部品 3px・ボタン/入力欄 6px・カード 9px 前後)。
+  // 丸すぎる角・カプセル型のボタンは「量産されたWebデザイン」の印象が強いため避ける
+  radius: { base: 3, multiplier: 1 },
   tokens: {
     // 本文の行間はサイト既存の 1.8(日本語の読みやすさ優先)に合わせる
     "--text-body-leading": "1.8",
@@ -50,6 +51,10 @@ export const pianoTheme = defineTheme({
     "--color-info-muted": ["#e3f1f0", "#16333a"],
   },
   components: {
+    // stone テーマはボタンをカプセル型(--radius-full)にしているため、通常の角丸に戻す
+    button: {
+      base: { borderRadius: "var(--radius-element)" },
+    },
     // お知らせ(info)はサイトのティール系で表示する(既定は青系)
     banner: {
       // stone テーマは info を青系の変数に向けているので、ティール系に向け直す

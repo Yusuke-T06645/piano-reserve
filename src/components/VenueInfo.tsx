@@ -55,7 +55,7 @@ export function VenueInfo({ className = "" }: { className?: string }) {
                   href={mapUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-full border border-teal/30 bg-teal-soft px-4 font-bold text-teal-dark hover:brightness-95"
+                  className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-md border border-teal/30 bg-teal-soft px-4 font-bold text-teal-dark hover:brightness-95"
                 >
                   <SiteIcon name="mapPin" size="sm" />
                   地図を開く（別タブ）
@@ -87,7 +87,7 @@ export function VenueInfo({ className = "" }: { className?: string }) {
               width={photo.width}
               height={photo.height}
               sizes="(min-width: 640px) 320px, 100vw"
-              className="block w-full h-auto rounded-xl border border-navy/[0.09]"
+              className="block w-full h-auto rounded-lg border border-navy/[0.09]"
             />
             <figcaption className="mt-2 text-[14px] leading-[1.7] text-muted">{photo.caption}</figcaption>
           </figure>
@@ -95,7 +95,7 @@ export function VenueInfo({ className = "" }: { className?: string }) {
       </div>
 
       {pendingItems.length > 0 && (
-        <p className="mt-5 rounded-xl bg-cream px-4 py-3.5 text-[14px] text-ink leading-[1.8]">
+        <p className="mt-5 rounded-lg bg-cream px-4 py-3.5 text-[14px] text-ink leading-[1.8]">
           {pendingItems.map((item) => item.label).join("・")}
           に関するご案内は、準備でき次第このページに掲載します。 お急ぎの場合は
           <a href={`mailto:${config.supportEmail}`} className="font-bold text-teal-dark underline">

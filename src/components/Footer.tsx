@@ -4,7 +4,7 @@ import { config } from "@/lib/config";
 
 export function Footer() {
   return (
-    <footer className="mt-16 bg-linear-to-br from-navy-dark via-navy to-teal-dark">
+    <footer className="mt-16 bg-navy-dark">
       <div className="mx-auto max-w-5xl px-4 sm:px-6 pt-12 sm:pt-14 pb-8">
         <div className="grid sm:grid-cols-[1.4fr_1fr_1fr] gap-8 sm:gap-12">
           <div>

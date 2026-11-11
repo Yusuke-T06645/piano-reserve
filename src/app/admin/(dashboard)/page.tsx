@@ -29,7 +29,7 @@ export default async function AdminDashboardPage() {
       </p>
 
       <div className="flex gap-3.5 my-6">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-4 py-2 text-[12.5px] font-bold text-teal-dark">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-teal-soft px-4 py-2 text-[12.5px] font-bold text-teal-dark">
           <SiteIcon name="user" size="sm" />
           直近の来場待ち予約 {totalUpcoming} 件
         </span>
@@ -37,7 +37,7 @@ export default async function AdminDashboardPage() {
 
       <div className="flex flex-col gap-[22px]">
         {grouped.map(({ date, reservations }) => (
-          <div key={date} className="rounded-[18px] border border-navy/[0.09] bg-white px-6 sm:px-7 py-[26px] shadow-soft">
+          <div key={date} className="rounded-lg border border-navy/[0.09] bg-white px-6 sm:px-7 py-[26px] shadow-soft">
             <div className="flex items-center justify-between mb-3.5">
               <h2 className="text-base font-bold text-navy">{formatJapaneseDate(date)}</h2>
               <span className="text-xs text-muted">

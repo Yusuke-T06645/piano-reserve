@@ -37,7 +37,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
     <div className="min-h-full flex flex-col lg:flex-row bg-cream">
       {/* モバイル・タブレット用の上部ヘッダー(横幅が狭い端末ではサイドバーを常時表示せず、
           代わりにこちらを表示する。QRチェックインページをスマホで使えるようにするための対応) */}
-      <div className="lg:hidden bg-linear-to-br from-navy-dark via-navy to-teal-dark">
+      <div className="lg:hidden bg-navy-dark">
         <div className="flex items-center justify-between gap-3 px-4 py-3">
           <Link href="/" className="flex min-w-0 items-center gap-2.5">
             <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gold text-navy-dark">
@@ -50,7 +50,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
         <AdminNav variant="mobile" />
       </div>
 
-      <aside className="hidden lg:flex w-[248px] shrink-0 flex-col bg-linear-to-br from-navy-dark via-navy to-teal-dark p-5">
+      <aside className="hidden lg:flex w-[248px] shrink-0 flex-col bg-navy-dark p-5">
         <Link href="/" className="flex items-center gap-3 px-1.5 mb-9">
           <span className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-full bg-gold text-navy-dark">
             <SiteIcon name="musicNote" size="md" />

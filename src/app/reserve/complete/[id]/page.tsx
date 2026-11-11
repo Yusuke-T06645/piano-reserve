@@ -82,7 +82,7 @@ export default async function CompletePage({
   return (
     <div className="px-4 sm:px-6 lg:px-16 py-14 sm:py-[72px]">
       <div className="mx-auto max-w-xl text-center">
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-success-soft px-4 py-2 text-[14px] font-bold text-success">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-success-soft px-4 py-2 text-[14px] font-bold text-success">
           <Icon icon="check" size="sm" />
           予約完了
         </span>
@@ -103,7 +103,7 @@ export default async function CompletePage({
           </div>
         )}
 
-        <div className="mt-10 rounded-[26px] border border-navy/[0.09] bg-white p-8 sm:p-11 shadow-hero">
+        <div className="mt-10 rounded-lg border border-navy/[0.09] bg-white p-8 sm:p-11 shadow-hero">
           <p className="text-[14px] font-bold text-muted">予約番号</p>
           <p className="font-display mt-1.5 mb-5 text-[22px] font-bold text-navy tracking-wide">{reservation.id}</p>
           <p className="font-display text-[21px] font-bold text-navy">{formatJapaneseDate(reservation.date)}</p>
@@ -116,7 +116,7 @@ export default async function CompletePage({
           <img
             src={qrDataUrl}
             alt={`予約番号 ${reservation.id} のチェックイン用QRコード`}
-            className="mx-auto h-56 w-56 rounded-2xl border border-navy/[0.09] p-4 shadow-soft"
+            className="mx-auto h-56 w-56 rounded-lg border border-navy/[0.09] p-4 shadow-soft"
           />
           <p className="mt-4 text-[14px] leading-[1.8] text-muted">
             このQRコードのスクリーンショットを保存するか、確認メールを当日ご提示ください。
@@ -154,7 +154,7 @@ export default async function CompletePage({
 
           <VenueInfo />
 
-          <div className="rounded-2xl border border-navy/[0.09] bg-white p-6">
+          <div className="rounded-lg border border-navy/[0.09] bg-white p-6">
             <p className="text-[16px] font-bold text-navy mb-3">お問い合わせ</p>
             <p className="text-[15px] text-ink leading-[1.8]">
               予約内容やキャンセルについてのご質問は

@@ -12,7 +12,7 @@ export function Card({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div
       className={clsx(
-        "rounded-2xl border border-navy/[0.09] bg-white p-5 sm:p-6 shadow-soft",
+        "rounded-lg border border-navy/[0.12] bg-white p-5 sm:p-6",
         className
       )}
       {...props}
@@ -40,12 +40,14 @@ export function SectionTitle({
   );
 }
 
+/**
+ * ボタンの見た目。グラデーション・色付きの影・カプセル型は使わず、
+ * 単色の面と控えめな角丸で、押せることが分かる程度の落ち着いた表現にしている。
+ */
 const buttonVariants = {
-  primary:
-    "bg-linear-to-br from-teal to-teal-dark text-white shadow-[0_8px_18px_-8px_rgba(31,85,96,0.5)] hover:brightness-105 disabled:from-muted/40 disabled:to-muted/40 disabled:shadow-none",
-  secondary:
-    "bg-linear-to-br from-navy to-navy-dark text-white shadow-[0_12px_24px_-12px_rgba(18,35,46,0.5)] hover:brightness-110 disabled:from-muted/40 disabled:to-muted/40 disabled:shadow-none",
-  gold: "bg-linear-to-br from-gold-light to-gold text-navy-dark shadow-[0_16px_30px_-10px_rgba(217,178,126,0.5)] hover:brightness-105 disabled:from-muted/40 disabled:to-muted/40",
+  primary: "bg-teal-dark text-white hover:bg-navy disabled:bg-muted/40",
+  secondary: "bg-navy text-white hover:bg-navy-dark disabled:bg-muted/40",
+  gold: "bg-gold-light text-navy-dark hover:bg-gold disabled:bg-muted/40",
   outline: "border-[1.5px] border-navy text-navy hover:bg-navy hover:text-white disabled:opacity-40",
   ghost: "text-navy hover:bg-cream disabled:opacity-40",
   danger: "bg-danger text-white hover:opacity-90 disabled:bg-muted/40",
@@ -63,7 +65,7 @@ export function Button({
   return (
     <button
       className={clsx(
-        "inline-flex items-center justify-center gap-2 rounded-full font-bold transition-all disabled:cursor-not-allowed",
+        "inline-flex items-center justify-center gap-2 rounded-md font-bold transition-colors disabled:cursor-not-allowed",
         size === "lg" && "min-h-12 min-w-11 px-7 py-4 text-base",
         size === "md" && "min-h-11 min-w-11 px-5 py-2.5 text-[15px]",
         size === "sm" && "min-h-11 min-w-11 px-4 py-2 text-[13px]",

@@ -14,7 +14,7 @@ import { config } from "@/lib/config";
 type Mode = "book" | "waitlist";
 
 const inputClass =
-  "w-full rounded-[11px] border-[1.5px] border-navy/30 px-4 py-3 text-base text-ink focus-visible:outline-none focus:border-teal";
+  "w-full rounded-md border-[1.5px] border-navy/30 px-4 py-3 text-base text-ink focus-visible:outline-none focus:border-teal";
 
 const FIELD_LABELS: Record<string, string> = {
   name: "お名前",
@@ -238,7 +238,7 @@ function BookingFormFields({
   const confirmCard = (
     <section
       aria-labelledby="booking-summary-heading"
-      className="rounded-[20px] border-[1.5px] border-teal/30 bg-teal-soft/60 p-5 sm:p-6"
+      className="rounded-lg border-[1.5px] border-teal/30 bg-teal-soft/60 p-5 sm:p-6"
     >
       <h2 id="booking-summary-heading" className="mb-4 text-[16px] font-bold text-navy">
         {mode === "book" ? "ご予約内容の確認" : "キャンセル待ちの登録内容"}
@@ -276,7 +276,7 @@ function BookingFormFields({
       </div>
 
       {/* 入力 → 同意 → 内容確認 → 確定ボタン の順に並べる */}
-      <div className="rounded-[22px] border border-navy/[0.09] bg-white p-5 sm:p-10 shadow-soft">
+      <div className="rounded-lg border border-navy/[0.09] bg-white p-5 sm:p-10 shadow-soft">
         {serverError && (
           <div className="mb-6">
             <Alert tone="warning">{serverError}</Alert>
@@ -288,7 +288,7 @@ function BookingFormFields({
             ref={errorSummaryRef}
             tabIndex={-1}
             role="alert"
-            className="mb-6 rounded-2xl border border-danger/40 bg-danger-soft p-5 focus-visible:outline-none"
+            className="mb-6 rounded-lg border border-danger/40 bg-danger-soft p-5 focus-visible:outline-none"
           >
             <p className="font-bold text-danger text-[16px] mb-2.5">
               入力内容をご確認ください（{Object.keys(fieldErrors).length}件）
@@ -420,7 +420,7 @@ function BookingFormFields({
           </div>
 
           {/* 同意事項 */}
-          <div className="rounded-2xl bg-cream p-5 flex flex-col gap-3">
+          <div className="rounded-lg bg-cream p-5 flex flex-col gap-3">
             <label htmlFor="agreedToTerms" className="flex items-start gap-2.5 text-[15px] text-ink leading-[1.8]">
               <input
                 id="agreedToTerms"
@@ -455,7 +455,7 @@ function BookingFormFields({
             <FieldError id="agreedToNoise-error">{fieldErrors.agreedToNoise}</FieldError>
           </div>
 
-          <div className="rounded-2xl border border-navy/[0.09] bg-white p-5 flex flex-col gap-2.5">
+          <div className="rounded-lg border border-navy/[0.09] bg-white p-5 flex flex-col gap-2.5">
             <p className="text-[15px] font-bold text-navy">撮影・広報でのご使用について（任意）</p>
             <p className="text-[14px] text-muted leading-[1.8]">
               当日、会場の様子や演奏の写真を撮影し、当社の広報活動（ウェブサイト・SNS・パンフレット等）に使用させていただく場合があります。ご同意いただけない場合も、ご予約・ご利用には影響ございません。
@@ -492,7 +492,7 @@ function BookingFormFields({
       <div className="flex flex-col gap-5 lg:sticky lg:top-[112px]">
         <section
           aria-label={mode === "book" ? "選択中の予約内容" : "選択中のキャンセル待ち内容"}
-          className="hidden lg:block rounded-[20px] border-[1.5px] border-teal/30 bg-teal-soft/60 p-6"
+          className="hidden lg:block rounded-lg border-[1.5px] border-teal/30 bg-teal-soft/60 p-6"
         >
           <p className="mb-3.5 text-[15px] font-bold text-navy">
             {mode === "book" ? "選択中の予約内容" : "選択中のキャンセル待ち内容"}
@@ -500,7 +500,7 @@ function BookingFormFields({
           {summaryList}
           <div className="mt-4">{changeDateButton}</div>
         </section>
-        <div className="rounded-[20px] border border-navy/[0.09] bg-white p-6">
+        <div className="rounded-lg border border-navy/[0.09] bg-white p-6">
           <p className="mb-3.5 text-[15px] font-bold text-navy">当日のお願い</p>
           <ul className="space-y-2.5 text-[14px] text-ink leading-[1.8]">
             <li className="flex gap-2">
@@ -515,7 +515,7 @@ function BookingFormFields({
           </ul>
         </div>
 
-        <div className="rounded-[20px] border border-navy/[0.09] bg-white p-6">
+        <div className="rounded-lg border border-navy/[0.09] bg-white p-6">
           <p className="mb-3 text-[15px] font-bold text-navy">当日の受付方法</p>
           <p className="text-[14px] text-ink leading-[1.8]">{config.venueChecklist}</p>
         </div>

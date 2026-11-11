@@ -107,7 +107,7 @@ export function CheckinScanner() {
         <p className="text-sm text-muted mb-4">
           利用者が提示するQRコードをカメラで読み取ってください。カメラが使えない場合は、下の欄にQRコード内のトークンを直接入力しても照合できます。
         </p>
-        <div id={regionId} className="mx-auto max-w-sm rounded-xl overflow-hidden bg-black/5 aspect-square" />
+        <div id={regionId} className="mx-auto max-w-sm rounded-lg overflow-hidden bg-black/5 aspect-square" />
         <div className="mt-4 flex gap-3 justify-center">
           {!scanning ? (
             <Button onClick={startScan}>カメラでQRを読み取る</Button>

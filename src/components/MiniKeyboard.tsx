@@ -109,7 +109,7 @@ export function MiniKeyboard() {
       <div
         role="group"
         aria-label="ミニ鍵盤（押すと音が鳴ります）"
-        className="relative h-24 sm:h-28 select-none touch-manipulation rounded-xl border border-gold-light/30 bg-navy-dark/70 p-1.5 shadow-hero backdrop-blur-sm"
+        className="relative h-24 sm:h-28 select-none touch-manipulation rounded-lg border border-gold-light/30 bg-navy-dark/70 p-1.5 shadow-hero backdrop-blur-sm"
       >
         <div className="relative h-full">
           {WHITE_KEYS.map((k, i) => {

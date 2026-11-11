@@ -41,7 +41,7 @@ export function AdminNav({ variant = "sidebar" }: { variant?: "sidebar" | "mobil
             href={link.href}
             aria-current={active ? "page" : undefined}
             className={clsx(
-              "flex items-center gap-3 rounded-[11px] font-medium transition-colors",
+              "flex items-center gap-3 rounded-md font-medium transition-colors",
               variant === "sidebar" ? "px-3.5 py-3 text-[13.5px]" : "shrink-0 px-3 py-2 text-[12.5px] whitespace-nowrap",
               active ? "bg-gold-light/16 text-gold-light font-bold" : "text-white/68 hover:bg-white/10 hover:text-white"
             )}

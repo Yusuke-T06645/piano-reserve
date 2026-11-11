@@ -270,10 +270,10 @@
     --color-icon-yellow: light-dark(#524818, #f1e1b9);
     --color-text-yellow: light-dark(#524818, #f1e1b9);
     --radius-none: 0px;
-    --radius-inner: 4px;
-    --radius-element: 8px;
-    --radius-container: 12px;
-    --radius-page: 28px;
+    --radius-inner: 3px;
+    --radius-element: 6px;
+    --radius-container: 9px;
+    --radius-page: 21px;
     --radius-full: 9999px;
     --shadow-low: 0 2px 4px #25252a0d, 0 4px 8px #25252a1a;
     --shadow-med: 0 2px 4px #25252a0d, 0 4px 12px #25252a1a;
@@ -284,7 +284,7 @@
     --shadow-inset-warning: inset 0 0 0 2px #84848930;
     --shadow-inset-error: inset 0 0 0 2px #84848930;
     --color-track: light-dark(#95B0B6, #324B4F);
-    --radius-chat: 28px;
+    --radius-chat: 21px;
     --color-icon-info: var(--color-text-info);
     --color-icon-success: var(--color-text-success);
     --color-icon-warning: var(--color-text-warning);
@@ -409,8 +409,8 @@
   }
 
   .astryx-button {
-    border-radius: var(--radius-full);
-    --_button-radius: var(--radius-full);
+    border-radius: var(--radius-element);
+    --_button-radius: var(--radius-element);
   }
 
   .astryx-button[data-variant="secondary"] {

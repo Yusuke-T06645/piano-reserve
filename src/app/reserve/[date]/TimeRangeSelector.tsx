@@ -119,7 +119,7 @@ function FreeRangeSelector({
   });
   if (!largestGap || !selection) {
     return (
-      <div className="rounded-[22px] border border-navy/[0.09] bg-white p-6 sm:p-10 text-center shadow-soft">
+      <div className="rounded-lg border border-navy/[0.09] bg-white p-6 sm:p-10 text-center shadow-soft">
         <p className="text-[17px] font-bold text-navy">この日は空き時間がありません</p>
         <p className="mt-2.5 text-[15px] text-ink leading-[1.8]">
           {showWaitlistCta
@@ -236,7 +236,7 @@ function FreeRangeSelector({
   );
 
   return (
-    <div className="rounded-[22px] border border-navy/[0.09] bg-white p-6 sm:p-10 shadow-soft">
+    <div className="rounded-lg border border-navy/[0.09] bg-white p-6 sm:p-10 shadow-soft">
       <div className="flex flex-wrap items-baseline justify-between gap-2.5 mb-6">
         <div>
           <p className="text-[13px] font-bold tracking-wide text-muted uppercase">選択中の利用時間</p>
@@ -245,7 +245,7 @@ function FreeRangeSelector({
             <span className="ml-2.5 text-[17px] font-semibold text-teal-dark">（合計{duration}分）</span>
           </p>
         </div>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-teal-soft px-4 py-2 text-[13px] font-bold text-teal-dark">
+        <span className="inline-flex items-center gap-1.5 rounded-md bg-teal-soft px-4 py-2 text-[13px] font-bold text-teal-dark">
           ドラッグでも調整できます
         </span>
       </div>
@@ -268,8 +268,8 @@ function FreeRangeSelector({
                   onClick={() => applyDuration(preset)}
                   className={
                     selected
-                      ? "inline-flex min-h-11 min-w-[88px] items-center justify-center rounded-full bg-teal-dark px-5 text-[15px] font-bold text-white"
-                      : "inline-flex min-h-11 min-w-[88px] items-center justify-center rounded-full border-[1.5px] border-navy/25 bg-white px-5 text-[15px] font-bold text-navy hover:border-teal disabled:cursor-not-allowed disabled:opacity-45"
+                      ? "inline-flex min-h-11 min-w-[88px] items-center justify-center rounded-md bg-teal-dark px-5 text-[15px] font-bold text-white"
+                      : "inline-flex min-h-11 min-w-[88px] items-center justify-center rounded-md border-[1.5px] border-navy/25 bg-white px-5 text-[15px] font-bold text-navy hover:border-teal disabled:cursor-not-allowed disabled:opacity-45"
                   }
                 >
                   {preset}分{selected && <span className="sr-only">（選択中）</span>}
@@ -284,7 +284,7 @@ function FreeRangeSelector({
       {/* track */}
       <div
         ref={trackRef}
-        className="relative mt-10 h-16 rounded-2xl bg-navy-soft touch-none select-none"
+        className="relative mt-10 h-16 rounded-lg bg-navy-soft touch-none select-none"
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerUp}
@@ -296,7 +296,7 @@ function FreeRangeSelector({
               key={i}
               type="button"
               aria-label={`${minutesToTime(g.start)}〜${minutesToTime(g.end)}を選択`}
-              className="absolute inset-y-0 rounded-2xl bg-success-soft hover:brightness-95"
+              className="absolute inset-y-0 rounded-lg bg-success-soft hover:brightness-95"
               style={{ left: `${toPercent(g.start)}%`, width: `${toPercent(g.end) - toPercent(g.start)}%` }}
               onClick={() => jumpToGap(g, (g.start + g.end) / 2)}
             />
@@ -306,7 +306,7 @@ function FreeRangeSelector({
           <div
             key={i}
             aria-hidden
-            className="absolute inset-y-0 flex items-center justify-center overflow-hidden rounded-2xl"
+            className="absolute inset-y-0 flex items-center justify-center overflow-hidden rounded-lg"
             style={{
               left: `${toPercent(timeToMinutes(r.start))}%`,
               width: `${toPercent(timeToMinutes(r.end)) - toPercent(timeToMinutes(r.start))}%`,
@@ -322,7 +322,7 @@ function FreeRangeSelector({
 
         {/* selected range */}
         <div
-          className="absolute inset-y-0 rounded-2xl bg-linear-to-br from-teal to-teal-dark shadow-[0_10px_24px_-10px_rgba(31,85,96,.6)] cursor-grab active:cursor-grabbing"
+          className="absolute inset-y-0 rounded-lg bg-teal-dark cursor-grab active:cursor-grabbing"
           style={{ left: `${toPercent(selection.start)}%`, width: `${toPercent(selection.end) - toPercent(selection.start)}%` }}
           onPointerDown={(e) => handlePointerDown("move", e)}
         />
@@ -401,7 +401,7 @@ function FreeRangeSelector({
       {/* legend */}
       <div className="mt-7 flex flex-wrap gap-5 border-t border-navy/[0.09] pt-6">
         <span className="inline-flex items-center gap-2 text-[14px] text-muted">
-          <span aria-hidden className="h-3.5 w-3.5 rounded bg-linear-to-br from-teal to-teal-dark" />選択中の時間
+          <span aria-hidden className="h-3.5 w-3.5 rounded bg-teal-dark" />選択中の時間
         </span>
         <span className="inline-flex items-center gap-2 text-[14px] text-muted">
           <span aria-hidden className="h-3.5 w-3.5 rounded border border-navy/[0.16] bg-success-soft" />ご利用いただけます
@@ -413,7 +413,7 @@ function FreeRangeSelector({
 
       {/* fine adjust */}
       <div className="mt-6 flex flex-col sm:flex-row gap-4">
-        <div className="flex flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl bg-cream px-4 py-3">
+        <div className="flex flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg bg-cream px-4 py-3">
           <span className="text-[15px] font-bold text-navy">開始時刻</span>
           <div className="flex items-center gap-3">
             <button
@@ -439,7 +439,7 @@ function FreeRangeSelector({
             </button>
           </div>
         </div>
-        <div className="flex flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-xl bg-cream px-4 py-3">
+        <div className="flex flex-1 flex-wrap items-center justify-between gap-x-3 gap-y-2 rounded-lg bg-cream px-4 py-3">
           <span className="text-[15px] font-bold text-navy">終了時刻</span>
           <div className="flex items-center gap-3">
             <button
